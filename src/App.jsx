@@ -1077,9 +1077,6 @@ const [showCheckin, setShowCheckin] = useState(false);
         onClose={() => setShowModal(false)}
         onSave={handleSaveSet}
         lastSet={lastSet}
-  <DailyCheckinModal
-  open={showCheckin}
-  onClose={() => setShowCheckin(false)}
       />
     </div>
 
