@@ -576,6 +576,35 @@ export default function App() {
   const nextTierXp = battleTier * 200;
 
   function handleSaveSet(entry) {
+    function handleDailyCheckin(checkinData) {
+  /*
+    checkinData kommer t.ex. se ut så här:
+    {
+      date: "2025-01-11",
+      strength: "stark",
+      mental: "fokuserad",
+      energy: "låg"
+    }
+  */
+
+  // 1. Spara i localStorage
+  const saved =
+    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || [];
+
+  const updated = [
+    ...saved.filter((d) => d.date !== checkinData.date),
+    checkinData,
+  ];
+
+  localStorage.setItem(
+    "bebi_daily_checkins",
+    JSON.stringify(updated)
+  );
+
+  // 2. Stäng modalen
+  setShowDailyCheckin(false);
+}
+
     const today = new Date().toISOString().slice(0, 10);
     const finalEntry = {
       ...entry,
