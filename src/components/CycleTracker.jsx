@@ -1,90 +1,97 @@
+// src/components/CycleTracker.jsx
 import React, { useMemo } from "react";
 
-const COLORS = {
-  strong: "#f472b6",
-  normal: "#c084fc",
-  weak: "#64748b",
-};
+function getScoreFromCheckin(checkin) {
+  if (!checkin) return 50;
 
-function getDays(count = 28) {
-  const today = new Date();
-  return Array.from({ length: count }, (_, i) => {
-    const d = new Date();
-    d.setDate(today.getDate() - (count - 1 - i));
-    return d.toISOString().slice(0, 10);
-  });
+  let score = 50;
+
+  if (checkin.strength === "strong") score += 20;
+  if (checkin.strength === "low") score -= 15;
+
+  if (checkin.energy === "high") score += 15;
+  if (checkin.energy === "low") score -= 15;
+
+  if (checkin.mental === "good") score += 10;
+  if (checkin.mental === "low") score -= 10;
+
+  return Math.max(10, Math.min(100, score));
 }
 
 export default function CycleTracker() {
-  const entries =
-    JSON.parse(localStorage.getItem("bebi_cycle_checkins")) || [];
+  const todayStr = new Date().toISOString().slice(0, 10);
 
-  const map = useMemo(() => {
-    const m = {};
-    entries.forEach((e) => {
-      m[e.date] = e;
-    });
-    return m;
-  }, [entries]);
+  const checkins =
+    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
-  const days = getDays(28);
-const dailyCheckins = useMemo(() => {
-  return JSON.parse(
-    localStorage.getItem("bebi_daily_checkins")
-  ) || [];
-}, []);
+  const calendarDays = useMemo(() => {
+    const days = [];
+    const today = new Date();
 
-  function getColor(day) {
-    const e = map[day];
-    if (!e) return "rgba(148,163,184,0.2)";
-    if (e.energy === "low" || e.strength === "weak") return "#475569";
-    if (e.energy === "high" && e.strength === "strong") return COLORS.strong;
-    return COLORS.normal;
-  }
+    for (let i = -7; i <= 14; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const ds = d.toISOString().slice(0, 10);
+
+      const score = getScoreFromCheckin(checkins[ds]);
+
+      let color = "#e5e7eb";
+      if (score >= 75) color = "#86efac";
+      else if (score >= 55) color = "#fde68a";
+      else color = "#fca5a5";
+
+      days.push({
+        date: ds,
+        label: ds.slice(5),
+        score,
+        color,
+      });
+    }
+    return days;
+  }, [checkins]);
+
+  const todayScore = getScoreFromCheckin(checkins[todayStr]);
 
   return (
-    <div className="card" style={{ padding: 16 }}>
-      <h3 style={{ marginTop: 0 }}>📅 Cykel & dagsform</h3>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 6,
-          marginTop: 10,
-        }}
-      >
-        {days.map((day) => {
-          const e = map[day];
-          return (
-            <div
-              key={day}
-              title={
-                e
-                  ? `Styrka: ${e.strength}, Energi: ${e.energy}, Psykiskt: ${e.mental}`
-                  : "Ingen data"
-              }
-              style={{
-                height: 42,
-                borderRadius: 10,
-                background: getColor(day),
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                color: "#020617",
-                fontWeight: 600,
-              }}
-            >
-              {day.slice(8, 10)}
-            </div>
-          );
-        })}
+    <div className="cycle-root">
+      <div className="card">
+        <h3>Dagens status</h3>
+        <p>
+          Rekommenderad styrkenivå:{" "}
+          <strong>{todayScore}/100</strong>
+        </p>
+        <p style={{ fontSize: 13 }}>
+          {todayScore >= 75 && "🔥 Bra dag för tunga set / PR"}
+          {todayScore >= 55 && todayScore < 75 && "🙂 Normal träningsdag"}
+          {todayScore < 55 && "🧘 Ta det lugnt, fokus på teknik"}
+        </p>
       </div>
 
-      <div style={{ fontSize: 12, marginTop: 12, color: "#9ca3af" }}>
-        Färger baseras på styrka + energi. Psykiskt låg påverkar
-        rekommendationer kommande dagar.
+      <div className="card">
+        <h3>Din kalender</h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, 1fr)",
+            gap: 8,
+          }}
+        >
+          {calendarDays.map((d) => (
+            <div
+              key={d.date}
+              style={{
+                padding: 8,
+                borderRadius: 10,
+                background: d.color,
+                textAlign: "center",
+                fontSize: 12,
+              }}
+            >
+              <div>{d.label}</div>
+              <div style={{ fontWeight: 600 }}>{d.score}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
