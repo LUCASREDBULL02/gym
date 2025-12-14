@@ -1,45 +1,50 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import "./CycleTracker.css"; // Lägg gärna denna CSS lokalt
+
+const getColorFromMood = (data) => {
+  if (!data) return "";
+  if (data.strength === "Stark") return "#ff8bd3";
+  if (data.strength === "Okej") return "#ffd3f4";
+  if (data.strength === "Svag") return "#ffeaf6";
+  return "";
+};
 
 export default function CycleTracker() {
-  const [entries, setEntries] = useState([]);
+  const [entries, setEntries] = useState({});
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("cycleFeelings") || "[]");
-    setEntries(data);
+    const stored = JSON.parse(localStorage.getItem("cycleTrackerData")) || {};
+    setEntries(stored);
   }, []);
 
-  const tileClassName = ({ date }) => {
-    const todayStr = date.toISOString().slice(0, 10);
-    const entry = entries.find((e) => e.date === todayStr);
-    if (!entry) return "";
-    if (entry.physical === "Mycket stark") return "strong-day";
-    if (entry.energy === "Låg") return "tired-day";
-    return "neutral-day";
-  };
-
   return (
-    <div className="cycle-tracker-container">
-      <h2>🩸 Cykelkalender</h2>
-      <Calendar tileClassName={tileClassName} />
-      <style>{`
-        .strong-day abbr {
-          background: pink;
-          border-radius: 50%;
-          padding: 0.2em;
-        }
-        .tired-day abbr {
-          background: lightgray;
-          border-radius: 50%;
-          padding: 0.2em;
-        }
-        .neutral-day abbr {
-          background: peachpuff;
-          border-radius: 50%;
-          padding: 0.2em;
-        }
-      `}</style>
+    <div className="cycle-tracker">
+      <h2>Cycle Tracker</h2>
+      <Calendar
+        tileContent={({ date }) => {
+          const key = date.toISOString().split("T")[0];
+          const entry = entries[key];
+          if (entry) {
+            return (
+              <div
+                style={{
+                  backgroundColor: getColorFromMood(entry),
+                  borderRadius: "4px",
+                  padding: "2px",
+                  marginTop: "2px",
+                  fontSize: "0.7rem",
+                  textAlign: "center",
+                }}
+              >
+                {entry.strength}
+              </div>
+            );
+          }
+          return null;
+        }}
+      />
     </div>
   );
 }
