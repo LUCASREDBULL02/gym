@@ -911,14 +911,15 @@ export default function App() {
 
         {/* LOGGAR */}
         {view === "log" && (
-      <button
+          <div className="card">
+ <button
   className="btn-pink"
   style={{ marginBottom: 12 }}
   onClick={() => setShowDailyCheckin(true)}
 >
   🌙 Klar för dagen
 </button>
-          <div className="card">
+
             <h3 style={{ marginTop: 0 }}>Loggade set 📓</h3>
             {!logs.length && (
               <p className="small">
