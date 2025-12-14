@@ -581,7 +581,7 @@ export default function App() {
       ...entry,
       id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36),
       date: entry.date || today,
-        });
+      };
       
       function handleDailyCheckin(checkinData) {
   /*
