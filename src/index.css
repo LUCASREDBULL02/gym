@@ -678,3 +678,23 @@ body {
   border-radius: 12px;
   box-shadow: 0 0 8px #ffc0cb;
 }
+.cycle-tracker {
+  max-width: 90%;
+  margin: auto;
+  padding: 1rem;
+}
+
+.reflection-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.klar-btn {
+  background-color: #ff8bd3;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  margin-top: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
