@@ -1,200 +1,137 @@
-import React, { useState } from "react";
+// src/components/LogModal.jsx
+import React, { useState, useEffect } from "react";
 import { EXERCISES } from "../data/exercises";
 
-const ACCENT = "#ec4899";
+export default function LogModal({ open, onClose, onSave, lastSet }) {
+  const todayStr = new Date().toISOString().slice(0, 10);
 
-export default function LogModal({ open, onClose, onSave }) {
-  const today = new Date().toISOString().slice(0, 10);
-
-  // --- Logga set ---
   const [exerciseId, setExerciseId] = useState("bench");
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
-  const [date, setDate] = useState(today);
+  const [rpe, setRpe] = useState("");
+  const [date, setDate] = useState(todayStr);
 
-  // --- Klar för dagen ---
-  const [showCheckin, setShowCheckin] = useState(false);
-  const [strength, setStrength] = useState("neutral");
-  const [energy, setEnergy] = useState("neutral");
-  const [mental, setMental] = useState("neutral");
+  // 🆕 Daily check-in state
+  const [strengthFeel, setStrengthFeel] = useState("");
+  const [mentalFeel, setMentalFeel] = useState("");
+  const [energyFeel, setEnergyFeel] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setDate(todayStr);
+      if (lastSet) {
+        setExerciseId(lastSet.exerciseId);
+        setWeight(lastSet.weight);
+        setReps(lastSet.reps);
+      }
+    }
+  }, [open, lastSet, todayStr]);
 
   if (!open) return null;
 
-  function handleSaveSet() {
+  function saveDailyCheckin() {
+    if (!strengthFeel && !mentalFeel && !energyFeel) return;
+
+    const saved =
+      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+
+    saved[date] = {
+      strength: strengthFeel,
+      mental: mentalFeel,
+      energy: energyFeel,
+    };
+
+    localStorage.setItem("bebi_daily_checkins", JSON.stringify(saved));
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
     if (!exerciseId || !weight || !reps) return;
 
     onSave({
       exerciseId,
       weight: Number(weight),
       reps: Number(reps),
+      rpe: rpe ? Number(rpe) : null,
       date,
     });
 
-    setWeight("");
-    setReps("");
-  }
-
-  function handleSaveCheckin() {
-    const entry = {
-      date,
-      strength,
-      energy,
-      mental,
-    };
-
-    const key = "bebi_cycle_checkins";
-    const prev = JSON.parse(localStorage.getItem(key) || "[]");
-    localStorage.setItem(key, JSON.stringify([...prev, entry]));
-
-    setShowCheckin(false);
+    saveDailyCheckin();
     onClose();
   }
 
   return (
-    <div style={overlay}>
-      <div style={modal}>
-        <h3 style={{ marginTop: 0 }}>Logga set 💗</h3>
-
-        {/* === LOGGA SET === */}
-        <div style={grid}>
-          <select value={exerciseId} onChange={(e) => setExerciseId(e.target.value)}>
-            {EXERCISES.map((e) => (
-              <option key={e.id} value={e.id}>{e.name}</option>
-            ))}
-          </select>
-
-          <input
-            type="number"
-            placeholder="Vikt (kg)"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
-
-          <input
-            type="number"
-            placeholder="Reps"
-            value={reps}
-            onChange={(e) => setReps(e.target.value)}
-          />
-
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <div className="modal-title">Logga pass 💪</div>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        <button style={primaryBtn} onClick={handleSaveSet}>
-          Spara set
-        </button>
+        <form onSubmit={handleSubmit}>
+          {/* === SET === */}
+          <div className="input-group">
+            <label>Övning</label>
+            <select value={exerciseId} onChange={(e) => setExerciseId(e.target.value)}>
+              {EXERCISES.map((ex) => (
+                <option key={ex.id} value={ex.id}>{ex.name}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* === KLAR FÖR DAGEN === */}
-        {!showCheckin && (
-          <button
-            style={{ ...primaryBtn, marginTop: 12, background: "#f472b6" }}
-            onClick={() => setShowCheckin(true)}
-          >
-            Klar för dagen 🌙
-          </button>
-        )}
+          <div className="profile-grid">
+            <div className="input-group">
+              <label>Vikt (kg)</label>
+              <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} />
+            </div>
 
-        {showCheckin && (
-          <div style={{ marginTop: 16 }}>
-            <h4>Hur kände du dig idag?</h4>
+            <div className="input-group">
+              <label>Reps</label>
+              <input type="number" value={reps} onChange={(e) => setReps(e.target.value)} />
+            </div>
 
-            <Section title="Styrka">
-              <Choice value={strength} setValue={setStrength} />
-            </Section>
+            <div className="input-group">
+              <label>RPE</label>
+              <input type="number" value={rpe} onChange={(e) => setRpe(e.target.value)} />
+            </div>
+          </div>
 
-            <Section title="Energi">
-              <Choice value={energy} setValue={setEnergy} />
-            </Section>
+          {/* === DAILY CHECK-IN === */}
+          <div className="card" style={{ marginTop: 12 }}>
+            <h4 style={{ marginTop: 0 }}>🌙 Klar för dagen</h4>
 
-            <Section title="Psykiskt">
-              <Choice value={mental} setValue={setMental} />
-            </Section>
+            <label>Hur kände du dig styrkemässigt?</label>
+            <select value={strengthFeel} onChange={(e) => setStrengthFeel(e.target.value)}>
+              <option value="">– välj –</option>
+              <option value="low">Svag</option>
+              <option value="normal">Normal</option>
+              <option value="strong">Väldigt stark</option>
+            </select>
 
-            <button style={primaryBtn} onClick={handleSaveCheckin}>
-              Spara dagskänsla
+            <label>Hur kände du dig psykiskt?</label>
+            <select value={mentalFeel} onChange={(e) => setMentalFeel(e.target.value)}>
+              <option value="">– välj –</option>
+              <option value="low">Stressad / låg</option>
+              <option value="ok">Stabil</option>
+              <option value="good">Motiverad</option>
+            </select>
+
+            <label>Hur var energin?</label>
+            <select value={energyFeel} onChange={(e) => setEnergyFeel(e.target.value)}>
+              <option value="">– välj –</option>
+              <option value="low">Trött</option>
+              <option value="medium">Okej</option>
+              <option value="high">Hög energi</option>
+            </select>
+          </div>
+
+          <div className="modal-footer">
+            <button type="submit" className="btn-pink">
+              Spara & klar för dagen ✨
             </button>
           </div>
-        )}
-
-        <button style={ghostBtn} onClick={onClose}>Stäng</button>
+        </form>
       </div>
     </div>
   );
 }
-
-function Section({ title, children }) {
-  return (
-    <div style={{ marginBottom: 10 }}>
-      <strong>{title}</strong>
-      {children}
-    </div>
-  );
-}
-
-function Choice({ value, setValue }) {
-  const opts = [
-    ["low", "Låg"],
-    ["neutral", "Neutral"],
-    ["high", "Hög"],
-  ];
-
-  return (
-    <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-      {opts.map(([v, label]) => (
-        <button
-          key={v}
-          onClick={() => setValue(v)}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 999,
-            border: value === v ? `2px solid ${ACCENT}` : "1px solid #444",
-            background: "#020617",
-            color: "#fff",
-          }}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-const overlay = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.6)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 50,
-};
-
-const modal = {
-  width: 360,
-  background: "#020617",
-  borderRadius: 16,
-  padding: 16,
-  color: "#fff",
-};
-
-const grid = {
-  display: "grid",
-  gap: 8,
-};
-
-const primaryBtn = {
-  marginTop: 8,
-  padding: "10px",
-  borderRadius: 12,
-  border: "none",
-  background: ACCENT,
-  color: "#020617",
-  fontWeight: 600,
-};
-
-const ghostBtn = {
-  marginTop: 8,
-  background: "transparent",
-  color: "#aaa",
-  border: "none",
-};
