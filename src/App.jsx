@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ProfileView from "./components/ProfileView.jsx";
+import DailyCheckinModal from "./components/DailyCheckinModal";
 import Toast from "./components/Toast.jsx";
 import LogModal from "./components/LogModal.jsx";
 import MuscleMap from "./components/MuscleMap.jsx";
