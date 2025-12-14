@@ -28,6 +28,11 @@ export default function CycleTracker() {
   }, [entries]);
 
   const days = getDays(28);
+const dailyCheckins = useMemo(() => {
+  return JSON.parse(
+    localStorage.getItem("bebi_daily_checkins")
+  ) || [];
+}, []);
 
   function getColor(day) {
     const e = map[day];
