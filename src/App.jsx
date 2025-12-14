@@ -21,6 +21,7 @@ import { PROGRAMS } from "./data/programs";
 import { initialBosses } from "./data/bosses";
 
 // ------------------ KONSTANTER ------------------
+const [showDailyCheckin, setShowDailyCheckin] = useState(false);
 
 const BATTLE_REWARDS = [
   {
