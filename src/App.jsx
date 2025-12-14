@@ -1070,11 +1070,12 @@ const [showCheckin, setShowCheckin] = useState(false);
         )}
       </main>
 
-      <LogModal
+<LogModal
         open={showModal}
         onClose={() => setShowModal(false)}
         onSave={handleSaveSet}
         lastSet={lastSet}
       />
+    </div>
   );
 }
