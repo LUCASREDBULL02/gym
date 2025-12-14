@@ -581,6 +581,36 @@ export default function App() {
       ...entry,
       id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36),
       date: entry.date || today,
+        });
+      
+      function handleDailyCheckin(checkinData) {
+  /*
+    checkinData kommer t.ex. se ut så här:
+    {
+      date: "2025-01-11",
+      strength: "stark",
+      mental: "fokuserad",
+      energy: "låg"
+    }
+  */
+
+  // 1. Spara i localStorage
+  const saved =
+    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || [];
+
+  const updated = [
+    ...saved.filter((d) => d.date !== checkinData.date),
+    checkinData,
+  ];
+
+  localStorage.setItem(
+    "bebi_daily_checkins",
+    JSON.stringify(updated)
+  );
+
+  // 2. Stäng modalen
+  setShowDailyCheckin(false);
+}
     };
 
     // PR-check innan vi uppdaterar loggar
