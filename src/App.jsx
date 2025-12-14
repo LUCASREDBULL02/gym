@@ -1077,5 +1077,9 @@ const [showCheckin, setShowCheckin] = useState(false);
         lastSet={lastSet}
       />
     </div>
+    <DailyCheckinModal
+  open={showCheckin}
+  onClose={() => setShowCheckin(false)}
+/>
   );
 }
