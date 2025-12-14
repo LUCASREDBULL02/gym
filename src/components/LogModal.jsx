@@ -1,105 +1,200 @@
 import React, { useState } from "react";
+import { EXERCISES } from "../data/exercises";
+
+const ACCENT = "#ec4899";
 
 export default function LogModal({ open, onClose, onSave }) {
-  const [showReflection, setShowReflection] = useState(false);
-  const [reflection, setReflection] = useState({
-    strength: "",
-    mood: "",
-    energy: "",
-  });
+  const today = new Date().toISOString().slice(0, 10);
+
+  // --- Logga set ---
+  const [exerciseId, setExerciseId] = useState("bench");
+  const [weight, setWeight] = useState("");
+  const [reps, setReps] = useState("");
+  const [date, setDate] = useState(today);
+
+  // --- Klar för dagen ---
+  const [showCheckin, setShowCheckin] = useState(false);
+  const [strength, setStrength] = useState("neutral");
+  const [energy, setEnergy] = useState("neutral");
+  const [mental, setMental] = useState("neutral");
 
   if (!open) return null;
 
-  function handleSaveReflection() {
-    const today = new Date().toISOString().slice(0, 10);
-    const stored =
-      JSON.parse(localStorage.getItem("cycle_reflections")) || {};
+  function handleSaveSet() {
+    if (!exerciseId || !weight || !reps) return;
 
-    stored[today] = reflection;
-    localStorage.setItem("cycle_reflections", JSON.stringify(stored));
+    onSave({
+      exerciseId,
+      weight: Number(weight),
+      reps: Number(reps),
+      date,
+    });
 
-    setShowReflection(false);
-    setReflection({ strength: "", mood: "", energy: "" });
-    alert("Dagens känsla sparad 💗");
+    setWeight("");
+    setReps("");
+  }
+
+  function handleSaveCheckin() {
+    const entry = {
+      date,
+      strength,
+      energy,
+      mental,
+    };
+
+    const key = "bebi_cycle_checkins";
+    const prev = JSON.parse(localStorage.getItem(key) || "[]");
+    localStorage.setItem(key, JSON.stringify([...prev, entry]));
+
+    setShowCheckin(false);
+    onClose();
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
-        {/* ⬇⬇⬇ HÄR LIGGER DIN BEFINTLIGA LOGGA-SET UI ⬇⬇⬇ */}
-        {/* onSave ska fungera exakt som innan */}
-        <button onClick={onSave}>Spara set</button>
+    <div style={overlay}>
+      <div style={modal}>
+        <h3 style={{ marginTop: 0 }}>Logga set 💗</h3>
 
-        <hr style={{ margin: "16px 0" }} />
+        {/* === LOGGA SET === */}
+        <div style={grid}>
+          <select value={exerciseId} onChange={(e) => setExerciseId(e.target.value)}>
+            {EXERCISES.map((e) => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
 
-        {!showReflection && (
+          <input
+            type="number"
+            placeholder="Vikt (kg)"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
+
+          <input
+            type="number"
+            placeholder="Reps"
+            value={reps}
+            onChange={(e) => setReps(e.target.value)}
+          />
+
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+
+        <button style={primaryBtn} onClick={handleSaveSet}>
+          Spara set
+        </button>
+
+        {/* === KLAR FÖR DAGEN === */}
+        {!showCheckin && (
           <button
-            style={{
-              background: "#ec4899",
-              color: "white",
-              padding: "8px 14px",
-              borderRadius: 10,
-              border: "none",
-            }}
-            onClick={() => setShowReflection(true)}
+            style={{ ...primaryBtn, marginTop: 12, background: "#f472b6" }}
+            onClick={() => setShowCheckin(true)}
           >
-            Klar för dagen
+            Klar för dagen 🌙
           </button>
         )}
 
-        {showReflection && (
-          <div style={{ marginTop: 12 }}>
-            <label>
-              💪 Styrka
-              <select
-                value={reflection.strength}
-                onChange={(e) =>
-                  setReflection({ ...reflection, strength: e.target.value })
-                }
-              >
-                <option value="">Välj</option>
-                <option value="strong">Stark</option>
-                <option value="ok">Okej</option>
-                <option value="weak">Svag</option>
-              </select>
-            </label>
+        {showCheckin && (
+          <div style={{ marginTop: 16 }}>
+            <h4>Hur kände du dig idag?</h4>
 
-            <label>
-              🧠 Psyke
-              <select
-                value={reflection.mood}
-                onChange={(e) =>
-                  setReflection({ ...reflection, mood: e.target.value })
-                }
-              >
-                <option value="">Välj</option>
-                <option value="good">Bra</option>
-                <option value="neutral">Neutral</option>
-                <option value="low">Låg</option>
-              </select>
-            </label>
+            <Section title="Styrka">
+              <Choice value={strength} setValue={setStrength} />
+            </Section>
 
-            <label>
-              ⚡ Energi
-              <select
-                value={reflection.energy}
-                onChange={(e) =>
-                  setReflection({ ...reflection, energy: e.target.value })
-                }
-              >
-                <option value="">Välj</option>
-                <option value="high">Hög</option>
-                <option value="medium">Medel</option>
-                <option value="low">Låg</option>
-              </select>
-            </label>
+            <Section title="Energi">
+              <Choice value={energy} setValue={setEnergy} />
+            </Section>
 
-            <button onClick={handleSaveReflection}>Spara känsla</button>
+            <Section title="Psykiskt">
+              <Choice value={mental} setValue={setMental} />
+            </Section>
+
+            <button style={primaryBtn} onClick={handleSaveCheckin}>
+              Spara dagskänsla
+            </button>
           </div>
         )}
 
-        <button onClick={onClose}>Stäng</button>
+        <button style={ghostBtn} onClick={onClose}>Stäng</button>
       </div>
     </div>
   );
 }
+
+function Section({ title, children }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <strong>{title}</strong>
+      {children}
+    </div>
+  );
+}
+
+function Choice({ value, setValue }) {
+  const opts = [
+    ["low", "Låg"],
+    ["neutral", "Neutral"],
+    ["high", "Hög"],
+  ];
+
+  return (
+    <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+      {opts.map(([v, label]) => (
+        <button
+          key={v}
+          onClick={() => setValue(v)}
+          style={{
+            padding: "6px 10px",
+            borderRadius: 999,
+            border: value === v ? `2px solid ${ACCENT}` : "1px solid #444",
+            background: "#020617",
+            color: "#fff",
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+const overlay = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.6)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 50,
+};
+
+const modal = {
+  width: 360,
+  background: "#020617",
+  borderRadius: 16,
+  padding: 16,
+  color: "#fff",
+};
+
+const grid = {
+  display: "grid",
+  gap: 8,
+};
+
+const primaryBtn = {
+  marginTop: 8,
+  padding: "10px",
+  borderRadius: 12,
+  border: "none",
+  background: ACCENT,
+  color: "#020617",
+  fontWeight: 600,
+};
+
+const ghostBtn = {
+  marginTop: 8,
+  background: "transparent",
+  color: "#aaa",
+  border: "none",
+};
