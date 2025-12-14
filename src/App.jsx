@@ -397,6 +397,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 export default function App() {
   const [view, setView] = useState("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const [showCheckin, setShowCheckin] = useState(false);
 
   // Loggar – persisteras
   const [logs, setLogs] = useState(() => {
