@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function LogModal({ isOpen, onClose }) {
+export default function LogModal({ open, onClose, onSave }) {
   const [showReflection, setShowReflection] = useState(false);
   const [reflection, setReflection] = useState({
     strength: "",
@@ -8,34 +8,49 @@ export default function LogModal({ isOpen, onClose }) {
     energy: "",
   });
 
-  const handleSaveReflection = () => {
-    const today = new Date().toISOString().split("T")[0];
-    const stored = JSON.parse(localStorage.getItem("cycleTrackerData")) || {};
+  if (!open) return null;
+
+  function handleSaveReflection() {
+    const today = new Date().toISOString().slice(0, 10);
+    const stored =
+      JSON.parse(localStorage.getItem("cycle_reflections")) || {};
+
     stored[today] = reflection;
-    localStorage.setItem("cycleTrackerData", JSON.stringify(stored));
+    localStorage.setItem("cycle_reflections", JSON.stringify(stored));
+
     setShowReflection(false);
     setReflection({ strength: "", mood: "", energy: "" });
-    alert("Dagens känsla sparad!");
-  };
-
-  if (!isOpen) return null;
+    alert("Dagens känsla sparad 💗");
+  }
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <h2>Logga Pass</h2>
-        {/* Din vanliga logik för att logga övningar här */}
+    <div className="modal-backdrop">
+      <div className="modal">
+        {/* ⬇⬇⬇ HÄR LIGGER DIN BEFINTLIGA LOGGA-SET UI ⬇⬇⬇ */}
+        {/* onSave ska fungera exakt som innan */}
+        <button onClick={onSave}>Spara set</button>
+
+        <hr style={{ margin: "16px 0" }} />
 
         {!showReflection && (
-          <button className="klar-btn" onClick={() => setShowReflection(true)}>
+          <button
+            style={{
+              background: "#ec4899",
+              color: "white",
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "none",
+            }}
+            onClick={() => setShowReflection(true)}
+          >
             Klar för dagen
           </button>
         )}
 
         {showReflection && (
-          <div className="reflection-form">
+          <div style={{ marginTop: 12 }}>
             <label>
-              Styrkenivå:
+              💪 Styrka
               <select
                 value={reflection.strength}
                 onChange={(e) =>
@@ -43,13 +58,14 @@ export default function LogModal({ isOpen, onClose }) {
                 }
               >
                 <option value="">Välj</option>
-                <option value="Stark">Stark</option>
-                <option value="Okej">Okej</option>
-                <option value="Svag">Svag</option>
+                <option value="strong">Stark</option>
+                <option value="ok">Okej</option>
+                <option value="weak">Svag</option>
               </select>
             </label>
+
             <label>
-              Psykiskt:
+              🧠 Psyke
               <select
                 value={reflection.mood}
                 onChange={(e) =>
@@ -57,13 +73,14 @@ export default function LogModal({ isOpen, onClose }) {
                 }
               >
                 <option value="">Välj</option>
-                <option value="Motiverad">Motiverad</option>
-                <option value="Neutral">Neutral</option>
-                <option value="Omotiverad">Omotiverad</option>
+                <option value="good">Bra</option>
+                <option value="neutral">Neutral</option>
+                <option value="low">Låg</option>
               </select>
             </label>
+
             <label>
-              Energinivå:
+              ⚡ Energi
               <select
                 value={reflection.energy}
                 onChange={(e) =>
@@ -71,11 +88,12 @@ export default function LogModal({ isOpen, onClose }) {
                 }
               >
                 <option value="">Välj</option>
-                <option value="Mycket">Mycket</option>
-                <option value="Medel">Medel</option>
-                <option value="Lite">Lite</option>
+                <option value="high">Hög</option>
+                <option value="medium">Medel</option>
+                <option value="low">Låg</option>
               </select>
             </label>
+
             <button onClick={handleSaveReflection}>Spara känsla</button>
           </div>
         )}
