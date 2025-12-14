@@ -1079,8 +1079,8 @@ export default function App() {
 />
       
 <DailyCheckinModal
-  open={showCheckin}
-  onClose={() => setShowCheckin(false)}
+  open={showDailyCheckin}
+  onClose={() => setShowDailyCheckin(false)}
   onSubmit={handleDailyCheckin}
 />
 </div>
