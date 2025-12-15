@@ -936,6 +936,13 @@ function handleDailyCheckin(data) {
 
         {/* LOGGAR */}
         {view === "log" && (
+      <button
+  className="btn-pink"
+  style={{ marginBottom: 12 }}
+  onClick={() => setShowDailyCheckin(true)}
+>
+  🌙 Klar för dagen
+</button>
           <div className="card">
             <h3 style={{ marginTop: 0 }}>Loggade set 📓</h3>
             {!logs.length && (
