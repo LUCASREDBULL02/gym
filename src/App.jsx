@@ -400,6 +400,26 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 const [showDailyCheckin, setShowDailyCheckin] = useState(false);
 
+   const [showDailyCheckin, setShowDailyCheckin] = useState(false);
+
+  function handleDailyCheckin(data) {
+    const today = new Date().toISOString().slice(0, 10);
+
+    const stored =
+      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+
+    stored[today] = {
+      ...data,
+      date: today,
+    };
+
+    localStorage.setItem(
+      "bebi_daily_checkins",
+      JSON.stringify(stored)
+    );
+
+    setShowDailyCheckin(false);
+  }
 function handleDailyCheckin(data) {
   const today = new Date().toISOString().slice(0, 10);
 
