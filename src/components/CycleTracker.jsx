@@ -1,97 +1,127 @@
 // src/components/CycleTracker.jsx
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 
-function getScoreFromCheckin(checkin) {
-  if (!checkin) return 50;
+const FEEL_COLORS = {
+  strong: "#ec4899",
+  normal: "#f472b6",
+  low: "#64748b",
 
-  let score = 50;
+  good: "#22c55e",
+  ok: "#facc15",
+  bad: "#ef4444",
 
-  if (checkin.strength === "strong") score += 20;
-  if (checkin.strength === "low") score -= 15;
+  high: "#fb7185",
+  medium: "#a855f7",
+  lowEnergy: "#64748b",
+};
 
-  if (checkin.energy === "high") score += 15;
-  if (checkin.energy === "low") score -= 15;
-
-  if (checkin.mental === "good") score += 10;
-  if (checkin.mental === "low") score -= 10;
-
-  return Math.max(10, Math.min(100, score));
+function getStoredCheckins() {
+  try {
+    return JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+  } catch {
+    return {};
+  }
 }
 
 export default function CycleTracker() {
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const [checkins, setCheckins] = useState({});
 
-  const checkins =
-    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+  // 🔄 Ladda från localStorage
+  useEffect(() => {
+    setCheckins(getStoredCheckins());
 
-  const calendarDays = useMemo(() => {
-    const days = [];
-    const today = new Date();
+    const onStorageUpdate = () => {
+      setCheckins(getStoredCheckins());
+    };
 
-    for (let i = -7; i <= 14; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const ds = d.toISOString().slice(0, 10);
+    // 🔁 custom event (från Klar för dagen)
+    window.addEventListener("bebi-checkin-updated", onStorageUpdate);
 
-      const score = getScoreFromCheckin(checkins[ds]);
+    return () => {
+      window.removeEventListener("bebi-checkin-updated", onStorageUpdate);
+    };
+  }, []);
 
-      let color = "#e5e7eb";
-      if (score >= 75) color = "#86efac";
-      else if (score >= 55) color = "#fde68a";
-      else color = "#fca5a5";
-
-      days.push({
-        date: ds,
-        label: ds.slice(5),
-        score,
-        color,
-      });
-    }
-    return days;
-  }, [checkins]);
-
-  const todayScore = getScoreFromCheckin(checkins[todayStr]);
+  const days = Object.entries(checkins).sort(
+    ([a], [b]) => new Date(b) - new Date(a)
+  );
 
   return (
-    <div className="cycle-root">
-      <div className="card">
-        <h3>Dagens status</h3>
-        <p>
-          Rekommenderad styrkenivå:{" "}
-          <strong>{todayScore}/100</strong>
-        </p>
-        <p style={{ fontSize: 13 }}>
-          {todayScore >= 75 && "🔥 Bra dag för tunga set / PR"}
-          {todayScore >= 55 && todayScore < 75 && "🙂 Normal träningsdag"}
-          {todayScore < 55 && "🧘 Ta det lugnt, fokus på teknik"}
-        </p>
-      </div>
+    <div className="card">
+      <h3 style={{ marginTop: 0 }}>🌸 Cycle & energi</h3>
 
-      <div className="card">
-        <h3>Din kalender</h3>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(7, 1fr)",
-            gap: 8,
-          }}
-        >
-          {calendarDays.map((d) => (
+      {days.length === 0 && (
+        <p className="small">Ingen data ännu. Använd “Klar för dagen”.</p>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {days.map(([date, d]) => (
+          <div
+            key={date}
+            style={{
+              padding: 10,
+              borderRadius: 12,
+              background: "rgba(15,23,42,0.9)",
+              border: "1px solid rgba(148,163,184,0.3)",
+            }}
+          >
+            <div style={{ fontSize: 12, opacity: 0.7 }}>{date}</div>
+
             <div
-              key={d.date}
               style={{
-                padding: 8,
-                borderRadius: 10,
-                background: d.color,
-                textAlign: "center",
-                fontSize: 12,
+                display: "flex",
+                gap: 8,
+                marginTop: 6,
+                flexWrap: "wrap",
               }}
             >
-              <div>{d.label}</div>
-              <div style={{ fontWeight: 600 }}>{d.score}</div>
+              {d.strength && (
+                <span
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 999,
+                    background: FEEL_COLORS[d.strength],
+                    fontSize: 11,
+                    color: "#0b1120",
+                  }}
+                >
+                  💪 {d.strength}
+                </span>
+              )}
+
+              {d.mental && (
+                <span
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 999,
+                    background: FEEL_COLORS[d.mental],
+                    fontSize: 11,
+                    color: "#0b1120",
+                  }}
+                >
+                  🧠 {d.mental}
+                </span>
+              )}
+
+              {d.energy && (
+                <span
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 999,
+                    background:
+                      FEEL_COLORS[
+                        d.energy === "low" ? "lowEnergy" : d.energy
+                      ],
+                    fontSize: 11,
+                    color: "#0b1120",
+                  }}
+                >
+                  ⚡ {d.energy}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
