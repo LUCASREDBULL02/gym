@@ -1,100 +1,110 @@
 import React, { useEffect, useState } from "react";
 
-const COLORS = {
-  strong: "#ec4899",
-  normal: "#f9a8d4",
-  low: "#fbcfe8",
-};
-
 export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
 
-  // 🔄 Läs från localStorage
-  const loadCheckins = () => {
-    try {
-      const data =
-        JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-      setCheckins(data);
-    } catch {
-      setCheckins({});
-    }
-  };
+  // 🔹 Läs från localStorage
+  function loadCheckins() {
+    const stored =
+      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+    setCheckins(stored);
+  }
 
-  // 🔔 Lyssna på sparad dag
+  // 🔁 Initial load + event listeners
   useEffect(() => {
     loadCheckins();
 
-    const handler = () => loadCheckins();
-    window.addEventListener("bebi-checkin-updated", handler);
+    // Custom event (från DailyCheckinModal)
+    function handleCustomUpdate() {
+      loadCheckins();
+    }
 
-    return () =>
-      window.removeEventListener("bebi-checkin-updated", handler);
+    // Storage fallback (andra flikar)
+    function handleStorage(e) {
+      if (e.key === "bebi_daily_checkins") {
+        loadCheckins();
+      }
+    }
+
+    window.addEventListener("bebi-checkin-updated", handleCustomUpdate);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("bebi-checkin-updated", handleCustomUpdate);
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
-  // 📆 Bygg enkel kalender (30 dagar)
-  const today = new Date();
-  const days = Array.from({ length: 30 }).map((_, i) => {
+  // 🔹 Generera senaste 28 dagar
+  const days = Array.from({ length: 28 }).map((_, i) => {
     const d = new Date();
-    d.setDate(today.getDate() - (29 - i));
-    const key = d.toISOString().slice(0, 10);
+    d.setDate(d.getDate() - (27 - i));
+    const iso = d.toISOString().slice(0, 10);
     return {
-      date: key,
-      checkin: checkins[key],
+      date: iso,
+      checkin: checkins[iso],
     };
   });
+
+  function getColor(checkin) {
+    if (!checkin) return "#1f2937"; // ingen data
+
+    let score = 0;
+    if (checkin.strength === "strong") score += 2;
+    if (checkin.strength === "normal") score += 1;
+
+    if (checkin.energy === "high") score += 2;
+    if (checkin.energy === "medium") score += 1;
+
+    if (checkin.mental === "good") score += 2;
+    if (checkin.mental === "ok") score += 1;
+
+    if (score >= 5) return "#ec4899"; // super dag
+    if (score >= 3) return "#f9a8d4"; // bra dag
+    if (score >= 1) return "#a5b4fc"; // låg dag
+    return "#64748b"; // väldigt låg
+  }
 
   return (
     <div className="card">
       <h3 style={{ marginTop: 0 }}>🌸 Cycle Calendar</h3>
       <p className="small">
-        Kalendern uppdateras automatiskt när du klickar “Klar för dagen”.
+        Baserad på hur du faktiskt kände dig – inte blödning.
       </p>
 
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 8,
+          gap: 6,
           marginTop: 12,
         }}
       >
-        {days.map((d) => {
-          const strength = d.checkin?.strength;
-          const bg = strength ? COLORS[strength] : "#020617";
-
-          return (
-            <div
-              key={d.date}
-              style={{
-                height: 48,
-                borderRadius: 10,
-                background: bg,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                color: strength ? "#0b1120" : "#9ca3af",
-                border: "1px solid rgba(148,163,184,0.4)",
-              }}
-              title={
-                d.checkin
-                  ? `Styrka: ${d.checkin.strength}
-Mental: ${d.checkin.mental}
-Energi: ${d.checkin.energy}`
-                  : "Ingen data"
-              }
-            >
-              {d.date.slice(8)}
-            </div>
-          );
-        })}
+        {days.map((d) => (
+          <div
+            key={d.date}
+            title={d.checkin ? JSON.stringify(d.checkin) : "Ingen data"}
+            style={{
+              height: 42,
+              borderRadius: 10,
+              background: getColor(d.checkin),
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 11,
+              color: "#0f172a",
+              fontWeight: 600,
+            }}
+          >
+            {d.date.slice(8)}
+          </div>
+        ))}
       </div>
 
-      <div style={{ marginTop: 12, fontSize: 12 }}>
-        <strong>Legend:</strong>{" "}
-        <span style={{ color: COLORS.strong }}>Stark</span> •{" "}
-        <span style={{ color: COLORS.normal }}>Normal</span> •{" "}
-        <span style={{ color: COLORS.low }}>Låg</span>
+      <div style={{ marginTop: 12, fontSize: 12, color: "#9ca3af" }}>
+        💖 Stark/energifylld dag → rosa  
+        💜 Mellan → ljusrosa/lila  
+        🩶 Låg → grå
       </div>
     </div>
   );
