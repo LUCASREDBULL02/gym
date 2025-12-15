@@ -94,5 +94,44 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
               <label>RPE</label>
               <input type="number" value={rpe} onChange={(e) => setRpe(e.target.value)} />
             </div>
+          </div>
+
+          {/* === DAILY CHECK-IN === */}
+          <div className="card" style={{ marginTop: 12 }}>
+            <h4 style={{ marginTop: 0 }}>🌙 Klar för dagen</h4>
+
+            <label>Hur kände du dig styrkemässigt?</label>
+            <select value={strengthFeel} onChange={(e) => setStrengthFeel(e.target.value)}>
+              <option value="">– välj –</option>
+              <option value="low">Svag</option>
+              <option value="normal">Normal</option>
+              <option value="strong">Väldigt stark</option>
+            </select>
+
+            <label>Hur kände du dig psykiskt?</label>
+            <select value={mentalFeel} onChange={(e) => setMentalFeel(e.target.value)}>
+              <option value="">– välj –</option>
+              <option value="low">Stressad / låg</option>
+              <option value="ok">Stabil</option>
+              <option value="good">Motiverad</option>
+            </select>
+
+            <label>Hur var energin?</label>
+            <select value={energyFeel} onChange={(e) => setEnergyFeel(e.target.value)}>
+              <option value="">– välj –</option>
+              <option value="low">Trött</option>
+              <option value="medium">Okej</option>
+              <option value="high">Hög energi</option>
+            </select>
+          </div>
+
+          <div className="modal-footer">
+            <button type="submit" className="btn-pink">
+              Spara & klar för dagen ✨
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
