@@ -913,14 +913,6 @@ const [showDailyCheckin, setShowDailyCheckin] = useState(false);
 
         {/* LOGGAR */}
         {view === "log" && (
-      style={{ marginBottom: 12 }}>
-      <button
-        className="btn-pink"
-        onClick={() => setShowDailyCheckin(true)}
-      >
-        🌙 Klar för dagen
-      </button>
-    </div>
           <div className="card">
             <h3 style={{ marginTop: 0 }}>Loggade set 📓</h3>
             {!logs.length && (
