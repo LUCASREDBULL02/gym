@@ -10,29 +10,22 @@ export default function DailyCheckinModal({ open, onClose }) {
   const [energy, setEnergy] = useState("");
 
   function handleSave() {
-    // Om inget valt – stäng bara
-    if (!strength && !mental && !energy) {
-      onClose();
-      return;
-    }
-
-    // 🔹 Läs befintliga checkins
     const existing =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
-    // 🔹 Spara dagens checkin
     existing[today] = {
       strength,
       mental,
       energy,
     };
 
+    // 🔐 Spara
     localStorage.setItem(
       "bebi_daily_checkins",
       JSON.stringify(existing)
     );
 
-    // 🔔 Tala om för CycleTracker att uppdatera
+    // 🔔 Tvinga alla lyssnare att uppdatera
     window.dispatchEvent(new Event("bebi-checkin-updated"));
 
     onClose();
@@ -47,7 +40,7 @@ export default function DailyCheckinModal({ open, onClose }) {
         </div>
 
         <div className="input-group">
-          <label>Hur kände du dig styrkemässigt?</label>
+          <label>Styrka</label>
           <select value={strength} onChange={(e) => setStrength(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Svag</option>
@@ -57,22 +50,22 @@ export default function DailyCheckinModal({ open, onClose }) {
         </div>
 
         <div className="input-group">
-          <label>Hur kände du dig psykiskt?</label>
+          <label>Psykiskt</label>
           <select value={mental} onChange={(e) => setMental(e.target.value)}>
             <option value="">– välj –</option>
-            <option value="low">Stressad / låg</option>
+            <option value="low">Låg</option>
             <option value="ok">Stabil</option>
             <option value="good">Motiverad</option>
           </select>
         </div>
 
         <div className="input-group">
-          <label>Hur var energin?</label>
+          <label>Energi</label>
           <select value={energy} onChange={(e) => setEnergy(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Trött</option>
             <option value="medium">Okej</option>
-            <option value="high">Hög energi</option>
+            <option value="high">Hög</option>
           </select>
         </div>
 
