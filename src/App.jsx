@@ -913,7 +913,7 @@ const [showDailyCheckin, setShowDailyCheckin] = useState(false);
 
         {/* LOGGAR */}
         {view === "log" && (
-    <div style={{ marginBottom: 12 }}>
+      style={{ marginBottom: 12 }}>
       <button
         className="btn-pink"
         onClick={() => setShowDailyCheckin(true)}
