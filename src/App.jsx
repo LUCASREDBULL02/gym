@@ -1121,6 +1121,11 @@ function handleDailyCheckin(data) {
         onSave={handleSaveSet}
         lastSet={lastSet}
       />
+      <DailyCheckinModal
+  open={showDailyCheckin}
+  onClose={() => setShowDailyCheckin(false)}
+  onSubmit={handleDailyCheckin}
+/>
     </div>
   );
 }
