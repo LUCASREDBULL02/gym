@@ -647,21 +647,6 @@ const [showDailyCheckin, setShowDailyCheckin] = useState(false);
   return (
     <div className="app-shell">
       {toast && <Toast title={toast.title} subtitle={toast.subtitle} />}
-function handleDailyCheckin(entry) {
-  const stored =
-    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-
-  stored[entry.date] = {
-    strength: entry.strength,
-    mental: entry.mental,
-    energy: entry.energy,
-  };
-
-  localStorage.setItem(
-    "bebi_daily_checkins",
-    JSON.stringify(stored)
-  );
-}
 
       {/* SIDEBAR (desktop) */}
       <aside className="sidebar">
