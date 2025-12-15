@@ -1,3 +1,4 @@
+// src/components/DailyCheckinModal.jsx
 import React, { useState } from "react";
 
 export default function DailyCheckinModal({ open, onClose }) {
@@ -10,6 +11,11 @@ export default function DailyCheckinModal({ open, onClose }) {
   const [energy, setEnergy] = useState("");
 
   function handleSave() {
+    if (!strength && !mental && !energy) {
+      onClose();
+      return;
+    }
+
     const existing =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
@@ -19,13 +25,12 @@ export default function DailyCheckinModal({ open, onClose }) {
       energy,
     };
 
-    // 🔐 Spara
     localStorage.setItem(
       "bebi_daily_checkins",
       JSON.stringify(existing)
     );
 
-    // 🔔 Tvinga alla lyssnare att uppdatera
+    // 🔔 VIKTIGT: tala om för CycleTracker att data ändrats
     window.dispatchEvent(new Event("bebi-checkin-updated"));
 
     onClose();
@@ -36,7 +41,9 @@ export default function DailyCheckinModal({ open, onClose }) {
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">🌙 Klar för dagen</div>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="modal-close" onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <div className="input-group">
@@ -53,7 +60,7 @@ export default function DailyCheckinModal({ open, onClose }) {
           <label>Psykiskt</label>
           <select value={mental} onChange={(e) => setMental(e.target.value)}>
             <option value="">– välj –</option>
-            <option value="low">Låg</option>
+            <option value="low">Låg / stressad</option>
             <option value="ok">Stabil</option>
             <option value="good">Motiverad</option>
           </select>
@@ -65,7 +72,7 @@ export default function DailyCheckinModal({ open, onClose }) {
             <option value="">– välj –</option>
             <option value="low">Trött</option>
             <option value="medium">Okej</option>
-            <option value="high">Hög</option>
+            <option value="high">Hög energi</option>
           </select>
         </div>
 
