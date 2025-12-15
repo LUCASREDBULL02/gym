@@ -420,24 +420,7 @@ export default function App() {
 
     setShowDailyCheckin(false);
   }
-function handleDailyCheckin(data) {
-  const today = new Date().toISOString().slice(0, 10);
-
-  const saved =
-    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-
-  saved[today] = {
-    ...data,
-    date: today,
-  };
-
-  localStorage.setItem(
-    "bebi_daily_checkins",
-    JSON.stringify(saved)
-  );
-
-  setShowDailyCheckin(false);
-
+  
   if (typeof showToastMsg === "function") {
     showToastMsg("🌙 Klar för dagen", "Din dagsform är sparad 💗");
   }
