@@ -10,22 +10,21 @@ export default function CycleTracker() {
     setCheckins(parsed);
   }
 
-  useEffect(() => {
-    // Läs vid mount
+ useEffect(() => {
+  console.log("CycleTracker mounted");
+
+  const handler = () => {
+    console.log("CycleTracker heard event");
     loadCheckins();
+  };
 
-    // Lyssna på checkin-event
-    const handler = () => {
-      console.log("CycleTracker uppdaterar från event");
-      loadCheckins();
-    };
+  window.addEventListener("bebi-checkin-updated", handler);
 
-    window.addEventListener("bebi-checkin-updated", handler);
+  return () => {
+    window.removeEventListener("bebi-checkin-updated", handler);
+  };
+}, []);
 
-    return () => {
-      window.removeEventListener("bebi-checkin-updated", handler);
-    };
-  }, []);
 
   const dates = Object.keys(checkins).sort();
 
