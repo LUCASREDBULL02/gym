@@ -94,6 +94,5 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
               <label>RPE</label>
               <input type="number" value={rpe} onChange={(e) => setRpe(e.target.value)} />
             </div>
-
   );
 }
