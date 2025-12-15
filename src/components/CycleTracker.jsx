@@ -1,49 +1,80 @@
 // src/components/CycleTracker.jsx
 import React, { useEffect, useState } from "react";
 
-const FEEL_COLORS = {
-  strong: "#ec4899",
-  normal: "#f9a8d4",
-  low: "#94a3b8",
-};
+function getCheckins() {
+  try {
+    return JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+  } catch {
+    return {};
+  }
+}
+
+function getDayColor(checkin) {
+  if (!checkin) return "#1f2937"; // grå
+
+  // Enkel analys
+  if (
+    checkin.energy === "high" &&
+    checkin.strength === "strong"
+  ) {
+    return "#22c55e"; // grön = stark dag
+  }
+
+  if (
+    checkin.energy === "low" ||
+    checkin.mental === "low"
+  ) {
+    return "#ef4444"; // röd = låg dag
+  }
+
+  return "#ec4899"; // rosa = normal
+}
 
 export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
 
-  // 🔄 Ladda från localStorage
-  function loadCheckins() {
-    const saved =
-      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-    setCheckins(saved);
-  }
-
-  // 🟢 Init + lyssna på event
+  // Läs vid mount
   useEffect(() => {
-    loadCheckins();
+    setCheckins(getCheckins());
+  }, []);
 
+  // 🔔 Lyssna på uppdateringar
+  useEffect(() => {
     function handleUpdate() {
-      loadCheckins();
+      console.log("🔄 CycleTracker updated");
+      setCheckins(getCheckins());
     }
 
     window.addEventListener("bebi-checkin-updated", handleUpdate);
-    window.addEventListener("storage", handleUpdate);
-
-    return () => {
-      window.removeEventListener("bebi-checkin-updated", handleUpdate);
-      window.removeEventListener("storage", handleUpdate);
-    };
+    return () =>
+      window.removeEventListener(
+        "bebi-checkin-updated",
+        handleUpdate
+      );
   }, []);
 
-  // 📅 Visa senaste 14 dagar
-  const days = Array.from({ length: 14 }).map((_, i) => {
+  // Visa senaste 14 dagar
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
     const d = new Date();
-    d.setDate(d.getDate() - (13 - i));
-    return d.toISOString().slice(0, 10);
-  });
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    days.push({
+      key,
+      date: d.toLocaleDateString("sv-SE", {
+        weekday: "short",
+        day: "numeric",
+      }),
+      checkin: checkins[key],
+    });
+  }
 
   return (
-    <div className="card" style={{ padding: 16 }}>
-      <h3 style={{ marginTop: 0 }}>📅 Cycle & Återhämtning</h3>
+    <div className="card">
+      <h3 style={{ marginTop: 0 }}>🌸 Cycle Tracker</h3>
+      <p className="small">
+        Färgerna baseras på hur hon känt sig dag för dag.
+      </p>
 
       <div
         style={{
@@ -53,40 +84,35 @@ export default function CycleTracker() {
           marginTop: 12,
         }}
       >
-        {days.map((date) => {
-          const entry = checkins[date];
-          const color = entry
-            ? FEEL_COLORS[entry.strength] || "#e5e7eb"
-            : "#020617";
-
-          return (
-            <div
-              key={date}
-              style={{
-                padding: 8,
-                borderRadius: 10,
-                background: color,
-                color: "#020617",
-                fontSize: 11,
-                textAlign: "center",
-              }}
-            >
-              <div style={{ fontWeight: 600 }}>
-                {date.slice(8, 10)}
+        {days.map((d) => (
+          <div
+            key={d.key}
+            style={{
+              background: getDayColor(d.checkin),
+              borderRadius: 12,
+              padding: 8,
+              textAlign: "center",
+              color: "#fff",
+              fontSize: 11,
+              minHeight: 60,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <div>{d.date}</div>
+            {d.checkin && (
+              <div style={{ fontSize: 9, opacity: 0.85 }}>
+                ⚡ {d.checkin.energy || "–"}
               </div>
-              {entry && (
-                <div style={{ fontSize: 10 }}>
-                  ⚡ {entry.energy}
-                </div>
-              )}
-            </div>
-          );
-        })}
+            )}
+          </div>
+        ))}
       </div>
 
-      <p className="small" style={{ marginTop: 10, opacity: 0.8 }}>
-        Färg baseras på hur stark hon kände sig den dagen.
-      </p>
+      <div className="small" style={{ marginTop: 10 }}>
+        🟢 Stark dag &nbsp; 💖 Normal &nbsp; 🔴 Låg energi
+      </div>
     </div>
   );
 }
