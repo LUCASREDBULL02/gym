@@ -398,7 +398,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 export default function App() {
   const [view, setView] = useState("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-const [showDailyCheckin, setShowDailyCheckin] = useState(false);
+
 
    const [showDailyCheckin, setShowDailyCheckin] = useState(false);
 
