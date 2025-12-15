@@ -18,7 +18,7 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
         setExerciseId(lastSet.exerciseId);
         setWeight(lastSet.weight);
         setReps(lastSet.reps);
-        setRpe(lastSet.rpe ?? "");
+        setRpe(lastSet.rpe || "");
       }
     }
   }, [open, lastSet, todayStr]);
@@ -37,20 +37,12 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
       date,
     });
 
-    // reset inputs efter sparat set
-    setWeight("");
-    setReps("");
-    setRpe("");
-
     onClose();
   }
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="modal-card"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">Logga set 💪</div>
           <button className="modal-close" onClick={onClose}>
@@ -59,7 +51,6 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* === ÖVNING === */}
           <div className="input-group">
             <label>Övning</label>
             <select
@@ -74,7 +65,6 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </select>
           </div>
 
-          {/* === SET DATA === */}
           <div className="profile-grid">
             <div className="input-group">
               <label>Vikt (kg)</label>
@@ -95,7 +85,7 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </div>
 
             <div className="input-group">
-              <label>RPE (valfritt)</label>
+              <label>RPE</label>
               <input
                 type="number"
                 value={rpe}
@@ -104,20 +94,9 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </div>
           </div>
 
-          {/* === DATUM === */}
-          <div className="input-group">
-            <label>Datum</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
-
-          {/* === FOOTER === */}
           <div className="modal-footer">
             <button type="submit" className="btn-pink">
-              💾 Spara set
+              Spara set
             </button>
           </div>
         </form>
