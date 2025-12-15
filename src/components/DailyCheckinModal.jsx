@@ -1,36 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 export default function DailyCheckinModal({ open, onClose }) {
+  if (!open) return null;
+
   const today = new Date().toISOString().slice(0, 10);
 
   const [strength, setStrength] = useState("");
   const [mental, setMental] = useState("");
   const [energy, setEnergy] = useState("");
 
-  // Reset när modal öppnas
-  useEffect(() => {
-    if (open) {
-      setStrength("");
-      setMental("");
-      setEnergy("");
-    }
-  }, [open]);
-
-  if (!open) return null;
-
   function handleSave() {
-    // om inget valt → bara stäng
+    // Om inget valt – stäng bara
     if (!strength && !mental && !energy) {
       onClose();
       return;
     }
 
-    // hämta befintlig data
-    const stored =
+    // 🔹 Läs befintliga checkins
+    const existing =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
-    // spara dagens check-in
-    stored[today] = {
+    // 🔹 Spara dagens checkin
+    existing[today] = {
       strength,
       mental,
       energy,
@@ -38,10 +29,10 @@ export default function DailyCheckinModal({ open, onClose }) {
 
     localStorage.setItem(
       "bebi_daily_checkins",
-      JSON.stringify(stored)
+      JSON.stringify(existing)
     );
 
-    // 🔔 Viktigt: triggar uppdatering i CycleTracker
+    // 🔔 Tala om för CycleTracker att uppdatera
     window.dispatchEvent(new Event("bebi-checkin-updated"));
 
     onClose();
@@ -49,39 +40,25 @@ export default function DailyCheckinModal({ open, onClose }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="modal-card"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: 420 }}
-      >
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">🌙 Klar för dagen</div>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        {/* STYRKA */}
         <div className="input-group">
-          <label>💪 Hur kände du dig styrkemässigt?</label>
-          <select
-            value={strength}
-            onChange={(e) => setStrength(e.target.value)}
-          >
+          <label>Hur kände du dig styrkemässigt?</label>
+          <select value={strength} onChange={(e) => setStrength(e.target.value)}>
             <option value="">– välj –</option>
-            <option value="low">Svag / tungt idag</option>
+            <option value="low">Svag</option>
             <option value="normal">Normal</option>
             <option value="strong">Väldigt stark</option>
           </select>
         </div>
 
-        {/* PSYKISKT */}
         <div className="input-group">
-          <label>🧠 Hur kände du dig psykiskt?</label>
-          <select
-            value={mental}
-            onChange={(e) => setMental(e.target.value)}
-          >
+          <label>Hur kände du dig psykiskt?</label>
+          <select value={mental} onChange={(e) => setMental(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Stressad / låg</option>
             <option value="ok">Stabil</option>
@@ -89,13 +66,9 @@ export default function DailyCheckinModal({ open, onClose }) {
           </select>
         </div>
 
-        {/* ENERGI */}
         <div className="input-group">
-          <label>⚡ Hur var energin?</label>
-          <select
-            value={energy}
-            onChange={(e) => setEnergy(e.target.value)}
-          >
+          <label>Hur var energin?</label>
+          <select value={energy} onChange={(e) => setEnergy(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Trött</option>
             <option value="medium">Okej</option>
@@ -105,7 +78,7 @@ export default function DailyCheckinModal({ open, onClose }) {
 
         <div className="modal-footer">
           <button className="btn-pink" onClick={handleSave}>
-            Spara dag ✨
+            Spara dag 💖
           </button>
         </div>
       </div>
