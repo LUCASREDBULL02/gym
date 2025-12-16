@@ -1,61 +1,81 @@
 import React, { useEffect, useState } from "react";
 
+const COLORS = {
+  strong: "#86efac",
+  normal: "#fde68a",
+  low: "#fecaca",
+};
+
 export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
 
-  // 🔁 Läs localStorage
   function loadCheckins() {
-    const raw = localStorage.getItem("bebi_daily_checkins");
-    const parsed = raw ? JSON.parse(raw) : {};
-    setCheckins(parsed);
+    const saved =
+      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+    setCheckins(saved);
   }
 
- useEffect(() => {
-  console.log("CycleTracker mounted");
-
-  const handler = () => {
-    console.log("CycleTracker heard event");
+  useEffect(() => {
     loadCheckins();
-  };
 
-  window.addEventListener("bebi-checkin-updated", handler);
+    const onStorage = () => loadCheckins();
+    window.addEventListener("storage", onStorage);
 
-  return () => {
-    window.removeEventListener("bebi-checkin-updated", handler);
-  };
-}, []);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-
-  const dates = Object.keys(checkins).sort();
+  const days = Array.from({ length: 14 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13 - i));
+    return d.toISOString().slice(0, 10);
+  });
 
   return (
     <div className="card">
-      <h3>🌸 Cycle Calendar</h3>
+      <h3 style={{ marginTop: 0 }}>🌸 Cycle overview</h3>
+      <p className="small">
+        Baserat på hur du känt dig efter varje träningsdag
+      </p>
 
-      {dates.length === 0 && (
-        <p className="small">Inga dagar sparade ännu.</p>
-      )}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {days.map((date) => {
+          const entry = checkins[date];
+          const bg = entry?.strength
+            ? COLORS[entry.strength]
+            : "#1f2937";
 
-      <div style={{ display: "grid", gap: 8 }}>
-        {dates.map((date) => {
-          const d = checkins[date];
           return (
             <div
               key={date}
               style={{
-                padding: 10,
+                width: 70,
+                padding: 6,
                 borderRadius: 10,
-                background: "#fff1f2",
-                fontSize: 13,
+                background: bg,
+                color: "#020617",
+                fontSize: 11,
+                textAlign: "center",
               }}
             >
-              <strong>{date}</strong>
-              <div>💪 Styrka: {d.strength}</div>
-              <div>🧠 Psyke: {d.mental}</div>
-              <div>⚡ Energi: {d.energy}</div>
+              <div style={{ fontWeight: 600 }}>
+                {date.slice(5)}
+              </div>
+              {entry ? (
+                <div>
+                  {entry.strength}  
+                  <br />
+                  {entry.energy}
+                </div>
+              ) : (
+                <div style={{ opacity: 0.6 }}>—</div>
+              )}
             </div>
           );
         })}
+      </div>
+
+      <div className="small" style={{ marginTop: 10 }}>
+        🟢 Stark dag • 🟡 Normal • 🔴 Låg återhämtning
       </div>
     </div>
   );
