@@ -1,4 +1,3 @@
-// src/components/LogModal.jsx
 import React, { useState, useEffect } from "react";
 import { EXERCISES } from "../data/exercises";
 
@@ -42,15 +41,13 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card log-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <div className="modal-title">Logga set 💪</div>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <h3>💪 Logga set</h3>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="log-form">
           <div className="input-group">
             <label>Övning</label>
             <select
@@ -65,11 +62,13 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </select>
           </div>
 
-          <div className="profile-grid">
+          <div className="log-grid">
             <div className="input-group">
               <label>Vikt (kg)</label>
               <input
                 type="number"
+                inputMode="decimal"
+                placeholder="t.ex. 60"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
               />
@@ -79,15 +78,19 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
               <label>Reps</label>
               <input
                 type="number"
+                inputMode="numeric"
+                placeholder="t.ex. 8"
                 value={reps}
                 onChange={(e) => setReps(e.target.value)}
               />
             </div>
 
             <div className="input-group">
-              <label>RPE</label>
+              <label>RPE (valfritt)</label>
               <input
                 type="number"
+                inputMode="decimal"
+                placeholder="8–10"
                 value={rpe}
                 onChange={(e) => setRpe(e.target.value)}
               />
@@ -95,8 +98,8 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
           </div>
 
           <div className="modal-footer">
-            <button type="submit" className="btn-pink">
-              Spara set
+            <button type="submit" className="btn-pink btn-full">
+              💾 Spara set
             </button>
           </div>
         </form>
