@@ -1,4 +1,3 @@
-// src/components/DailyCheckinModal.jsx
 import React, { useState } from "react";
 
 export default function DailyCheckinModal({ open, onClose }) {
@@ -11,18 +10,15 @@ export default function DailyCheckinModal({ open, onClose }) {
   const [energy, setEnergy] = useState("");
 
   function handleSave() {
-    console.log("🟢 handleSave TRIGGERED");
-
     if (!strength && !mental && !energy) {
-      console.log("⚠️ inget valt");
       onClose();
       return;
     }
 
-    const saved =
+    const existing =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
-    saved[today] = {
+    existing[today] = {
       strength,
       mental,
       energy,
@@ -30,13 +26,8 @@ export default function DailyCheckinModal({ open, onClose }) {
 
     localStorage.setItem(
       "bebi_daily_checkins",
-      JSON.stringify(saved)
+      JSON.stringify(existing)
     );
-
-    console.log("✅ CHECKIN SAVED", saved);
-
-    // 🔔 VIKTIG SIGNAL
-    window.dispatchEvent(new Event("bebi-checkin-updated"));
 
     onClose();
   }
@@ -50,7 +41,7 @@ export default function DailyCheckinModal({ open, onClose }) {
         </div>
 
         <div className="input-group">
-          <label>Hur kände du dig styrkemässigt?</label>
+          <label>Styrka</label>
           <select value={strength} onChange={(e) => setStrength(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Svag</option>
@@ -60,32 +51,28 @@ export default function DailyCheckinModal({ open, onClose }) {
         </div>
 
         <div className="input-group">
-          <label>Hur kände du dig psykiskt?</label>
+          <label>Psykiskt</label>
           <select value={mental} onChange={(e) => setMental(e.target.value)}>
             <option value="">– välj –</option>
-            <option value="low">Stressad / låg</option>
+            <option value="low">Låg / stressad</option>
             <option value="ok">Stabil</option>
             <option value="good">Motiverad</option>
           </select>
         </div>
 
         <div className="input-group">
-          <label>Hur var energin?</label>
+          <label>Energi</label>
           <select value={energy} onChange={(e) => setEnergy(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Trött</option>
             <option value="medium">Okej</option>
-            <option value="high">Hög energi</option>
+            <option value="high">Hög</option>
           </select>
         </div>
 
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn-pink"
-            onClick={handleSave}
-          >
-            Spara dag 💖
+          <button className="btn-pink" onClick={handleSave}>
+            Spara dagen 💖
           </button>
         </div>
       </div>
