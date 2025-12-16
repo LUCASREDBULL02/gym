@@ -1,218 +1,143 @@
-// src/components/CycleTracker.jsx
-import React, { useEffect, useMemo, useState } from "react";
-
-// 🔢 hur många dagar finns i vald månad
-const daysInMonth = new Date(
-  currentYear,
-  currentMonth + 1,
-  0
-).getDate();
-
-// 📅 skapa alla dagar i månaden
-const days = Array.from({ length: daysInMonth }, (_, i) => {
-  const day = i + 1;
-  const dateStr = new Date(
-    currentYear,
-    currentMonth,
-    day
-  )
-    .toISOString()
-    .slice(0, 10);
-
-  return {
-    day,
-    date: dateStr,
-    checkin: checkins[dateStr] || null,
-  };
-});
-
-// Hjälpfunktioner
-const energyScore = {
-  low: 1,
-  medium: 2,
-  high: 3,
-};
-
-function getDaysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function getStatus(checkin) {
-  if (!checkin) {
-    return {
-      label: "Ingen data",
-      emoji: "⚪",
-      color: "#334155",
-      advice: "Ingen check-in",
-      score: 0,
-    };
-  }
-
-  const score =
-    (energyScore[checkin.energy] || 0) +
-    (checkin.strength === "strong" ? 2 : checkin.strength === "normal" ? 1 : 0);
-
-  if (score <= 2) {
-    return {
-      label: "Låg energi",
-      emoji: "🌙",
-      color: "#64748b",
-      advice: "Vila / teknik / låg volym",
-      score,
-    };
-  }
-
-  if (score >= 4) {
-    return {
-      label: "Peak",
-      emoji: "🔥",
-      color: "#7c3aed",
-      advice: "PR-läge & tunga lyft",
-      score,
-    };
-  }
-
-  return {
-    label: "Stabil",
-    emoji: "💪",
-    color: "#2563eb",
-    advice: "Normal träning",
-    score,
-  };
-}
+import React, { useEffect, useState } from "react";
 
 export default function CycleTracker() {
-  const [checkins, setCheckins] = useState({});
-  const [viewDate, setViewDate] = useState(new Date());
+  const today = new Date();
 
- useEffect(() => {
-  function load() {
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [checkins, setCheckins] = useState({});
+
+  // 🔄 Läs check-ins från localStorage
+  useEffect(() => {
     const saved =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
     setCheckins(saved);
+  }, []);
+
+  // 🔢 Hur många dagar i vald månad
+  const daysInMonth = new Date(
+    currentYear,
+    currentMonth + 1,
+    0
+  ).getDate();
+
+  // 📅 Bygg alla dagar
+  const days = Array.from({ length: daysInMonth }, (_, i) => {
+    const date = new Date(currentYear, currentMonth, i + 1)
+      .toISOString()
+      .slice(0, 10);
+
+    return {
+      date,
+      checkin: checkins[date] || null,
+    };
+  });
+
+  function prevMonth() {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear((y) => y - 1);
+    } else {
+      setCurrentMonth((m) => m - 1);
+    }
   }
 
-  load(); // första laddningen
+  function nextMonth() {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear((y) => y + 1);
+    } else {
+      setCurrentMonth((m) => m + 1);
+    }
+  }
 
-  window.addEventListener("storage", load);
-  window.addEventListener("bebi-checkin-updated", load);
-
-  return () => {
-    window.removeEventListener("storage", load);
-    window.removeEventListener("bebi-checkin-updated", load);
-  };
-}, []);
-
-  // 🔮 Prediktion (senaste 3 dagarna)
-  const prediction = useMemo(() => {
-    const sorted = Object.entries(checkins)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .slice(-3);
-
-    if (sorted.length < 2) return "Ingen tillräcklig data";
-
-    const trend =
-      getStatus(sorted.at(-1)[1]).score -
-      getStatus(sorted[0][1]).score;
-
-    if (trend > 0) return "🔮 Energin ser ut att stiga imorgon";
-    if (trend < 0) return "🔮 Återhämtning rekommenderas imorgon";
-    return "🔮 Stabil trend imorgon";
-  }, [checkins]);
-
-  // 📊 Energi-graf (7 dagar)
-  const last7 = useMemo(() => {
-    return Object.entries(checkins)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .slice(-7);
-  }, [checkins]);
+  function energyLabel(e) {
+    if (e === "low") return "🌙 Låg energi";
+    if (e === "medium") return "🙂 Okej energi";
+    if (e === "high") return "🔥 Hög energi";
+    return "Ingen data";
+  }
 
   return (
-    <div className="card">
-      <h2 style={{ marginTop: 0 }}>📅 Cycle & Energi</h2>
-
-      {/* Månadsväljare */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <button
-          className="btn"
-          onClick={() =>
-            setViewDate(new Date(year, month - 1, 1))
-          }
-        >
+    <div className="card" style={{ padding: 20 }}>
+      {/* HEADER */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <button className="btn" onClick={prevMonth}>
           ◀
         </button>
-        <strong>
-          {viewDate.toLocaleString("sv-SE", {
+        <h2 style={{ margin: 0 }}>
+          📆{" "}
+          {new Date(currentYear, currentMonth).toLocaleString("sv-SE", {
             month: "long",
             year: "numeric",
           })}
-        </strong>
-        <button
-          className="btn"
-          onClick={() =>
-            setViewDate(new Date(year, month + 1, 1))
-          }
-        >
+        </h2>
+        <button className="btn" onClick={nextMonth}>
           ▶
         </button>
       </div>
 
-      {/* 🔮 Prediktion */}
-      <div className="card" style={{ marginBottom: 12 }}>
-        <strong>{prediction}</strong>
-      </div>
+      {/* INFO */}
+      <p className="small" style={{ marginBottom: 12 }}>
+        Kalendern baseras på hur hon <b>känner sig</b> – inte mens/blödning 💗
+      </p>
 
-      {/* 📊 Energi-graf */}
-      <div className="card" style={{ marginBottom: 12 }}>
-        <strong>📊 Energi senaste 7 dagar</strong>
-        <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-          {last7.map(([date, data]) => {
-            const s = getStatus(data);
-            return (
-              <div
-                key={date}
-                title={date}
-                style={{
-                  width: 20,
-                  height: 20 + s.score * 10,
-                  background: s.color,
-                  borderRadius: 4,
-                }}
-              />
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 📅 Kalender */}
+      {/* KALENDER */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          gap: 10,
+          gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+          gap: 8,
         }}
       >
-        {days.map((date) => {
-          const status = getStatus(checkins[date]);
+        {days.map((d) => (
+          <div
+            key={d.date}
+            style={{
+              padding: 10,
+              borderRadius: 12,
+              background: d.checkin
+                ? d.checkin.energy === "high"
+                  ? "rgba(236,72,153,0.25)"
+                  : d.checkin.energy === "medium"
+                  ? "rgba(99,102,241,0.25)"
+                  : "rgba(148,163,184,0.25)"
+                : "rgba(15,23,42,0.8)",
+              border: "1px solid rgba(148,163,184,0.3)",
+            }}
+          >
+            <div style={{ fontSize: 12, opacity: 0.8 }}>{d.date}</div>
 
-          return (
-            <div
-              key={date}
-              style={{
-                background: status.color,
-                padding: 12,
-                borderRadius: 12,
-                color: "white",
-              }}
-            >
-              <div style={{ fontSize: 12 }}>{date}</div>
-              <div style={{ fontWeight: 600 }}>
-                {status.emoji} {status.label}
+            {d.checkin ? (
+              <>
+                <div style={{ marginTop: 6 }}>
+                  {energyLabel(d.checkin.energy)}
+                </div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>
+                  💪 {d.checkin.strength || "–"} <br />
+                  🧠 {d.checkin.mental || "–"}
+                </div>
+              </>
+            ) : (
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 12,
+                  opacity: 0.6,
+                }}
+              >
+                Ingen check-in
               </div>
-              <div style={{ fontSize: 12 }}>{status.advice}</div>
-            </div>
-          );
-        })}
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
