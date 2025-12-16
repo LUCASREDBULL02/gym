@@ -18,20 +18,17 @@ export default function DailyCheckinModal({ open, onClose }) {
     const existing =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
-    existing[today] = {
-      strength,
-      mental,
-      energy,
-    };
+   saved[today] = {
+    strength,
+    mental,
+    energy,
+  };
 
-    localStorage.setItem(
-      "bebi_daily_checkins",
-      JSON.stringify(existing)
-    );
+  localStorage.setItem("bebi_daily_checkins", JSON.stringify(saved));
+  window.dispatchEvent(new Event("bebi-checkin-updated"));
 
-    onClose();
-  }
-
+  onClose();
+}
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
