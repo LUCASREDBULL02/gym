@@ -18,7 +18,6 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
         setWeight(lastSet.weight);
         setReps(lastSet.reps);
         setRpe(lastSet.rpe || "");
-        setDate(lastSet.date || todayStr);
       }
     }
   }, [open, lastSet, todayStr]);
@@ -27,14 +26,14 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!exerciseId || !weight || !reps || !date) return;
+    if (!exerciseId || !weight || !reps) return;
 
     onSave({
       exerciseId,
       weight: Number(weight),
       reps: Number(reps),
       rpe: rpe ? Number(rpe) : null,
-      date, // 👈 VIKTIGT: sparar valt datum
+      date,
     });
 
     onClose();
@@ -42,13 +41,14 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card log-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        {/* HEADER */}
         <div className="modal-header">
-          <h3>💪 Logga set</h3>
+          <div className="modal-title">💪 Logga set</div>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="log-form">
+        <form onSubmit={handleSubmit}>
           {/* DATUM */}
           <div className="input-group">
             <label>Datum</label>
@@ -56,7 +56,6 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              max={todayStr}
             />
           </div>
 
@@ -75,13 +74,19 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </select>
           </div>
 
-          {/* SET DATA */}
-          <div className="log-grid">
+          {/* === VIKT / REPS / RPE (SAMMA FRAME) === */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: 10,
+              marginTop: 8,
+            }}
+          >
             <div className="input-group">
               <label>Vikt (kg)</label>
               <input
                 type="number"
-                inputMode="decimal"
                 placeholder="t.ex. 60"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
@@ -92,7 +97,6 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
               <label>Reps</label>
               <input
                 type="number"
-                inputMode="numeric"
                 placeholder="t.ex. 8"
                 value={reps}
                 onChange={(e) => setReps(e.target.value)}
@@ -100,10 +104,9 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </div>
 
             <div className="input-group">
-              <label>RPE (valfritt)</label>
+              <label>RPE</label>
               <input
                 type="number"
-                inputMode="decimal"
                 placeholder="8–10"
                 value={rpe}
                 onChange={(e) => setRpe(e.target.value)}
@@ -111,8 +114,9 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </div>
           </div>
 
-          <div className="modal-footer">
-            <button type="submit" className="btn-pink btn-full">
+          {/* FOOTER */}
+          <div className="modal-footer" style={{ marginTop: 14 }}>
+            <button type="submit" className="btn-pink" style={{ width: "100%" }}>
               💾 Spara set
             </button>
           </div>
