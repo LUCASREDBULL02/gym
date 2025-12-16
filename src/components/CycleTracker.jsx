@@ -1,45 +1,64 @@
 // src/components/CycleTracker.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-function getDayStatus(checkin) {
+// Hjälpfunktioner
+const energyScore = {
+  low: 1,
+  medium: 2,
+  high: 3,
+};
+
+function getDaysInMonth(year, month) {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+function getStatus(checkin) {
   if (!checkin) {
     return {
-      color: "#334155",
-      title: "Ingen data",
+      label: "Ingen data",
       emoji: "⚪",
-      advice: "Ingen check-in gjord",
+      color: "#334155",
+      advice: "Ingen check-in",
+      score: 0,
     };
   }
 
-  // Enkel logik – lätt att justera senare
-  if (checkin.energy === "low" || checkin.strength === "low") {
+  const score =
+    (energyScore[checkin.energy] || 0) +
+    (checkin.strength === "strong" ? 2 : checkin.strength === "normal" ? 1 : 0);
+
+  if (score <= 2) {
     return {
-      color: "#64748b",
-      title: "Låg energi",
+      label: "Låg energi",
       emoji: "🌙",
-      advice: "Sänk volym, teknik eller vila",
+      color: "#64748b",
+      advice: "Vila / teknik / låg volym",
+      score,
     };
   }
 
-  if (checkin.energy === "high" && checkin.strength === "strong") {
+  if (score >= 4) {
     return {
-      color: "#7c3aed",
-      title: "Peak / Starkast",
+      label: "Peak",
       emoji: "🔥",
-      advice: "Perfekt för PR & tunga lyft",
+      color: "#7c3aed",
+      advice: "PR-läge & tunga lyft",
+      score,
     };
   }
 
   return {
-    color: "#2563eb",
-    title: "Stabil dag",
+    label: "Stabil",
     emoji: "💪",
-    advice: "Bra dag för normal träning",
+    color: "#2563eb",
+    advice: "Normal träning",
+    score,
   };
 }
 
 export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
+  const [viewDate, setViewDate] = useState(new Date());
 
   useEffect(() => {
     const saved =
@@ -47,30 +66,108 @@ export default function CycleTracker() {
     setCheckins(saved);
   }, []);
 
-  // Renderar 14 dagar från idag
-  const days = Array.from({ length: 14 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    return d.toISOString().slice(0, 10);
-  });
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const daysInMonth = getDaysInMonth(year, month);
+
+  const days = useMemo(() => {
+    return Array.from({ length: daysInMonth }).map((_, i) => {
+      const d = new Date(year, month, i + 1);
+      return d.toISOString().slice(0, 10);
+    });
+  }, [year, month, daysInMonth]);
+
+  // 🔮 Prediktion (senaste 3 dagarna)
+  const prediction = useMemo(() => {
+    const sorted = Object.entries(checkins)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-3);
+
+    if (sorted.length < 2) return "Ingen tillräcklig data";
+
+    const trend =
+      getStatus(sorted.at(-1)[1]).score -
+      getStatus(sorted[0][1]).score;
+
+    if (trend > 0) return "🔮 Energin ser ut att stiga imorgon";
+    if (trend < 0) return "🔮 Återhämtning rekommenderas imorgon";
+    return "🔮 Stabil trend imorgon";
+  }, [checkins]);
+
+  // 📊 Energi-graf (7 dagar)
+  const last7 = useMemo(() => {
+    return Object.entries(checkins)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-7);
+  }, [checkins]);
 
   return (
     <div className="card">
-      <h2 style={{ marginTop: 0 }}>📆 Cycle & Energi</h2>
-      <p className="small">
-        Kalendern uppdateras automatiskt baserat på hur du känt dig.
-      </p>
+      <h2 style={{ marginTop: 0 }}>📅 Cycle & Energi</h2>
 
+      {/* Månadsväljare */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <button
+          className="btn"
+          onClick={() =>
+            setViewDate(new Date(year, month - 1, 1))
+          }
+        >
+          ◀
+        </button>
+        <strong>
+          {viewDate.toLocaleString("sv-SE", {
+            month: "long",
+            year: "numeric",
+          })}
+        </strong>
+        <button
+          className="btn"
+          onClick={() =>
+            setViewDate(new Date(year, month + 1, 1))
+          }
+        >
+          ▶
+        </button>
+      </div>
+
+      {/* 🔮 Prediktion */}
+      <div className="card" style={{ marginBottom: 12 }}>
+        <strong>{prediction}</strong>
+      </div>
+
+      {/* 📊 Energi-graf */}
+      <div className="card" style={{ marginBottom: 12 }}>
+        <strong>📊 Energi senaste 7 dagar</strong>
+        <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+          {last7.map(([date, data]) => {
+            const s = getStatus(data);
+            return (
+              <div
+                key={date}
+                title={date}
+                style={{
+                  width: 20,
+                  height: 20 + s.score * 10,
+                  background: s.color,
+                  borderRadius: 4,
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 📅 Kalender */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
           gap: 10,
-          marginTop: 12,
         }}
       >
         {days.map((date) => {
-          const status = getDayStatus(checkins[date]);
+          const status = getStatus(checkins[date]);
 
           return (
             <div
@@ -80,16 +177,13 @@ export default function CycleTracker() {
                 padding: 12,
                 borderRadius: 12,
                 color: "white",
-                boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
               }}
             >
-              <div style={{ fontSize: 12, opacity: 0.9 }}>{date}</div>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>
-                {status.emoji} {status.title}
+              <div style={{ fontSize: 12 }}>{date}</div>
+              <div style={{ fontWeight: 600 }}>
+                {status.emoji} {status.label}
               </div>
-              <div style={{ fontSize: 12, marginTop: 4 }}>
-                {status.advice}
-              </div>
+              <div style={{ fontSize: 12 }}>{status.advice}</div>
             </div>
           );
         })}
