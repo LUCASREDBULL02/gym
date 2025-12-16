@@ -1060,7 +1060,7 @@ function handleDailyCheckin(data) {
         )}
 
         {/* CYKEL VIEW */}
-       {view === "cycle" && (<CycleTracker />}
+       {view === "cycle" && <CycleTracker />}
           <CycleView
             cycleConfig={cycleConfig}
             setCycleConfig={setCycleConfig}
