@@ -1059,13 +1059,16 @@ function handleDailyCheckin(data) {
           </div>
         )}
 
-        {/* CYKEL VIEW */}
-       {view === "cycle" && <CycleTracker />}
-          <CycleView
-            cycleConfig={cycleConfig}
-            setCycleConfig={setCycleConfig}
-          />
-        )}
+      {/* CYKEL VIEW */}
+{view === "cycle" && (
+  <>
+    <CycleTracker />
+    <CycleView
+      cycleConfig={cycleConfig}
+      setCycleConfig={setCycleConfig}
+    />
+  </>
+)}
 
         {/* ACHIEVEMENTS */}
         {view === "ach" && <Achievements unlocked={unlockedAchievements} />}
