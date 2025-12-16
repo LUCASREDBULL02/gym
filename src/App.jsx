@@ -937,67 +937,61 @@ function handleDailyCheckin(data) {
           </div>
         )}
 
-        {/* LOGGAR */}
-        {view === "log" && (
-          <div className="card">
+     {/* LOGGAR */}
+{view === "log" && (
+  <div className="log-page">
+    <div className="log-header">
+      <h2>📓 Träningslogg</h2>
+      <button
+        className="btn-pink"
+        onClick={() => setShowDailyCheckin(true)}
+      >
+        🌙 Klar för dagen
+      </button>
+    </div>
 
-            <button
-      className="btn-pink"
-      style={{ marginBottom: 12 }}
-      onClick={() => setShowDailyCheckin(true)}
-    >
-      🌙 Klar för dagen
-    </button>
+    <div className="card log-card">
+      <h3>Loggade set</h3>
 
-            <h3 style={{ marginTop: 0 }}>Loggade set 📓</h3>
-            {!logs.length && (
-              <p className="small">
-                Inga set än. Klicka på “Logga set” för att lägga till ditt första
-                pass, Bebi 💗
-              </p>
-            )}
-            <ul
-              style={{
-                paddingLeft: 0,
-                listStyle: "none",
-                margin: 0,
-                marginTop: 6,
-              }}
-            >
-              {logs.map((l) => {
-                const ex = EXERCISES.find((e) => e.id === l.exerciseId);
-                return (
-                  <li
-                    key={l.id}
-                    style={{
-                      fontSize: 12,
-                      marginBottom: 4,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "4px 6px",
-                      borderRadius: 8,
-                      background: "rgba(15,23,42,0.9)",
-                      border: "1px solid rgba(148,163,184,0.5)",
-                    }}
-                  >
-                    <div>
-                      {l.date} • {ex?.name || l.exerciseId} • {l.weight} kg ×{" "}
-                      {l.reps} reps (1RM ca {calc1RM(l.weight, l.reps)} kg)
-                    </div>
-                    <button
-                      className="btn"
-                      style={{ fontSize: 11, padding: "3px 7px" }}
-                      onClick={() => handleDeleteLog(l.id)}
-                    >
-                      🗑️
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
+      {!logs.length && (
+        <p className="small muted">
+          Inga set än. Klicka på <b>“Logga set”</b> för att börja 💗
+        </p>
+      )}
+
+      <ul className="log-list">
+        {logs.map((l) => {
+          const ex = EXERCISES.find((e) => e.id === l.exerciseId);
+          return (
+            <li key={l.id} className="log-item">
+              <div className="log-main">
+                <div className="log-exercise">
+                  {ex?.name || l.exerciseId}
+                </div>
+                <div className="log-meta">
+                  {l.weight} kg × {l.reps} reps
+                  <span className="log-rm">
+                    1RM ≈ {calc1RM(l.weight, l.reps)} kg
+                  </span>
+                </div>
+              </div>
+
+              <div className="log-actions">
+                <span className="log-date">{l.date}</span>
+                <button
+                  className="icon-btn"
+                  onClick={() => handleDeleteLog(l.id)}
+                >
+                  🗑️
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
+)}
 
         {/* PROGRAM */}
         {view === "program" && (
