@@ -698,3 +698,79 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
+.log-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.log-card {
+  padding: 16px;
+}
+
+.log-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.log-exercise {
+  font-weight: 600;
+}
+
+.log-meta {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.log-rm {
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+.log-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.log-modal {
+  max-width: 420px;
+}
+
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.btn-full {
+  width: 100%;
+}
