@@ -8,11 +8,26 @@ export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
 
   // 🔄 Läs check-ins från localStorage
-  useEffect(() => {
+ useEffect(() => {
+  function loadCheckins() {
     const saved =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
     setCheckins(saved);
-  }, []);
+  }
+
+  loadCheckins();
+
+  // 🔄 Uppdatera när localStorage ändras
+  window.addEventListener("storage", loadCheckins);
+
+  // 🔄 Uppdatera när användaren går tillbaka till fliken
+  window.addEventListener("focus", loadCheckins);
+
+  return () => {
+    window.removeEventListener("storage", loadCheckins);
+    window.removeEventListener("focus", loadCheckins);
+  };
+}, []);
 
   // 🔢 Hur många dagar i vald månad
   const daysInMonth = new Date(
