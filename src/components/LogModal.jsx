@@ -18,6 +18,7 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
         setWeight(lastSet.weight);
         setReps(lastSet.reps);
         setRpe(lastSet.rpe || "");
+        setDate(lastSet.date || todayStr);
       }
     }
   }, [open, lastSet, todayStr]);
@@ -26,14 +27,14 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!exerciseId || !weight || !reps) return;
+    if (!exerciseId || !weight || !reps || !date) return;
 
     onSave({
       exerciseId,
       weight: Number(weight),
       reps: Number(reps),
       rpe: rpe ? Number(rpe) : null,
-      date,
+      date, // 👈 VIKTIGT: sparar valt datum
     });
 
     onClose();
@@ -48,6 +49,18 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
         </div>
 
         <form onSubmit={handleSubmit} className="log-form">
+          {/* DATUM */}
+          <div className="input-group">
+            <label>Datum</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              max={todayStr}
+            />
+          </div>
+
+          {/* ÖVNING */}
           <div className="input-group">
             <label>Övning</label>
             <select
@@ -62,6 +75,7 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
             </select>
           </div>
 
+          {/* SET DATA */}
           <div className="log-grid">
             <div className="input-group">
               <label>Vikt (kg)</label>
