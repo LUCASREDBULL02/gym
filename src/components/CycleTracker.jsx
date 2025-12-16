@@ -1,81 +1,156 @@
 import React, { useEffect, useState } from "react";
 
-const COLORS = {
-  strong: "#86efac",
-  normal: "#fde68a",
-  low: "#fecaca",
-};
+/*
+  CycleTracker
+  - Läser endast från localStorage
+  - Key: "bebi_daily_checkins"
+  - Format:
+    {
+      "YYYY-MM-DD": {
+        strength: "low|normal|strong",
+        mental: "low|ok|good",
+        energy: "low|medium|high"
+      }
+    }
+*/
+
+function analyzeDay(entry) {
+  if (!entry) return null;
+
+  const { strength, mental, energy } = entry;
+
+  // 🔥 Peak day
+  if (energy === "high" && strength === "strong") {
+    return {
+      label: "Peak day",
+      emoji: "🔥",
+      color: "#f472b6",
+      advice: "Perfekt dag för tunga set, PR eller hög volym",
+    };
+  }
+
+  // 🌙 Low day
+  if (energy === "low" || strength === "low") {
+    return {
+      label: "Low energy",
+      emoji: "🌙",
+      color: "#94a3b8",
+      advice: "Sänk volym, kör teknik eller vila",
+    };
+  }
+
+  // 🌸 Balanced
+  return {
+    label: "Balanced",
+    emoji: "🌸",
+    color: "#f9a8d4",
+    advice: "Stabil dag – normal träning",
+  };
+}
 
 export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
 
-  function loadCheckins() {
-    const saved =
-      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-    setCheckins(saved);
-  }
-
+  // 🔁 Läs ALLTID från localStorage
   useEffect(() => {
-    loadCheckins();
-
-    const onStorage = () => loadCheckins();
-    window.addEventListener("storage", onStorage);
-
-    return () => window.removeEventListener("storage", onStorage);
+    const stored =
+      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+    setCheckins(stored);
   }, []);
 
-  const days = Array.from({ length: 14 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (13 - i));
-    return d.toISOString().slice(0, 10);
-  });
+  const today = new Date().toISOString().slice(0, 10);
+  const todayAnalysis = analyzeDay(checkins[today]);
+
+  const entries = Object.entries(checkins).sort(
+    ([a], [b]) => b.localeCompare(a)
+  );
+
+  const stats = {
+    highEnergy: Object.values(checkins).filter(
+      (d) => d.energy === "high"
+    ).length,
+    lowEnergy: Object.values(checkins).filter(
+      (d) => d.energy === "low"
+    ).length,
+  };
 
   return (
-    <div className="card">
-      <h3 style={{ marginTop: 0 }}>🌸 Cycle overview</h3>
-      <p className="small">
-        Baserat på hur du känt dig efter varje träningsdag
+    <div style={{ padding: 16 }}>
+      <h2 style={{ marginBottom: 8 }}>📅 Cycle</h2>
+      <p style={{ fontSize: 13, opacity: 0.7 }}>
+        Baserat på hur du känt dig – inte mens/blödning 💗
       </p>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {days.map((date) => {
-          const entry = checkins[date];
-          const bg = entry?.strength
-            ? COLORS[entry.strength]
-            : "#1f2937";
+      {/* 🔮 TODAY */}
+      {todayAnalysis && (
+        <div
+          style={{
+            background: todayAnalysis.color,
+            padding: 14,
+            borderRadius: 14,
+            marginTop: 12,
+            color: "#0f172a",
+          }}
+        >
+          <strong>Idag</strong> {todayAnalysis.emoji}
+          <div style={{ fontSize: 13 }}>
+            {todayAnalysis.advice}
+          </div>
+        </div>
+      )}
+
+      {/* 📊 STATS */}
+      <div
+        style={{
+          marginTop: 16,
+          padding: 12,
+          borderRadius: 14,
+          background: "#020617",
+          border: "1px solid rgba(148,163,184,0.3)",
+        }}
+      >
+        <h4 style={{ marginTop: 0 }}>📊 Mönster</h4>
+        <div style={{ fontSize: 13 }}>
+          🔋 Hög energi-dagar: {stats.highEnergy}
+        </div>
+        <div style={{ fontSize: 13 }}>
+          🌙 Låg energi-dagar: {stats.lowEnergy}
+        </div>
+      </div>
+
+      {/* 📅 DAYS */}
+      <div style={{ marginTop: 16 }}>
+        {entries.length === 0 && (
+          <p style={{ fontSize: 13, opacity: 0.6 }}>
+            Inga dagar loggade ännu.
+          </p>
+        )}
+
+        {entries.map(([date, entry]) => {
+          const analysis = analyzeDay(entry);
+          if (!analysis) return null;
 
           return (
             <div
               key={date}
               style={{
-                width: 70,
-                padding: 6,
-                borderRadius: 10,
-                background: bg,
-                color: "#020617",
-                fontSize: 11,
-                textAlign: "center",
+                marginBottom: 8,
+                padding: 12,
+                borderRadius: 14,
+                background: analysis.color,
+                color: "#0f172a",
               }}
             >
-              <div style={{ fontWeight: 600 }}>
-                {date.slice(5)}
+              <strong>{date}</strong> {analysis.emoji}
+              <div style={{ fontSize: 12 }}>
+                {analysis.label}
               </div>
-              {entry ? (
-                <div>
-                  {entry.strength}  
-                  <br />
-                  {entry.energy}
-                </div>
-              ) : (
-                <div style={{ opacity: 0.6 }}>—</div>
-              )}
+              <div style={{ fontSize: 12, opacity: 0.8 }}>
+                {analysis.advice}
+              </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="small" style={{ marginTop: 10 }}>
-        🟢 Stark dag • 🟡 Normal • 🔴 Låg återhämtning
       </div>
     </div>
   );
