@@ -75,15 +75,6 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
           </div>
 
           {/* === VIKT / REPS / RPE (SAMMA FRAME) === */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: 10,
-              marginTop: 8,
-            }}
-          >
-           {/* === SET INPUTS === */}
 <div
   style={{
     display: "grid",
