@@ -83,36 +83,45 @@ export default function LogModal({ open, onClose, onSave, lastSet }) {
               marginTop: 8,
             }}
           >
-            <div className="input-group">
-              <label>Vikt (kg)</label>
-              <input
-                type="number"
-                placeholder="t.ex. 60"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-              />
-            </div>
+           {/* === SET INPUTS === */}
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+    gap: 10,
+    marginTop: 8,
+  }}
+>
+  <div className="input-group">
+    <label>Vikt (kg)</label>
+    <input
+      type="number"
+      placeholder="t.ex. 60"
+      value={weight}
+      onChange={(e) => setWeight(e.target.value)}
+    />
+  </div>
 
-            <div className="input-group">
-              <label>Reps</label>
-              <input
-                type="number"
-                placeholder="t.ex. 8"
-                value={reps}
-                onChange={(e) => setReps(e.target.value)}
-              />
-            </div>
+  <div className="input-group">
+    <label>Reps</label>
+    <input
+      type="number"
+      placeholder="t.ex. 8"
+      value={reps}
+      onChange={(e) => setReps(e.target.value)}
+    />
+  </div>
 
-            <div className="input-group">
-              <label>RPE</label>
-              <input
-                type="number"
-                placeholder="8–10"
-                value={rpe}
-                onChange={(e) => setRpe(e.target.value)}
-              />
-            </div>
-          </div>
+  <div className="input-group">
+    <label>RPE (valfritt)</label>
+    <input
+      type="number"
+      placeholder="8–10"
+      value={rpe}
+      onChange={(e) => setRpe(e.target.value)}
+    />
+  </div>
+</div>
 
           {/* FOOTER */}
           <div className="modal-footer" style={{ marginTop: 14 }}>
