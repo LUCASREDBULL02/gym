@@ -1,6 +1,31 @@
 // src/components/CycleTracker.jsx
 import React, { useEffect, useMemo, useState } from "react";
 
+// 🔢 hur många dagar finns i vald månad
+const daysInMonth = new Date(
+  currentYear,
+  currentMonth + 1,
+  0
+).getDate();
+
+// 📅 skapa alla dagar i månaden
+const days = Array.from({ length: daysInMonth }, (_, i) => {
+  const day = i + 1;
+  const dateStr = new Date(
+    currentYear,
+    currentMonth,
+    day
+  )
+    .toISOString()
+    .slice(0, 10);
+
+  return {
+    day,
+    date: dateStr,
+    checkin: checkins[dateStr] || null,
+  };
+});
+
 // Hjälpfunktioner
 const energyScore = {
   low: 1,
