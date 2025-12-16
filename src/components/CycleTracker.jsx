@@ -60,22 +60,23 @@ export default function CycleTracker() {
   const [checkins, setCheckins] = useState({});
   const [viewDate, setViewDate] = useState(new Date());
 
-  useEffect(() => {
+ useEffect(() => {
+  function load() {
     const saved =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
     setCheckins(saved);
-  }, []);
+  }
 
-  const year = viewDate.getFullYear();
-  const month = viewDate.getMonth();
-  const daysInMonth = getDaysInMonth(year, month);
+  load(); // första laddningen
 
-  const days = useMemo(() => {
-    return Array.from({ length: daysInMonth }).map((_, i) => {
-      const d = new Date(year, month, i + 1);
-      return d.toISOString().slice(0, 10);
-    });
-  }, [year, month, daysInMonth]);
+  window.addEventListener("storage", load);
+  window.addEventListener("bebi-checkin-updated", load);
+
+  return () => {
+    window.removeEventListener("storage", load);
+    window.removeEventListener("bebi-checkin-updated", load);
+  };
+}, []);
 
   // 🔮 Prediktion (senaste 3 dagarna)
   const prediction = useMemo(() => {
