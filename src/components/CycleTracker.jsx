@@ -1,39 +1,39 @@
+// src/components/CycleTracker.jsx
 import React, { useEffect, useState } from "react";
 
-const WEEKDAYS = ["M", "T", "O", "T", "F", "L", "S"];
+function calculateScore(entry) {
+  if (!entry) return 0;
 
-function daysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate();
+  let score = 0;
+
+  if (entry.energy === "high") score += 2;
+  if (entry.energy === "medium") score += 1;
+
+  if (entry.strength === "high") score += 2;
+  if (entry.strength === "normal") score += 1;
+
+  if (entry.mental === "good") score += 1;
+  if (entry.mental === "low") score -= 1;
+
+  if (entry.bleeding) score -= 2;
+
+  return score;
 }
 
-function dayMeta(entry) {
-  if (!entry) {
-    return { bg: "#020617", text: "#9ca3af", label: "" };
-  }
-
-  if (entry.energy === "high" && entry.strength === "high") {
-    return { bg: "#22c55e", text: "#022c22", label: "PR-dag 🔥" };
-  }
-
-  if (entry.energy === "low" || entry.mental === "low") {
-    return { bg: "#f97316", text: "#3b1d05", label: "Lugn dag 🌙" };
-  }
-
-  return { bg: "#ec4899", text: "#3b021c", label: "Normal 💪" };
+function getLabel(score) {
+  if (score >= 5) return { emoji: "🔥", text: "Tung dag" };
+  if (score >= 2) return { emoji: "💗", text: "Lätt / volym" };
+  return { emoji: "🌙", text: "Vila" };
 }
 
 export default function CycleTracker() {
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
   const [checkins, setCheckins] = useState({});
 
-  // 🔁 Ladda dagskänslor
   useEffect(() => {
     const load = () => {
-      const saved =
+      const data =
         JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-      setCheckins(saved);
+      setCheckins(data);
     };
 
     load();
@@ -41,35 +41,36 @@ export default function CycleTracker() {
     return () => window.removeEventListener("storage", load);
   }, []);
 
-  const totalDays = daysInMonth(year, month);
-  const firstDay = new Date(year, month, 1).getDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    const date = new Date(year, month, day)
+      .toISOString()
+      .slice(0, 10);
+    return date;
+  });
+
+  const today = new Date().toISOString().slice(0, 10);
+  const todayScore = calculateScore(checkins[today]);
+
+  function tomorrowRecommendation() {
+    const recent = Object.values(checkins).slice(-3);
+    let total = 0;
+    recent.forEach((e) => (total += calculateScore(e)));
+
+    if (total >= 7) return "🔥 Tung styrka";
+    if (total >= 3) return "💗 Lätt / teknik";
+    return "🌙 Vila";
+  }
 
   return (
     <div className="card">
       <h3 style={{ marginTop: 0 }}>Cykel & Styrka 🌸</h3>
-      <p className="small">
-        Kalendern uppdateras automatiskt när du sparar “Klar för dagen”.
-      </p>
 
-      {/* Veckodagar */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          fontSize: 12,
-          opacity: 0.7,
-          marginBottom: 4,
-        }}
-      >
-        {WEEKDAYS.map((d) => (
-          <div key={d} style={{ textAlign: "center" }}>
-            {d}
-          </div>
-        ))}
-      </div>
-
-      {/* Kalender */}
       <div
         style={{
           display: "grid",
@@ -77,44 +78,75 @@ export default function CycleTracker() {
           gap: 6,
         }}
       >
-        {Array.from({ length: offset }).map((_, i) => (
-          <div key={`empty-${i}`} />
-        ))}
-
-        {Array.from({ length: totalDays }).map((_, i) => {
-          const day = i + 1;
-          const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-            day
-          ).padStart(2, "0")}`;
-
-          const meta = dayMeta(checkins[key]);
+        {days.map((date) => {
+          const entry = checkins[date];
+          const score = calculateScore(entry);
+          const label = entry ? getLabel(score) : null;
 
           return (
             <div
-              key={key}
+              key={date}
               style={{
-                padding: 8,
-                borderRadius: 12,
-                background: meta.bg,
-                color: meta.text,
+                padding: 6,
+                borderRadius: 10,
+                background: label
+                  ? "rgba(236,72,153,0.15)"
+                  : "rgba(15,23,42,0.9)",
+                border: "1px solid rgba(148,163,184,0.4)",
                 textAlign: "center",
-                fontSize: 12,
-                minHeight: 56,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
+                fontSize: 11,
               }}
             >
-              <div style={{ fontWeight: 700 }}>{day}</div>
-              <div style={{ fontSize: 10 }}>{meta.label}</div>
+              <div>{date.slice(-2)}</div>
+              {label && (
+                <div style={{ fontSize: 14 }}>{label.emoji}</div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Legend */}
-      <div style={{ marginTop: 10, fontSize: 11, opacity: 0.75 }}>
-        🔥 PR-dag • 💪 Normal • 🌙 Lugn
+      {todayScore <= 1 && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: 10,
+            borderRadius: 10,
+            background: "rgba(239,68,68,0.15)",
+            fontSize: 13,
+          }}
+        >
+          ⚠️ Rekommendation: kör <strong>INTE PR</strong> idag
+        </div>
+      )}
+
+      <div style={{ marginTop: 12, fontSize: 13 }}>
+        <strong>Imorgon:</strong> {tomorrowRecommendation()}
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <strong>Energi senaste dagarna</strong>
+        <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
+          {Object.entries(checkins)
+            .slice(-7)
+            .map(([date, e]) => {
+              const h =
+                e.energy === "high" ? 60 :
+                e.energy === "medium" ? 40 : 20;
+              return (
+                <div
+                  key={date}
+                  title={date}
+                  style={{
+                    width: 12,
+                    height: h,
+                    background: "#ec4899",
+                    borderRadius: 6,
+                  }}
+                />
+              );
+            })}
+        </div>
       </div>
     </div>
   );
