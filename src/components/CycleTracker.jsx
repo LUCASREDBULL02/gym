@@ -1,45 +1,48 @@
 import React, { useEffect, useState } from "react";
 
-const DAY_LABELS = ["M", "T", "O", "T", "F", "L", "S"];
+const WEEKDAYS = ["M", "T", "O", "T", "F", "L", "S"];
 
-function getDaysInMonth(year, month) {
+function daysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
 }
 
-function strengthMeta(entry) {
-  if (!entry) return { label: "Ingen data", color: "#1f2937", emoji: "•" };
-
-  if (entry.energy === "high" && entry.strength === "strong") {
-    return { label: "PR-läge", color: "#22c55e", emoji: "🔥" };
+function getDayStyle(entry) {
+  if (!entry) {
+    return {
+      bg: "rgba(15,23,42,0.8)",
+      emoji: "•",
+      label: "",
+    };
   }
 
+  // 🔥 Stark dag
+  if (entry.energy === "high" && entry.strength === "high") {
+    return { bg: "#22c55e", emoji: "🔥", label: "PR-läge" };
+  }
+
+  // 🌙 Lugn dag
   if (entry.energy === "low" || entry.mental === "low") {
-    return { label: "Lugn dag", color: "#f97316", emoji: "🌙" };
+    return { bg: "#f97316", emoji: "🌙", label: "Lugn" };
   }
 
-  return { label: "Normal träning", color: "#ec4899", emoji: "💪" };
+  // 💗 Normal
+  return { bg: "#ec4899", emoji: "💗", label: "Normal" };
 }
 
 export default function CycleTracker() {
   const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
+  const [year] = useState(today.getFullYear());
+  const [month] = useState(today.getMonth());
   const [checkins, setCheckins] = useState({});
 
-  // 🔁 Läs daily checkins
+  // 🔁 Läs sparade dagar
   useEffect(() => {
-    function load() {
-      const stored =
-        JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-      setCheckins(stored);
-    }
-
-    load();
-    window.addEventListener("storage", load);
-    return () => window.removeEventListener("storage", load);
+    const stored =
+      JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
+    setCheckins(stored);
   }, []);
 
-  const daysInMonth = getDaysInMonth(year, month);
+  const totalDays = daysInMonth(year, month);
   const firstDay = new Date(year, month, 1).getDay();
   const offset = firstDay === 0 ? 6 : firstDay - 1;
 
@@ -47,50 +50,65 @@ export default function CycleTracker() {
     <div className="card">
       <h3 style={{ marginTop: 0 }}>Cykel & Styrka 🌸</h3>
       <p className="small">
-        Kalendern uppdateras automatiskt när du sparar “Klar för dagen”.
+        Kalendern uppdateras när du sparar <strong>Klar för dagen</strong>.
       </p>
 
       {/* Veckodagar */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", fontSize: 12, opacity: 0.7 }}>
-        {DAY_LABELS.map((d) => (
-          <div key={d} style={{ textAlign: "center" }}>{d}</div>
-        ))}
-      </div>
-
-      {/* Kalender */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(7,1fr)",
-          gap: 6,
-          marginTop: 6,
+          gridTemplateColumns: "repeat(7, 1fr)",
+          marginBottom: 6,
+          fontSize: 12,
+          opacity: 0.7,
         }}
       >
+        {WEEKDAYS.map((d) => (
+          <div key={d} style={{ textAlign: "center" }}>
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* ORIGINAL-KALENDER */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7, 1fr)",
+          gap: 6,
+        }}
+      >
+        {/* tomma rutor */}
         {Array.from({ length: offset }).map((_, i) => (
           <div key={`empty-${i}`} />
         ))}
 
-        {Array.from({ length: daysInMonth }).map((_, i) => {
+        {Array.from({ length: totalDays }).map((_, i) => {
           const day = i + 1;
-          const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-          const entry = checkins[dateKey];
-          const meta = strengthMeta(entry);
+          const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+            day
+          ).padStart(2, "0")}`;
+
+          const entry = checkins[key];
+          const style = getDayStyle(entry);
 
           return (
             <div
-              key={dateKey}
+              key={key}
               style={{
                 padding: 6,
-                borderRadius: 10,
-                background: meta.color,
-                color: "#020617",
-                fontSize: 11,
+                borderRadius: 12,
+                background: style.bg,
                 textAlign: "center",
+                fontSize: 11,
+                color: "#020617",
               }}
             >
               <div style={{ fontWeight: 700 }}>{day}</div>
-              <div>{meta.emoji}</div>
-              <div style={{ fontSize: 9 }}>{meta.label}</div>
+              <div style={{ fontSize: 14 }}>{style.emoji}</div>
+              {style.label && (
+                <div style={{ fontSize: 9 }}>{style.label}</div>
+              )}
             </div>
           );
         })}
@@ -98,7 +116,7 @@ export default function CycleTracker() {
 
       {/* Legend */}
       <div style={{ marginTop: 10, fontSize: 11, opacity: 0.8 }}>
-        🔥 PR-läge • 💪 Normal • 🌙 Lugn dag
+        🔥 PR-läge • 💗 Normal • 🌙 Lugn dag
       </div>
     </div>
   );
