@@ -1,3 +1,4 @@
+// src/components/DailyCheckinModal.jsx
 import React, { useState } from "react";
 
 export default function DailyCheckinModal({ open, onClose }) {
@@ -11,12 +12,10 @@ export default function DailyCheckinModal({ open, onClose }) {
   const [bleeding, setBleeding] = useState(false);
 
   function handleSave() {
-    // Läs befintliga checkins
-    const existing =
+    const stored =
       JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
 
-    // Skriv/uppdatera dagens data
-    existing[today] = {
+    stored[today] = {
       strength,
       mental,
       energy,
@@ -25,11 +24,8 @@ export default function DailyCheckinModal({ open, onClose }) {
 
     localStorage.setItem(
       "bebi_daily_checkins",
-      JSON.stringify(existing)
+      JSON.stringify(stored)
     );
-
-    // 🔁 Trigga uppdatering i CycleTracker
-    window.dispatchEvent(new Event("storage"));
 
     onClose();
   }
@@ -39,48 +35,46 @@ export default function DailyCheckinModal({ open, onClose }) {
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">🌙 Klar för dagen</div>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
         <div className="input-group">
-          <label>Hur kände du dig styrkemässigt?</label>
+          <label>Styrka</label>
           <select value={strength} onChange={(e) => setStrength(e.target.value)}>
             <option value="">– välj –</option>
             <option value="low">Svag</option>
             <option value="normal">Normal</option>
-            <option value="strong">Väldigt stark</option>
+            <option value="high">Stark</option>
           </select>
         </div>
 
         <div className="input-group">
-          <label>Hur kände du dig psykiskt?</label>
+          <label>Psykiskt</label>
           <select value={mental} onChange={(e) => setMental(e.target.value)}>
             <option value="">– välj –</option>
-            <option value="low">Stressad / låg</option>
+            <option value="low">Låg</option>
             <option value="ok">Stabil</option>
-            <option value="good">Motiverad</option>
+            <option value="good">Bra</option>
           </select>
         </div>
 
         <div className="input-group">
-          <label>Hur var energin?</label>
+          <label>Energi</label>
           <select value={energy} onChange={(e) => setEnergy(e.target.value)}>
             <option value="">– välj –</option>
-            <option value="low">Trött</option>
+            <option value="low">Låg</option>
             <option value="medium">Okej</option>
-            <option value="high">Hög energi</option>
+            <option value="high">Hög</option>
           </select>
         </div>
 
-        <div className="input-group" style={{ marginTop: 8 }}>
-          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="input-group">
+          <label>
             <input
               type="checkbox"
               checked={bleeding}
               onChange={(e) => setBleeding(e.target.checked)}
-            />
+            />{" "}
             Jag blöder idag
           </label>
         </div>
