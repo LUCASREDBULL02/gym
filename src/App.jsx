@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ProfileView from "./components/ProfileView.jsx";
 import Toast from "./components/Toast.jsx";
-import DailyCheckinModal from "./components/DailyCheckinModal.jsx";
 import LogModal from "./components/LogModal.jsx";
 import MuscleMap from "./components/MuscleMap.jsx";
 import BossArena from "./components/BossArena.jsx";
@@ -399,39 +398,12 @@ export default function App() {
   const [view, setView] = useState("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-
-   const [showDailyCheckin, setShowDailyCheckin] = useState(false);
-
- 
-function handleDailyCheckin(data) {
-  const today = new Date().toISOString().slice(0, 10);
-
-  const saved =
-    JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-
-  saved[today] = {
-    ...data,
-    date: today,
-  };
-
-  localStorage.setItem(
-    "bebi_daily_checkins",
-    JSON.stringify(saved)
-  );
-
-  setShowDailyCheckin(false);
-
-  if (typeof showToastMsg === "function") {
-    showToastMsg("🌙 Klar för dagen", "Din dagsform är sparad 💗");
-  }
-}
-
   // Loggar – persisteras
   const [logs, setLogs] = useState(() => {
     const saved = localStorage.getItem("bebi_logs");
     return saved ? JSON.parse(saved) : [];
   });
-  
+
   useEffect(() => {
     localStorage.setItem("bebi_logs", JSON.stringify(logs));
   }, [logs]);
@@ -937,61 +909,58 @@ function handleDailyCheckin(data) {
           </div>
         )}
 
-     {/* LOGGAR */}
-{view === "log" && (
-  <div className="log-page">
-    <div className="log-header">
-      <h2>📓 Träningslogg</h2>
-      <button
-        className="btn-pink"
-        onClick={() => setShowDailyCheckin(true)}
-      >
-        🌙 Klar för dagen
-      </button>
-    </div>
-
-    <div className="card log-card">
-      <h3>Loggade set</h3>
-
-      {!logs.length && (
-        <p className="small muted">
-          Inga set än. Klicka på <b>“Logga set”</b> för att börja 💗
-        </p>
-      )}
-
-      <ul className="log-list">
-        {logs.map((l) => {
-          const ex = EXERCISES.find((e) => e.id === l.exerciseId);
-          return (
-            <li key={l.id} className="log-item">
-              <div className="log-main">
-                <div className="log-exercise">
-                  {ex?.name || l.exerciseId}
-                </div>
-                <div className="log-meta">
-                  {l.weight} kg × {l.reps} reps
-                  <span className="log-rm">
-                    1RM ≈ {calc1RM(l.weight, l.reps)} kg
-                  </span>
-                </div>
-              </div>
-
-              <div className="log-actions">
-                <span className="log-date">{l.date}</span>
-                <button
-                  className="icon-btn"
-                  onClick={() => handleDeleteLog(l.id)}
-                >
-                  🗑️
-                </button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  </div>
-)}
+        {/* LOGGAR */}
+        {view === "log" && (
+          <div className="card">
+            <h3 style={{ marginTop: 0 }}>Loggade set 📓</h3>
+            {!logs.length && (
+              <p className="small">
+                Inga set än. Klicka på “Logga set” för att lägga till ditt första
+                pass, Bebi 💗
+              </p>
+            )}
+            <ul
+              style={{
+                paddingLeft: 0,
+                listStyle: "none",
+                margin: 0,
+                marginTop: 6,
+              }}
+            >
+              {logs.map((l) => {
+                const ex = EXERCISES.find((e) => e.id === l.exerciseId);
+                return (
+                  <li
+                    key={l.id}
+                    style={{
+                      fontSize: 12,
+                      marginBottom: 4,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "4px 6px",
+                      borderRadius: 8,
+                      background: "rgba(15,23,42,0.9)",
+                      border: "1px solid rgba(148,163,184,0.5)",
+                    }}
+                  >
+                    <div>
+                      {l.date} • {ex?.name || l.exerciseId} • {l.weight} kg ×{" "}
+                      {l.reps} reps (1RM ca {calc1RM(l.weight, l.reps)} kg)
+                    </div>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 11, padding: "3px 7px" }}
+                      onClick={() => handleDeleteLog(l.id)}
+                    >
+                      🗑️
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
 
         {/* PROGRAM */}
         {view === "program" && (
@@ -1053,16 +1022,13 @@ function handleDailyCheckin(data) {
           </div>
         )}
 
-      {/* CYKEL VIEW */}
-{view === "cycle" && (
-  <>
-    <CycleTracker />
-    <CycleView
-      cycleConfig={cycleConfig}
-      setCycleConfig={setCycleConfig}
-    />
-  </>
-)}
+        {/* CYKEL VIEW */}
+        {view === "cycle" && (
+          <CycleView
+            cycleConfig={cycleConfig}
+            setCycleConfig={setCycleConfig}
+          />
+        )}
 
         {/* ACHIEVEMENTS */}
         {view === "ach" && <Achievements unlocked={unlockedAchievements} />}
@@ -1101,11 +1067,6 @@ function handleDailyCheckin(data) {
         onSave={handleSaveSet}
         lastSet={lastSet}
       />
-      <DailyCheckinModal
-  open={showDailyCheckin}
-  onClose={() => setShowDailyCheckin(false)}
-  onSubmit={handleDailyCheckin}
-/>
     </div>
   );
 }
