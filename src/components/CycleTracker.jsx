@@ -1,196 +1,206 @@
-// src/components/CycleTracker.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
-/* =======================
-   SCORE & LOGIK
-======================= */
-
-function calculateScore(entry) {
-  if (!entry) return null;
-
-  let score = 0;
-
-  // Energi
-  if (entry.energy === "high") score += 2;
-  if (entry.energy === "medium") score += 1;
-
-  // Styrka
-  if (entry.strength === "high") score += 2;
-  if (entry.strength === "normal") score += 1;
-
-  // Psykiskt
-  if (entry.mental === "good") score += 1;
-  if (entry.mental === "low") score -= 1;
-
-  // Blödning
-  if (entry.bleeding) score -= 2;
-
-  return score;
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
 }
 
-function getDayLabel(score) {
-  if (score >= 5) {
-    return { emoji: "🔥", text: "Tung styrka", color: "rgba(239,68,68,0.25)" };
-  }
-  if (score >= 2) {
-    return { emoji: "💗", text: "Lätt / volym", color: "rgba(236,72,153,0.25)" };
-  }
-  return { emoji: "🌙", text: "Vila", color: "rgba(59,130,246,0.25)" };
+function formatDate(date) {
+  return date.toISOString().slice(0, 10);
 }
 
-/* =======================
-   COMPONENT
-======================= */
+function getDiffInDays(from, to) {
+  const a = new Date(from);
+  const b = new Date(to);
+  const diffMs = b.getTime() - a.getTime();
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
 
-export default function CycleTracker() {
-  const [checkins, setCheckins] = useState({});
+function getPhaseForDay(cycleDay, cycleLength) {
+  if (!cycleDay || !cycleLength) {
+    return {
+      phase: "Okänd",
+      strength: "Normal",
+      emoji: "❓",
+      advice: "Fyll i din cykelinfo för att se rekommendationer.",
+      score: 50,
+      color: "rgba(148,163,184,0.25)",
+    };
+  }
 
-  /* 🔁 Ladda + lyssna på ändringar */
-  useEffect(() => {
-    const load = () => {
-      const data =
-        JSON.parse(localStorage.getItem("bebi_daily_checkins")) || {};
-      setCheckins(data);
+  const m = cycleLength;
+  const menstruationEnd = Math.round((5 / 28) * m);
+  const follicularEnd = Math.round((12 / 28) * m);
+  const ovulationEnd = Math.round((15 / 28) * m);
+
+  if (cycleDay <= menstruationEnd)
+    return {
+      phase: "Menstruation",
+      strength: "Lägre styrka",
+      emoji: "🩸",
+      advice: "Lättare pass, fokus på teknik.",
+      score: 35,
+      color: "rgba(248,113,113,0.25)",
     };
 
-    load();
-    window.addEventListener("storage", load);
-    return () => window.removeEventListener("storage", load);
-  }, []);
+  if (cycleDay <= follicularEnd)
+    return {
+      phase: "Follikulär fas",
+      strength: "Stigande styrka",
+      emoji: "🌱",
+      advice: "Progressa! Bra fas för utveckling.",
+      score: 70,
+      color: "rgba(74,222,128,0.25)",
+    };
 
-  /* 📅 Nuvarande månad */
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  if (cycleDay <= ovulationEnd)
+    return {
+      phase: "Ägglossning – Peak",
+      strength: "Topprestations-fas",
+      emoji: "💛",
+      advice: "Magisk fas för tunga PR-försök.",
+      score: 90,
+      color: "rgba(250,204,21,0.3)",
+    };
 
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const days = Array.from({ length: daysInMonth }, (_, i) => {
-    const d = new Date(year, month, i + 1);
-    return d.toISOString().slice(0, 10);
+  return {
+    phase: "Luteal fas",
+    strength: "Mellan styrka",
+    emoji: "🌙",
+    advice: "Pump, högt reps, mer kontroll.",
+    score: 55,
+    color: "rgba(129,140,248,0.3)",
+  };
+}
+
+export default function CycleTracker() {
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem("bebi_cycle");
+    return saved
+      ? JSON.parse(saved)
+      : { lastPeriodDate: "", cycleLength: 28 };
   });
 
-  const today = new Date().toISOString().slice(0, 10);
-  const todayScore = calculateScore(checkins[today]);
+  useEffect(() => {
+    localStorage.setItem("bebi_cycle", JSON.stringify(settings));
+  }, [settings]);
 
-  /* 🔮 Prediktion imorgon */
-  function tomorrowRecommendation() {
-    const recent = Object.values(checkins).slice(-3);
-    let total = 0;
+  const today = new Date();
+  const todayStr = formatDate(today);
 
-    recent.forEach((e) => {
-      const s = calculateScore(e);
-      if (typeof s === "number") total += s;
-    });
+  const todayInfo = useMemo(() => {
+    if (!settings.lastPeriodDate) return getPhaseForDay(null, null);
 
-    if (total >= 7) return "🔥 Tung styrka";
-    if (total >= 3) return "💗 Lätt / teknik";
-    return "🌙 Vila";
-  }
+    const diff = getDiffInDays(settings.lastPeriodDate, todayStr);
+    if (diff < 0) return getPhaseForDay(null, null);
 
-  /* =======================
-     RENDER
-  ======================= */
+    const cycleDay = (diff % settings.cycleLength) + 1;
+    return getPhaseForDay(cycleDay, settings.cycleLength);
+  }, [settings, todayStr]);
+
+  const calendarDays = useMemo(() => {
+    const arr = [];
+    const len = Number(settings.cycleLength) || 28;
+
+    for (let i = 0; i < 28; i++) {
+      const d = addDays(today, i);
+      const ds = formatDate(d);
+
+      if (!settings.lastPeriodDate) {
+        arr.push({
+          dateStr: ds,
+          label: ds.slice(5),
+          cycleDay: null,
+          phaseInfo: getPhaseForDay(null, null),
+        });
+        continue;
+      }
+
+      const diff = getDiffInDays(settings.lastPeriodDate, ds);
+      const cycleDay = diff >= 0 ? (diff % len) + 1 : null;
+
+      arr.push({
+        dateStr: ds,
+        label: ds.slice(5),
+        cycleDay,
+        phaseInfo: getPhaseForDay(cycleDay, len),
+      });
+    }
+    return arr;
+  }, [settings, today]);
 
   return (
-    <div className="card">
-      <h3 style={{ marginTop: 0 }}>Cykel & Styrka 🌸</h3>
-
-      {/* 🗓️ KALENDER */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 6,
-        }}
-      >
-        {days.map((date) => {
-          const entry = checkins[date];
-          const score = calculateScore(entry);
-          const label = score !== null ? getDayLabel(score) : null;
-
-          return (
-            <div
-              key={date}
-              style={{
-                padding: 8,
-                borderRadius: 10,
-                background: label
-                  ? label.color
-                  : "rgba(15,23,42,0.9)",
-                border: "1px solid rgba(148,163,184,0.4)",
-                textAlign: "center",
-                fontSize: 11,
-              }}
-            >
-              <div style={{ opacity: 0.7 }}>{date.slice(-2)}</div>
-
-              {label && (
-                <>
-                  <div style={{ fontSize: 16 }}>{label.emoji}</div>
-                  <div style={{ fontSize: 10 }}>{label.text}</div>
-                </>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ⚠️ PR-VARNING */}
-      {typeof todayScore === "number" && todayScore <= 1 && (
-        <div
-          style={{
-            marginTop: 12,
-            padding: 10,
-            borderRadius: 10,
-            background: "rgba(239,68,68,0.15)",
-            fontSize: 13,
-          }}
-        >
-          ⚠️ Rekommendation: kör <strong>INTE PR</strong> idag
+    <div className="cycle-root">
+      <div className="card">
+        <div style={{ fontSize: 14, opacity: 0.8 }}>Dagens fas</div>
+        <div style={{ fontSize: 20, fontWeight: 600 }}>
+          {todayInfo.emoji} {todayInfo.phase}
         </div>
-      )}
-
-      {/* 🔮 IMORGON */}
-      <div style={{ marginTop: 12, fontSize: 13 }}>
-        <strong>Imorgon rekommenderas:</strong>{" "}
-        {tomorrowRecommendation()}
-      </div>
-
-      {/* 📈 ENERGI-GRAF */}
-      <div style={{ marginTop: 14 }}>
-        <strong>Energi senaste 7 dagar</strong>
+        <div style={{ fontSize: 13, marginTop: 4 }}>
+          {todayInfo.strength} – {todayInfo.advice}
+        </div>
         <div
           style={{
-            display: "flex",
-            alignItems: "flex-end",
-            gap: 6,
-            marginTop: 6,
-            height: 70,
+            marginTop: 8,
+            padding: "4px 10px",
+            borderRadius: 12,
+            background: todayInfo.color,
+            width: "fit-content",
+            fontSize: 12,
           }}
         >
-          {Object.entries(checkins)
-            .slice(-7)
-            .map(([date, e]) => {
-              const height =
-                e.energy === "high"
-                  ? 60
-                  : e.energy === "medium"
-                  ? 40
-                  : 20;
+          PR-läge: {todayInfo.score}/100 🔥
+        </div>
+      </div>
 
-              return (
-                <div
-                  key={date}
-                  title={date}
-                  style={{
-                    width: 14,
-                    height,
-                    background: "#ec4899",
-                    borderRadius: 6,
-                  }}
-                />
-              );
-            })}
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 600 }}>Cykelinställningar</div>
+
+        <label className="small">Senaste mensen (1:a dagen):</label>
+        <input
+          type="date"
+          className="input"
+          value={settings.lastPeriodDate}
+          onChange={(e) =>
+            setSettings((p) => ({ ...p, lastPeriodDate: e.target.value }))
+          }
+        />
+
+        <label className="small" style={{ marginTop: 6 }}>
+          Cykellängd:
+        </label>
+        <input
+          className="input"
+          type="number"
+          min="21"
+          max="40"
+          value={settings.cycleLength}
+          onChange={(e) =>
+            setSettings((p) => ({ ...p, cycleLength: Number(e.target.value) }))
+          }
+        />
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+          28 dagar framåt
+        </div>
+
+        <div className="cycle-grid">
+          {calendarDays.map((d) => (
+            <div
+              key={d.dateStr}
+              className={`cycle-day ${d.dateStr === todayStr ? "today" : ""}`}
+              style={{ background: d.phaseInfo.color }}
+            >
+              <div className="cycle-day-date">{d.label}</div>
+              <div className="cycle-day-emoji">{d.phaseInfo.emoji}</div>
+              <div className="cycle-day-phase">
+                {d.cycleDay ? `Dag ${d.cycleDay}` : "–"}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
