@@ -249,6 +249,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     ? new Date(cycleConfig.startDate)
     : new Date();
 
+  /* =========================
+     STATE
+  ========================= */
+
   const [selectedDate, setSelectedDate] = React.useState(
     new Date().toISOString().slice(0, 10)
   );
@@ -265,6 +269,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     );
   }, [dailyFeelings]);
 
+  /* =========================
+     HELPERS
+  ========================= */
+
   function getFeelingForDate(dateStr) {
     const entries = Object.entries(dailyFeelings)
       .filter(([d]) => d <= dateStr)
@@ -275,7 +283,31 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       : { strength: 3, psyche: 3, energy: 3 };
   }
 
-  const selectStyle = {
+  function energyColor(energy, fallback) {
+    if (energy <= 2) return "rgba(59,130,246,0.35)";
+    if (energy === 3) return fallback;
+    if (energy >= 4) return "rgba(34,197,94,0.35)";
+    return fallback;
+  }
+
+  function getWeeklyEnergyAverage() {
+    const today = new Date();
+    const values = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      if (dailyFeelings[key]) {
+        values.push(dailyFeelings[key].energy);
+      }
+    }
+
+    if (values.length === 0) return null;
+    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+  }
+
+  const inputStyle = {
     width: "100%",
     padding: "6px 8px",
     borderRadius: 8,
@@ -284,6 +316,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     border: "1px solid rgba(148,163,184,0.6)",
     fontSize: 12,
   };
+
+  /* =========================
+     BUILD CALENDAR
+  ========================= */
 
   const days = [];
   for (let i = 0; i < length; i++) {
@@ -307,6 +343,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     days.push({ dateObj: d, info });
   }
 
+  /* =========================
+     RENDER
+  ========================= */
+
   return (
     <div className="card">
       <h3 style={{ marginTop: 0, marginBottom: 8 }}>
@@ -318,7 +358,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         rekommenderas i kalendern.
       </p>
 
-      {/* Mens-start + längd */}
+      {/* Mens + längd */}
       <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
         <div style={{ flex: 1 }}>
           <label className="small">Senaste mensens första dag</label>
@@ -331,7 +371,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
                 startDate: e.target.value || null,
               }))
             }
-            style={selectStyle}
+            style={inputStyle}
           />
         </div>
 
@@ -348,7 +388,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
                 length: e.target.value || 28,
               }))
             }
-            style={selectStyle}
+            style={inputStyle}
           />
         </div>
       </div>
@@ -360,16 +400,17 @@ function CycleView({ cycleConfig, setCycleConfig }) {
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
-          style={{ ...selectStyle, marginBottom: 8 }}
+          style={{ ...inputStyle, marginBottom: 8 }}
         />
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
             gap: 10,
           }}
         >
+          {/* STYRKA */}
           <div>
             <label className="small">💪 Styrka</label>
             <select
@@ -383,7 +424,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
                   },
                 }))
               }
-              style={selectStyle}
+              style={inputStyle}
             >
               <option value={1}>1 – Mycket svag</option>
               <option value={2}>2 – Trött</option>
@@ -393,6 +434,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
             </select>
           </div>
 
+          {/* PSYKE */}
           <div>
             <label className="small">🧠 Psyke</label>
             <select
@@ -406,7 +448,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
                   },
                 }))
               }
-              style={selectStyle}
+              style={inputStyle}
             >
               <option value={1}>1 – Väldigt låg</option>
               <option value={2}>2 – Låg</option>
@@ -416,6 +458,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
             </select>
           </div>
 
+          {/* ENERGI */}
           <div>
             <label className="small">⚡ Energi</label>
             <select
@@ -429,7 +472,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
                   },
                 }))
               }
-              style={selectStyle}
+              style={inputStyle}
             >
               <option value={1}>1 – Urlakad</option>
               <option value={2}>2 – Låg</option>
@@ -443,29 +486,48 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         <div className="small" style={{ marginTop: 6, opacity: 0.7 }}>
           Sparas automatiskt 💾
         </div>
+
+        {getWeeklyEnergyAverage() && (
+          <div className="small" style={{ opacity: 0.75 }}>
+            Veckosnitt energi (7 dagar): ⚡ {getWeeklyEnergyAverage()}
+          </div>
+        )}
       </div>
 
       {/* Kalender */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {days.map(({ dateObj, info }, idx) => (
-          <div
-            key={idx}
-            style={{
-              flex: "1 0 calc(50% - 6px)",
-              borderRadius: 10,
-              border: "1px solid rgba(148,163,184,0.4)",
-              background: info.color,
-              padding: "6px 8px",
-              fontSize: 11,
-            }}
-          >
-            <div style={{ fontWeight: 600 }}>
-              {dateObj.toISOString().slice(0, 10)}
+        {days.map(({ dateObj, info }, idx) => {
+          const dateStr = dateObj.toISOString().slice(0, 10);
+          const feeling = getFeelingForDate(dateStr);
+
+          return (
+            <div
+              key={idx}
+              style={{
+                flex: "1 0 calc(50% - 6px)",
+                borderRadius: 10,
+                border: "1px solid rgba(148,163,184,0.4)",
+                background: energyColor(feeling.energy, info.color),
+                padding: "6px 8px",
+                fontSize: 11,
+              }}
+            >
+              <div style={{ fontWeight: 600 }}>{dateStr}</div>
+              <div>{info.phase}</div>
+              <div className="small">{info.strengthNote}</div>
+
+              {feeling.energy <= 2 &&
+                info.phase?.toLowerCase().includes("peak") && (
+                  <div
+                    className="small"
+                    style={{ color: "#f87171", marginTop: 2 }}
+                  >
+                    ⚠️ Låg energi + tung fas – överväg lättare pass
+                  </div>
+                )}
             </div>
-            <div>{info.phase}</div>
-            <div className="small">{info.strengthNote}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
