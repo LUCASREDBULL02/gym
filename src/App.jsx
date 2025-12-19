@@ -349,6 +349,49 @@ function getFeelingForDate(dateStr) {
             }}
           />
         </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+  <input
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    style={{
+      padding: "6px 8px",
+      borderRadius: 8,
+      border: "1px solid rgba(148,163,184,0.7)",
+      background: "rgba(15,23,42,0.9)",
+      color: "#e5e7eb",
+      fontSize: 12,
+    }}
+  />
+
+  {["strength", "psyche", "energy"].map((key) => (
+    <select
+      key={key}
+      value={getFeelingForDate(selectedDate)[key]}
+      onChange={(e) =>
+        setDailyFeelings((prev) => ({
+          ...prev,
+          [selectedDate]: {
+            ...getFeelingForDate(selectedDate),
+            [key]: Number(e.target.value),
+          },
+        }))
+      }
+      style={{
+        padding: "6px",
+        borderRadius: 8,
+        background: "rgba(15,23,42,0.9)",
+        color: "#e5e7eb",
+        border: "1px solid rgba(148,163,184,0.7)",
+        fontSize: 12,
+      }}
+    >
+      {[1, 2, 3, 4, 5].map((v) => (
+        <option key={v} value={v}>{v}</option>
+      ))}
+    </select>
+  ))}
+</div>
       </div>
 
       <div className="small" style={{ marginBottom: 8, opacity: 0.9 }}>
