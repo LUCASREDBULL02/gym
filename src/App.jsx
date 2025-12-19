@@ -247,34 +247,17 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const iso = (d) => d.toISOString().slice(0, 10);
 
   const PASS = {
-    recovery: {
-      name: "Återhämtning",
-      color: "linear-gradient(135deg, #4c1d95, #312e81)",
-      desc: "Vila, rörlighet & lugn puls",
-    },
-    technique: {
-      name: "Teknik",
-      color: "linear-gradient(135deg, #1e3a8a, #1e40af)",
-      desc: "Tempo, kontroll & kvalitet",
-    },
-    volume: {
-      name: "Volym",
-      color: "linear-gradient(135deg, #166534, #14532d)",
-      desc: "Fler set, kontrollerad vikt",
-    },
-    heavy: {
-      name: "Tung",
-      color: "linear-gradient(135deg, #9f1239, #7f1d1d)",
-      desc: "Baslyft & progression",
-    },
-    power: {
-      name: "Power",
-      color: "linear-gradient(135deg, #c2410c, #9a3412)",
-      desc: "Explosivt, få set",
-    },
+    recovery: { name: "Återhämtning", color: "#312e81" },
+    technique: { name: "Teknik", color: "#1e40af" },
+    volume: { name: "Volym", color: "#166534" },
+    heavy: { name: "Tung", color: "#9f1239" },
+    power: { name: "Power", color: "#c2410c" },
   };
 
-  const [selectedDate, setSelectedDate] = React.useState(iso(new Date()));
+  const today = iso(new Date());
+  const [selectedDate, setSelectedDate] = React.useState(today);
+  const [open, setOpen] = React.useState(false);
+
   const [logs, setLogs] = React.useState(() => {
     const saved = localStorage.getItem("cycle_logs");
     return saved ? JSON.parse(saved) : {};
@@ -284,165 +267,132 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     localStorage.setItem("cycle_logs", JSON.stringify(logs));
   }, [logs]);
 
-  function latestLog(date) {
-    const entries = Object.entries(logs)
-      .filter(([d]) => d <= date)
-      .sort((a, b) => b[0].localeCompare(a[0]));
-    return entries.length
-      ? entries[0][1]
-      : { strength: 3, psyche: 3, energy: 3, bleeding: false };
-  }
+  const log = logs[selectedDate] || {
+    strength: 3,
+    psyche: 3,
+    energy: 3,
+    bleeding: false,
+  };
 
-  function logToday(key, value) {
+  function update(key, value) {
     setLogs((p) => ({
       ...p,
-      [selectedDate]: { ...latestLog(selectedDate), [key]: value },
+      [selectedDate]: { ...log, [key]: value },
     }));
   }
 
-  function readiness(log) {
-    return (log.strength + log.psyche + log.energy) / 3;
+  function readiness(l) {
+    return (l.strength + l.psyche + l.energy) / 3;
   }
 
-  function cyclePhase(date) {
+  function cyclePhase(d) {
     if (!cycleConfig.startDate) return "volume";
     const start = new Date(cycleConfig.startDate);
-    const day = Math.floor((date - start) / 86400000);
-    const d = ((day % 28) + 28) % 28;
-
-    if (d < 5) return "recovery";
-    if (d < 11) return "volume";
-    if (d < 17) return "heavy";
-    if (d < 22) return "power";
+    const day = Math.floor((d - start) / 86400000);
+    const m = ((day % 28) + 28) % 28;
+    if (m < 5) return "recovery";
+    if (m < 11) return "volume";
+    if (m < 17) return "heavy";
+    if (m < 22) return "power";
     return "technique";
   }
 
   const days = React.useMemo(() => {
-    const base = new Date();
-    const result = [];
-    const weeklyRecovery = {};
-
+    const out = [];
+    const weeklyRest = {};
     for (let i = 0; i < 28; i++) {
-      const d = new Date(base);
+      const d = new Date();
       d.setDate(d.getDate() + i);
       const date = iso(d);
-      const log = latestLog(date);
-      const score = readiness(log);
+      const l = logs[date] || log;
+      const score = readiness(l);
 
-      const weekKey = Math.floor(i / 7);
-      weeklyRecovery[weekKey] ??= 0;
+      const w = Math.floor(i / 7);
+      weeklyRest[w] ??= 0;
 
       let type = cyclePhase(d);
 
-      if (log.bleeding || score <= 2) type = "recovery";
-
+      if (l.bleeding || score <= 2) type = "recovery";
       if (type === "recovery") {
-        if (weeklyRecovery[weekKey] >= 2) type = "technique";
-        else weeklyRecovery[weekKey]++;
+        if (weeklyRest[w] >= 2) type = "technique";
+        else weeklyRest[w]++;
       }
 
-      if (score >= 4) {
-        if (type === "volume") type = "heavy";
-        else if (type === "heavy") type = "power";
-      }
+      if (score >= 4 && type === "volume") type = "heavy";
+      if (score >= 4 && type === "heavy") type = "power";
 
-      if (log.psyche <= 2 && type === "power") type = "technique";
-
-      if (
-        i >= 2 &&
-        result[i - 1]?.type === type &&
-        result[i - 2]?.type === type
-      ) {
-        type =
-          type === "power"
-            ? "technique"
-            : type === "heavy"
-            ? "volume"
-            : "heavy";
-      }
-
-      result.push({ date, type, pass: PASS[type] });
+      out.push({ date, pass: PASS[type] });
     }
-
-    return result;
+    return out;
   }, [logs, cycleConfig]);
 
   return (
     <div className="card">
-      <h3 style={{ marginBottom: 4 }}>Cykel & Träningscoach 🌙</h3>
-      <p className="small" style={{ opacity: 0.8, marginBottom: 12 }}>
-        Logga hur du mår – kalendern anpassar träningen automatiskt.
-      </p>
+      <h3 style={{ marginBottom: 6 }}>Cykel & Träningscoach 🌙</h3>
 
-      {/* INPUT */}
+      {/* TOP BAR */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 10,
-          marginBottom: 14,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+          opacity: 0.9,
         }}
       >
-        <div>
-          <label className="small">🌸 Första mensdag</label>
-          <input
-            type="date"
-            value={cycleConfig.startDate || ""}
-            onChange={(e) =>
-              setCycleConfig((p) => ({
-                ...p,
-                startDate: e.target.value || null,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <label className="small">📅 Logga dag</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-        </div>
+        <div>📅 Idag: <strong>{selectedDate}</strong></div>
+        <button onClick={() => setOpen(!open)} className="small">
+          {open ? "Stäng logg" : "✏️ Logga idag"}
+        </button>
       </div>
 
-      {/* FEELINGS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 8,
-          marginBottom: 10,
-        }}
-      >
-        <select onChange={(e) => logToday("strength", +e.target.value)}>
-          <option>💪 Styrka</option>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-        <select onChange={(e) => logToday("psyche", +e.target.value)}>
-          <option>🧠 Psyke</option>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-        <select onChange={(e) => logToday("energy", +e.target.value)}>
-          <option>⚡ Energi</option>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </div>
+      {/* COLLAPSIBLE LOG */}
+      {open && (
+        <div
+          style={{
+            padding: 10,
+            borderRadius: 10,
+            background: "rgba(255,255,255,0.03)",
+            marginBottom: 14,
+          }}
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+            {["strength", "psyche", "energy"].map((k) => (
+              <input
+                key={k}
+                type="range"
+                min={1}
+                max={5}
+                value={log[k]}
+                onChange={(e) => update(k, +e.target.value)}
+              />
+            ))}
+          </div>
 
-      <label className="small" style={{ marginBottom: 14, display: "block" }}>
-        <input
-          type="checkbox"
-          onChange={(e) => logToday("bleeding", e.target.checked)}
-        />{" "}
-        🩸 Blöder idag
-      </label>
+          <label className="small">
+            <input
+              type="checkbox"
+              checked={log.bleeding}
+              onChange={(e) => update("bleeding", e.target.checked)}
+            />{" "}
+            🩸 Blöder idag
+          </label>
+
+          <div style={{ marginTop: 8 }}>
+            <label className="small">🌸 Första mensdag</label>
+            <input
+              type="date"
+              value={cycleConfig.startDate || ""}
+              onChange={(e) =>
+                setCycleConfig((p) => ({
+                  ...p,
+                  startDate: e.target.value || null,
+                }))
+              }
+            />
+          </div>
+        </div>
+      )}
 
       {/* CALENDAR */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -452,24 +402,19 @@ function CycleView({ cycleConfig, setCycleConfig }) {
             style={{
               flex: "1 0 calc(50% - 6px)",
               background: d.pass.color,
-              padding: 12,
               borderRadius: 14,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-              transition: "transform 0.15s ease",
+              padding: 14,
+              opacity: d.date === selectedDate ? 1 : 0.85,
             }}
           >
-            <div style={{ fontWeight: 700 }}>{d.date}</div>
-            <div style={{ fontSize: 14 }}>{d.pass.name}</div>
-            <div className="small" style={{ opacity: 0.85 }}>
-              {d.pass.desc}
-            </div>
+            <div style={{ fontWeight: 600 }}>{d.date}</div>
+            <div className="small">{d.pass.name}</div>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
 
 // ------------------ HUVUDKOMPONENT ------------------
 
