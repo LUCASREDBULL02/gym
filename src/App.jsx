@@ -243,70 +243,34 @@ function getCycleInfoForDay(date, config) {
 
 // ---------- CYCLE VIEW KOMPONENT ----------
 
-import React, { useEffect, useMemo, useState } from "react";
+function CycleView({ cycleConfig, setCycleConfig }) {
+  const iso = (d) => d.toISOString().slice(0, 10);
 
-const DEFAULT_FEELING = {
-  strength: 3,
-  psyche: 3,
-  energy: 3,
-  bleeding: false,
-};
+  const DEFAULT_FEELING = {
+    strength: 3,
+    psyche: 3,
+    energy: 3,
+    bleeding: false,
+  };
 
-const PASS_TYPES = [
-  {
-    key: "power",
-    title: "Power",
-    desc: "Explosivt, få set",
-    color: "#7c3f1d",
-  },
-  {
-    key: "heavy",
-    title: "Tung dag",
-    desc: "Baslyft / progression",
-    color: "#6b2d3e",
-  },
-  {
-    key: "volume",
-    title: "Volym",
-    desc: "Fler set, kontrollerad vikt",
-    color: "#14532d",
-  },
-  {
-    key: "technique",
-    title: "Teknik",
-    desc: "Tempo, kontroll, rörlighet",
-    color: "#1e3a8a",
-  },
-  {
-    key: "recovery",
-    title: "Aktiv vila",
-    desc: "Promenad, lätt pump",
-    color: "#4c1d95",
-  },
-];
+  const PASS_TYPES = [
+    { key: "power", title: "Power", desc: "Explosivt, få set", color: "#7c3f1d" },
+    { key: "heavy", title: "Tung dag", desc: "Baslyft / progression", color: "#6b2d3e" },
+    { key: "volume", title: "Volym", desc: "Fler set, kontrollerad vikt", color: "#14532d" },
+    { key: "technique", title: "Teknik", desc: "Tempo, kontroll, rörlighet", color: "#1e3a8a" },
+    { key: "recovery", title: "Aktiv vila", desc: "Promenad, lätt pump", color: "#4c1d95" },
+  ];
 
-function iso(d) {
-  return d.toISOString().slice(0, 10);
-}
+  const [selectedDate, setSelectedDate] = React.useState(iso(new Date()));
 
-export default function CycleView({ cycleConfig, setCycleConfig }) {
-  /* ---------------- STATE ---------------- */
-
-  const [selectedDate, setSelectedDate] = useState(iso(new Date()));
-
-  const [dailyFeelings, setDailyFeelings] = useState(() => {
+  const [dailyFeelings, setDailyFeelings] = React.useState(() => {
     const saved = localStorage.getItem("cycle_daily_feelings");
     return saved ? JSON.parse(saved) : {};
   });
 
-  useEffect(() => {
-    localStorage.setItem(
-      "cycle_daily_feelings",
-      JSON.stringify(dailyFeelings)
-    );
+  React.useEffect(() => {
+    localStorage.setItem("cycle_daily_feelings", JSON.stringify(dailyFeelings));
   }, [dailyFeelings]);
-
-  /* ---------------- LOGIK ---------------- */
 
   function getFeelingForDate(dateStr) {
     const entries = Object.entries(dailyFeelings)
@@ -327,74 +291,45 @@ export default function CycleView({ cycleConfig, setCycleConfig }) {
     }));
   }
 
-  function toggleBleeding() {
-    updateFeeling(
-      "bleeding",
-      !getFeelingForDate(selectedDate).bleeding
-    );
-  }
-
-  function getPassForDay(dateObj, index) {
-    const dateStr = iso(dateObj);
-    const feeling = getFeelingForDate(dateStr);
-
-    // Mens / låg energi → recovery
-    if (feeling.bleeding || feeling.energy <= 2) {
-      return PASS_TYPES.find((p) => p.key === "recovery");
-    }
-
-    // Block-rotation var 3–4 dag
-    const blockIndex = Math.floor(index / 3.5) % 4;
-
-    if (feeling.energy >= 4 && feeling.strength >= 4) {
-      return PASS_TYPES[blockIndex];
-    }
-
-    if (feeling.energy === 3) {
-      return PASS_TYPES.find((p) => p.key === "volume");
-    }
-
-    return PASS_TYPES.find((p) => p.key === "technique");
-  }
-
-  /* ---------------- KALENDER ---------------- */
-
-  const days = useMemo(() => {
-    const base =
-      cycleConfig.startDate != null
-        ? new Date(cycleConfig.startDate)
-        : new Date();
+  const days = React.useMemo(() => {
+    const base = cycleConfig.startDate
+      ? new Date(cycleConfig.startDate)
+      : new Date();
 
     const length = Number(cycleConfig.length) || 28;
-    const arr = [];
+    const result = [];
 
     for (let i = 0; i < length; i++) {
       const d = new Date(base);
       d.setDate(d.getDate() + i);
-      arr.push({
-        date: iso(d),
-        pass: getPassForDay(d, i),
-      });
+
+      const feeling = getFeelingForDate(iso(d));
+      let pass = PASS_TYPES[Math.floor(i / 3) % PASS_TYPES.length];
+
+      if (feeling.bleeding || feeling.energy <= 2) {
+        pass = PASS_TYPES.find((p) => p.key === "recovery");
+      } else if (feeling.energy >= 4 && feeling.strength >= 4) {
+        pass = PASS_TYPES.find((p) => p.key === "heavy");
+      } else if (feeling.energy === 3) {
+        pass = PASS_TYPES.find((p) => p.key === "volume");
+      }
+
+      result.push({ date: iso(d), pass });
     }
 
-    return arr;
+    return result;
   }, [cycleConfig, dailyFeelings]);
-
-  /* ---------------- RENDER ---------------- */
 
   return (
     <div className="card">
-      <h3 style={{ marginTop: 0 }}>Cykel & Daglig Träningscoach 🌙</h3>
+      <h3>Cykel & Daglig Träningscoach 🌙</h3>
 
       <label className="small">Första mensdag (valfritt)</label>
       <input
         type="date"
         value={cycleConfig.startDate || ""}
         onChange={(e) =>
-          setCycleConfig((p) => ({
-            ...p,
-            startDate: e.target.value || null,
-          }))
+          setCycleConfig((p) => ({ ...p, startDate: e.target.value || null }))
         }
       />
 
@@ -405,68 +340,38 @@ export default function CycleView({ cycleConfig, setCycleConfig }) {
         onChange={(e) => setSelectedDate(e.target.value)}
       />
 
-      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-        <select
-          value={getFeelingForDate(selectedDate).strength}
-          onChange={(e) =>
-            updateFeeling("strength", Number(e.target.value))
-          }
-        >
-          <option value={1}>💪 1 – Svag</option>
-          <option value={2}>💪 2</option>
-          <option value={3}>💪 3</option>
-          <option value={4}>💪 4</option>
-          <option value={5}>💪 5 – Stark</option>
+      <div style={{ display: "flex", gap: 8 }}>
+        <select value={getFeelingForDate(selectedDate).strength}
+          onChange={(e) => updateFeeling("strength", Number(e.target.value))}>
+          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
         </select>
 
-        <select
-          value={getFeelingForDate(selectedDate).psyche}
-          onChange={(e) =>
-            updateFeeling("psyche", Number(e.target.value))
-          }
-        >
-          <option value={1}>🧠 1 – Låg</option>
-          <option value={2}>🧠 2</option>
-          <option value={3}>🧠 3</option>
-          <option value={4}>🧠 4</option>
-          <option value={5}>🧠 5 – Topp</option>
+        <select value={getFeelingForDate(selectedDate).psyche}
+          onChange={(e) => updateFeeling("psyche", Number(e.target.value))}>
+          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
         </select>
 
-        <select
-          value={getFeelingForDate(selectedDate).energy}
-          onChange={(e) =>
-            updateFeeling("energy", Number(e.target.value))
-          }
-        >
-          <option value={1}>⚡ 1 – Tom</option>
-          <option value={2}>⚡ 2</option>
-          <option value={3}>⚡ 3</option>
-          <option value={4}>⚡ 4</option>
-          <option value={5}>⚡ 5 – Explosiv</option>
+        <select value={getFeelingForDate(selectedDate).energy}
+          onChange={(e) => updateFeeling("energy", Number(e.target.value))}>
+          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
         </select>
       </div>
 
-      <label style={{ marginTop: 6 }}>
+      <label>
         <input
           type="checkbox"
           checked={getFeelingForDate(selectedDate).bleeding}
-          onChange={toggleBleeding}
-        />{" "}
-        🩸 Blöder idag
+          onChange={() => updateFeeling(
+            "bleeding",
+            !getFeelingForDate(selectedDate).bleeding
+          )}
+        /> 🩸 Blöder idag
       </label>
 
-      <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
         {days.map((d) => (
-          <div
-            key={d.date}
-            style={{
-              flex: "1 0 calc(50% - 6px)",
-              background: d.pass.color,
-              borderRadius: 10,
-              padding: 8,
-              fontSize: 12,
-            }}
-          >
+          <div key={d.date}
+            style={{ background: d.pass.color, padding: 8, borderRadius: 8 }}>
             <strong>{d.date}</strong>
             <div>{d.pass.title}</div>
             <div className="small">{d.pass.desc}</div>
