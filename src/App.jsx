@@ -248,7 +248,31 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const baseDate = cycleConfig.startDate
     ? new Date(cycleConfig.startDate)
     : new Date();
+const [selectedDate, setSelectedDate] = useState(
+  new Date().toISOString().slice(0, 10)
+);
 
+const [dailyFeelings, setDailyFeelings] = useState(() => {
+  const saved = localStorage.getItem("cycle_daily_feelings");
+  return saved ? JSON.parse(saved) : {};
+});
+
+useEffect(() => {
+  localStorage.setItem(
+    "cycle_daily_feelings",
+    JSON.stringify(dailyFeelings)
+  );
+}, [dailyFeelings]);
+
+function getFeelingForDate(dateStr) {
+  const entries = Object.entries(dailyFeelings)
+    .filter(([d]) => d <= dateStr)
+    .sort((a, b) => b[0].localeCompare(a[0]));
+
+  return entries.length
+    ? entries[0][1]
+    : { strength: 3, psyche: 3, energy: 3 };
+}
   const days = [];
   for (let i = 0; i < length; i++) {
     const d = new Date(baseDate);
