@@ -247,128 +247,98 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const iso = (d) => d.toISOString().slice(0, 10);
 
   const PASS = {
-    recovery: { title: "Återhämtning", desc: "Vila, rörlighet", color: "#312e81" },
-    technique: { title: "Teknik", desc: "Tempo, kontroll", color: "#1e3a8a" },
-    volume: { title: "Volym", desc: "Fler set, kontrollerad vikt", color: "#14532d" },
-    heavy: { title: "Tung dag", desc: "Baslyft / progression", color: "#6b2d3e" },
-    power: { title: "Power", desc: "Explosivt, få set", color: "#7c3f1d" },
+    recovery: { name: "Återhämtning", color: "#4c1d95", desc: "Vila, rörlighet" },
+    technique: { name: "Teknik", color: "#1e3a8a", desc: "Tempo & kontroll" },
+    volume: { name: "Volym", color: "#166534", desc: "Fler set, kontrollerat" },
+    heavy: { name: "Tung", color: "#9f1239", desc: "Baslyft, progression" },
+    power: { name: "Power", color: "#c2410c", desc: "Explosivt, få set" },
   };
 
   const [selectedDate, setSelectedDate] = React.useState(iso(new Date()));
-  const [dailyFeelings, setDailyFeelings] = React.useState(() => {
-    const saved = localStorage.getItem("cycle_daily_feelings");
+  const [logs, setLogs] = React.useState(() => {
+    const saved = localStorage.getItem("cycle_logs");
     return saved ? JSON.parse(saved) : {};
   });
 
   React.useEffect(() => {
-    localStorage.setItem("cycle_daily_feelings", JSON.stringify(dailyFeelings));
-  }, [dailyFeelings]);
+    localStorage.setItem("cycle_logs", JSON.stringify(logs));
+  }, [logs]);
 
-  function getLatestFeeling(dateStr) {
-    const entries = Object.entries(dailyFeelings)
-      .filter(([d]) => d <= dateStr)
+  function latestLog(date) {
+    const entries = Object.entries(logs)
+      .filter(([d]) => d <= date)
       .sort((a, b) => b[0].localeCompare(a[0]));
-
     return entries.length
       ? entries[0][1]
       : { strength: 3, psyche: 3, energy: 3, bleeding: false };
   }
 
-  function log(key, value) {
-    setDailyFeelings((p) => ({
+  function logToday(key, value) {
+    setLogs((p) => ({
       ...p,
-      [selectedDate]: {
-        ...getLatestFeeling(selectedDate),
-        [key]: value,
-      },
+      [selectedDate]: { ...latestLog(selectedDate), [key]: value },
     }));
   }
 
-  function getCyclePhase(dateObj) {
-    if (!cycleConfig.startDate) return null;
-
+  function cyclePhase(date) {
+    if (!cycleConfig.startDate) return "volume";
     const start = new Date(cycleConfig.startDate);
-    const day = Math.floor((dateObj - start) / 86400000) + 1;
-    const d = ((day - 1) % 28) + 1;
+    const day = Math.floor((date - start) / 86400000);
+    const d = ((day % 28) + 28) % 28;
 
-    if (d <= 5) return "recovery";
-    if (d <= 10) return "volume";
-    if (d <= 16) return "heavy";
-    if (d <= 21) return "power";
+    if (d < 5) return "recovery";
+    if (d < 11) return "volume";
+    if (d < 17) return "heavy";
+    if (d < 22) return "power";
     return "technique";
   }
 
   const days = React.useMemo(() => {
     const base = new Date();
-    const out = [];
-    const weekRecoveryCount = {};
+    const result = [];
+    const weeklyRecovery = {};
 
-    const bleedDates = Object.entries(dailyFeelings)
-      .filter(([, v]) => v.bleeding)
-      .map(([d]) => new Date(d));
-
-    const lastBleed = bleedDates.length
-      ? new Date(Math.max(...bleedDates.map((d) => d.getTime())))
-      : null;
-
-    for (let i = 0; i < (cycleConfig.length || 28); i++) {
+    for (let i = 0; i < 28; i++) {
       const d = new Date(base);
       d.setDate(d.getDate() + i);
-      const dateStr = iso(d);
-      const feeling = getLatestFeeling(dateStr);
+      const date = iso(d);
+      const log = latestLog(date);
 
-      const weekKey = `${d.getFullYear()}-W${Math.floor(
-        (d.getDate() - d.getDay()) / 7
-      )}`;
+      const weekKey = `${d.getFullYear()}-${d.getWeek?.() ?? Math.floor(d / 604800000)}`;
+      weeklyRecovery[weekKey] ??= 0;
 
-      if (!weekRecoveryCount[weekKey]) weekRecoveryCount[weekKey] = 0;
+      let type = cyclePhase(d);
 
-      let type = getCyclePhase(d) || "volume";
-      const reasons = [];
+      // Blödning / låg energi → vilja vila
+      if (log.bleeding || log.energy <= 2) type = "recovery";
 
-      // mens = vill ge vila
-      const daysSinceBleed =
-        lastBleed && (d - lastBleed) / 86400000;
-
-      if (daysSinceBleed >= 0 && daysSinceBleed < 4) {
-        type = "recovery";
-        reasons.push("mens");
-      }
-
-      if (feeling.energy <= 2) {
-        type = "recovery";
-        reasons.push("låg energi");
-      }
-
-      // 🚫 MAX 2 VILODAGAR / VECKA
+      // Begränsa vila
       if (type === "recovery") {
-        if (weekRecoveryCount[weekKey] >= 2) {
-          type = "technique";
-          reasons.push("vilotak nått");
-        } else {
-          weekRecoveryCount[weekKey]++;
-        }
+        if (weeklyRecovery[weekKey] >= 2) type = "technique";
+        else weeklyRecovery[weekKey]++;
       }
 
-      // uppgradering om kroppen känns bra
-      if (
-        feeling.energy >= 4 &&
-        feeling.strength >= 4 &&
-        type === "volume"
-      ) {
-        type = "heavy";
-        reasons.push("bra energi & styrka");
+      // Uppgradering om bra dagsform
+      if (log.energy >= 4 && log.strength >= 4) {
+        if (type === "volume") type = "heavy";
+        if (type === "heavy") type = "power";
       }
 
-      out.push({
-        date: dateStr,
-        pass: PASS[type],
-        reason: reasons.join(", "),
-      });
+      // Tvinga variation
+      if (i >= 2 && result[i - 1]?.type === type && result[i - 2]?.type === type) {
+        type =
+          type === "power"
+            ? "technique"
+            : type === "heavy"
+            ? "volume"
+            : "heavy";
+      }
+
+      result.push({ date, type, pass: PASS[type] });
     }
 
-    return out;
-  }, [cycleConfig, dailyFeelings]);
+    return result;
+  }, [logs, cycleConfig]);
 
   return (
     <div className="card">
@@ -391,42 +361,47 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       />
 
       <div style={{ display: "flex", gap: 6 }}>
-        <select onChange={(e) => log("strength", +e.target.value)}>
-          <option>💪 styrka</option>
-          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
+        <select onChange={(e) => logToday("strength", +e.target.value)}>
+          <option>💪 Styrka</option>
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
         </select>
-        <select onChange={(e) => log("psyche", +e.target.value)}>
-          <option>🧠 psyke</option>
-          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
+        <select onChange={(e) => logToday("psyche", +e.target.value)}>
+          <option>🧠 Psyke</option>
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
         </select>
-        <select onChange={(e) => log("energy", +e.target.value)}>
-          <option>⚡ energi</option>
-          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
+        <select onChange={(e) => logToday("energy", +e.target.value)}>
+          <option>⚡ Energi</option>
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
         </select>
       </div>
 
       <label>
         <input
           type="checkbox"
-          onChange={(e) => log("bleeding", e.target.checked)}
+          onChange={(e) => logToday("bleeding", e.target.checked)}
         />{" "}
         🩸 Blöder idag
       </label>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
         {days.map((d) => (
           <div
             key={d.date}
-            title={d.reason}
             style={{
-              flex: "1 0 calc(50% - 6px)",
+              flex: "1 0 calc(50% - 8px)",
               background: d.pass.color,
-              borderRadius: 10,
-              padding: 8,
+              padding: 10,
+              borderRadius: 12,
             }}
           >
             <strong>{d.date}</strong>
-            <div>{d.pass.title}</div>
+            <div>{d.pass.name}</div>
             <div className="small">{d.pass.desc}</div>
           </div>
         ))}
@@ -434,6 +409,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     </div>
   );
 }
+
 
 // ------------------ HUVUDKOMPONENT ------------------
 
