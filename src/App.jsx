@@ -248,75 +248,80 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const baseDate = cycleConfig.startDate
     ? new Date(cycleConfig.startDate)
     : new Date();
-const [selectedDate, setSelectedDate] = useState(
-  new Date().toISOString().slice(0, 10)
-);
 
-const [dailyFeelings, setDailyFeelings] = useState(() => {
-  const saved = localStorage.getItem("cycle_daily_feelings");
-  return saved ? JSON.parse(saved) : {};
-});
-
-useEffect(() => {
-  localStorage.setItem(
-    "cycle_daily_feelings",
-    JSON.stringify(dailyFeelings)
+  const [selectedDate, setSelectedDate] = React.useState(
+    new Date().toISOString().slice(0, 10)
   );
-}, [dailyFeelings]);
 
-function getFeelingForDate(dateStr) {
-  const entries = Object.entries(dailyFeelings)
-    .filter(([d]) => d <= dateStr)
-    .sort((a, b) => b[0].localeCompare(a[0]));
+  const [dailyFeelings, setDailyFeelings] = React.useState(() => {
+    const saved = localStorage.getItem("cycle_daily_feelings");
+    return saved ? JSON.parse(saved) : {};
+  });
 
-  return entries.length
-    ? entries[0][1]
-    : { strength: 3, psyche: 3, energy: 3 };
-}
-  
-const days = [];
-for (let i = 0; i < length; i++) {
-  const d = new Date(baseDate);
-  d.setDate(d.getDate() + i);
+  React.useEffect(() => {
+    localStorage.setItem(
+      "cycle_daily_feelings",
+      JSON.stringify(dailyFeelings)
+    );
+  }, [dailyFeelings]);
 
-  const dateStr = d.toISOString().slice(0, 10);
-  const baseInfo = getCycleInfoForDay(d, cycleConfig);
-  const feeling = getFeelingForDate(dateStr);
+  function getFeelingForDate(dateStr) {
+    const entries = Object.entries(dailyFeelings)
+      .filter(([d]) => d <= dateStr)
+      .sort((a, b) => b[0].localeCompare(a[0]));
 
-  const info = {
-    ...baseInfo,
-    strengthNote:
-      feeling.energy <= 2
-        ? "Låg energi – sänk volym / tempo"
-        : feeling.strength >= 4
-        ? "Känner dig stark – bra dag för tunga set"
-        : baseInfo.strengthNote,
+    return entries.length
+      ? entries[0][1]
+      : { strength: 3, psyche: 3, energy: 3 };
+  }
+
+  const selectStyle = {
+    width: "100%",
+    padding: "6px 8px",
+    borderRadius: 8,
+    background: "rgba(15,23,42,0.9)",
+    color: "#e5e7eb",
+    border: "1px solid rgba(148,163,184,0.6)",
+    fontSize: 12,
   };
 
-  days.push({ dateObj: d, info });
-}
+  const days = [];
+  for (let i = 0; i < length; i++) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
+
+    const baseInfo = getCycleInfoForDay(d, cycleConfig);
+    const feeling = getFeelingForDate(dateStr);
+
+    const info = {
+      ...baseInfo,
+      strengthNote:
+        feeling.energy <= 2
+          ? "Låg energi – sänk volym / tempo"
+          : feeling.strength >= 4
+          ? "Känner dig stark – bra dag för tunga set"
+          : baseInfo.strengthNote,
+    };
+
+    days.push({ dateObj: d, info });
+  }
 
   return (
     <div className="card">
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Cykel & Styrka 🌸</h3>
-      <p className="small" style={{ marginBottom: 10 }}>
-        Här kan du se ungefär vilken fas du är i cykeln och hur du kan anpassa
-        träningen. Det är en förenklad modell, men ger en bra känsla för när
-        det är PR-läge och när det är deload-läge.
+      <h3 style={{ marginTop: 0, marginBottom: 8 }}>
+        Cykel & Daglig Status 🌙
+      </h3>
+
+      <p className="small" style={{ marginBottom: 12 }}>
+        Logga hur du känner dig för en dag. Det påverkar hur kommande dagar
+        rekommenderas i kalendern.
       </p>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          marginBottom: 12,
-        }}
-      >
-        <div style={{ flex: "1 1 160px", minWidth: 0 }}>
-          <label className="small" style={{ display: "block", marginBottom: 4 }}>
-            Senaste mensens första dag
-          </label>
+      {/* Mens-start + längd */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <div style={{ flex: 1 }}>
+          <label className="small">Senaste mensens första dag</label>
           <input
             type="date"
             value={cycleConfig.startDate || ""}
@@ -326,22 +331,12 @@ for (let i = 0; i < length; i++) {
                 startDate: e.target.value || null,
               }))
             }
-            style={{
-              width: "100%",
-              padding: "6px 8px",
-              borderRadius: 8,
-              border: "1px solid rgba(148,163,184,0.7)",
-              background: "rgba(15,23,42,0.9)",
-              color: "#e5e7eb",
-              fontSize: 12,
-            }}
+            style={selectStyle}
           />
         </div>
 
-        <div style={{ flex: "0 0 100px", minWidth: 0 }}>
-          <label className="small" style={{ display: "block", marginBottom: 4 }}>
-            Cykellängd (dagar)
-          </label>
+        <div style={{ width: 110 }}>
+          <label className="small">Cykellängd</label>
           <input
             type="number"
             min={21}
@@ -353,122 +348,124 @@ for (let i = 0; i < length; i++) {
                 length: e.target.value || 28,
               }))
             }
-            style={{
-              width: "100%",
-              padding: "6px 8px",
-              borderRadius: 8,
-              border: "1px solid rgba(148,163,184,0.7)",
-              background: "rgba(15,23,42,0.9)",
-              color: "#e5e7eb",
-              fontSize: 12,
-            }}
+            style={selectStyle}
           />
         </div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-  <input
-    type="date"
-    value={selectedDate}
-    onChange={(e) => setSelectedDate(e.target.value)}
-    style={{
-      padding: "6px 8px",
-      borderRadius: 8,
-      border: "1px solid rgba(148,163,184,0.7)",
-      background: "rgba(15,23,42,0.9)",
-      color: "#e5e7eb",
-      fontSize: 12,
-    }}
-  />
-
-  {["strength", "psyche", "energy"].map((key) => (
-    <select
-      key={key}
-      value={getFeelingForDate(selectedDate)[key]}
-      onChange={(e) =>
-        setDailyFeelings((prev) => ({
-          ...prev,
-          [selectedDate]: {
-            ...getFeelingForDate(selectedDate),
-            [key]: Number(e.target.value),
-          },
-        }))
-      }
-      style={{
-        padding: "6px",
-        borderRadius: 8,
-        background: "rgba(15,23,42,0.9)",
-        color: "#e5e7eb",
-        border: "1px solid rgba(148,163,184,0.7)",
-        fontSize: 12,
-      }}
-    >
-      {[1, 2, 3, 4, 5].map((v) => (
-        <option key={v} value={v}>{v}</option>
-      ))}
-    </select>
-  ))}
-</div>
       </div>
 
-      <div className="small" style={{ marginBottom: 8, opacity: 0.9 }}>
-        Kalendern nedan visar en hel cykel framåt från vald startdag. Färgen
-        visar fas, och texten ger en hint om hur du kan planera passen.
-      </div>
+      {/* Daglig logg */}
+      <div style={{ marginBottom: 14 }}>
+        <label className="small">Välj dag att logga</label>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          style={{ ...selectStyle, marginBottom: 8 }}
+        />
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          marginTop: 6,
-        }}
-      >
-        {days.map(({ dateObj, info }, idx) => {
-          const dateStr = dateObj.toISOString().slice(0, 10);
-          return (
-            <div
-              key={idx}
-              style={{
-                flex: "1 0 calc(50% - 6px)",
-                minWidth: 0,
-                borderRadius: 10,
-                border: "1px solid rgba(148,163,184,0.4)",
-                background: info.color,
-                padding: "6px 8px",
-                fontSize: 11,
-              }}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: 10,
+          }}
+        >
+          <div>
+            <label className="small">💪 Styrka</label>
+            <select
+              value={getFeelingForDate(selectedDate).strength}
+              onChange={(e) =>
+                setDailyFeelings((prev) => ({
+                  ...prev,
+                  [selectedDate]: {
+                    ...getFeelingForDate(selectedDate),
+                    strength: Number(e.target.value),
+                  },
+                }))
+              }
+              style={selectStyle}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 2,
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>{dateStr}</span>
-                {info.dayInCycle != null && (
-                  <span style={{ opacity: 0.9 }}>Dag {info.dayInCycle}</span>
-                )}
-              </div>
-              <div style={{ fontWeight: 500 }}>{info.phase}</div>
-              <div className="small" style={{ marginTop: 2 }}>
-                {info.strengthNote}
-              </div>
-            </div>
-          );
-        })}
+              <option value={1}>1 – Mycket svag</option>
+              <option value={2}>2 – Trött</option>
+              <option value={3}>3 – Normal</option>
+              <option value={4}>4 – Stark</option>
+              <option value={5}>5 – Väldigt stark</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="small">🧠 Psyke</label>
+            <select
+              value={getFeelingForDate(selectedDate).psyche}
+              onChange={(e) =>
+                setDailyFeelings((prev) => ({
+                  ...prev,
+                  [selectedDate]: {
+                    ...getFeelingForDate(selectedDate),
+                    psyche: Number(e.target.value),
+                  },
+                }))
+              }
+              style={selectStyle}
+            >
+              <option value={1}>1 – Väldigt låg</option>
+              <option value={2}>2 – Låg</option>
+              <option value={3}>3 – Okej</option>
+              <option value={4}>4 – Bra</option>
+              <option value={5}>5 – Väldigt bra</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="small">⚡ Energi</label>
+            <select
+              value={getFeelingForDate(selectedDate).energy}
+              onChange={(e) =>
+                setDailyFeelings((prev) => ({
+                  ...prev,
+                  [selectedDate]: {
+                    ...getFeelingForDate(selectedDate),
+                    energy: Number(e.target.value),
+                  },
+                }))
+              }
+              style={selectStyle}
+            >
+              <option value={1}>1 – Urlakad</option>
+              <option value={2}>2 – Låg</option>
+              <option value={3}>3 – Stabil</option>
+              <option value={4}>4 – Pigg</option>
+              <option value={5}>5 – Explosiv</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="small" style={{ marginTop: 6, opacity: 0.7 }}>
+          Sparas automatiskt 💾
+        </div>
       </div>
 
-      <div
-        className="small"
-        style={{
-          marginTop: 10,
-          paddingTop: 8,
-          borderTop: "1px dashed rgba(148,163,184,0.5)",
-        }}
-      >
-        Tips: Använd denna vy tillsammans med program & boss raid. Planera dina
-        tyngsta pass under “Peak / Starkast”-dagarna och lägg deload / pump
-        runt PMS och mens. 💗
+      {/* Kalender */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {days.map(({ dateObj, info }, idx) => (
+          <div
+            key={idx}
+            style={{
+              flex: "1 0 calc(50% - 6px)",
+              borderRadius: 10,
+              border: "1px solid rgba(148,163,184,0.4)",
+              background: info.color,
+              padding: "6px 8px",
+              fontSize: 11,
+            }}
+          >
+            <div style={{ fontWeight: 600 }}>
+              {dateObj.toISOString().slice(0, 10)}
+            </div>
+            <div>{info.phase}</div>
+            <div className="small">{info.strengthNote}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
