@@ -477,6 +477,7 @@ export default function CycleView({ cycleConfig, setCycleConfig }) {
   );
 }
 
+
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
