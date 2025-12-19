@@ -774,3 +774,110 @@ body {
 .btn-full {
   width: 100%;
 }
+/* =========================
+   CYCLE – MATCHAR APPENS ESTETIK
+========================= */
+
+.cycle-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cycle-card {
+  background: linear-gradient(
+    180deg,
+    rgba(30,41,59,0.96),
+    rgba(15,23,42,0.96)
+  );
+  border-radius: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(148,163,184,0.18);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+}
+
+.cycle-header {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cycle-input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 12px;
+}
+
+.cycle-label {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.cycle-input {
+  width: 100%;
+  background: rgba(2,6,23,0.7);
+  border: 1px solid rgba(148,163,184,0.25);
+  border-radius: 10px;
+  padding: 7px 10px;
+  color: #e5e7eb;
+  font-size: 12px;
+}
+
+.cycle-rating {
+  display: flex;
+  gap: 6px;
+}
+
+.cycle-rating button {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(148,163,184,0.25);
+  background: rgba(2,6,23,0.7);
+  color: #e5e7eb;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cycle-rating button.active {
+  background: linear-gradient(135deg,#ec4899,#f97316);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 0 0 1px rgba(236,72,153,0.5);
+}
+
+.cycle-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.cycle-calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+  gap: 10px;
+}
+
+.cycle-day {
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  border: 1px solid rgba(148,163,184,0.25);
+}
+
+.cycle-day-date {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.cycle-day-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
