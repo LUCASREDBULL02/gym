@@ -105,6 +105,7 @@ export default function CycleTracker() {
 
   return (
     <div className="card">
+       <h1 style={{ color: "red" }}>CYCLE TRACKER LOADED</h1>
       <h3 style={{ marginTop: 0 }}>Cykel & Daglig Status 🌙</h3>
 
       {/* Mens-start */}
