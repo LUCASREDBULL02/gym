@@ -240,23 +240,6 @@ function getCycleInfoForDay(date, config) {
 
   return { dayInCycle, phase, strengthNote, color };
 }
-
-  return (
-    <div className="card">
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Cykel & Styrka 🌸</h3>
-      <p className="small" style={{ marginBottom: 10 }}>
-        Här kan du se ungefär vilken fas du är i cykeln och hur du kan anpassa
-        träningen. Det är en förenklad modell, men ger en bra känsla för när
-        det är PR-läge och när det är deload-läge.
-      </p>
-
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          marginBottom: 12,
-        }}
       >
         <div style={{ flex: "1 1 160px", minWidth: 0 }}>
           <label className="small" style={{ display: "block", marginBottom: 4 }}>
