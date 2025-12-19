@@ -253,13 +253,38 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     bleeding: false,
   };
 
-  const PASS_TYPES = [
-    { key: "power", title: "Power", desc: "Explosivt, få set", color: "#7c3f1d" },
-    { key: "heavy", title: "Tung dag", desc: "Baslyft / progression", color: "#6b2d3e" },
-    { key: "volume", title: "Volym", desc: "Fler set, kontrollerad vikt", color: "#14532d" },
-    { key: "technique", title: "Teknik", desc: "Tempo, kontroll, rörlighet", color: "#1e3a8a" },
-    { key: "recovery", title: "Aktiv vila", desc: "Promenad, lätt pump", color: "#4c1d95" },
-  ];
+  const PASS_TYPES = {
+    power: {
+      title: "Power",
+      desc: "Explosivt, få set",
+      color: "#7c3f1d",
+    },
+    heavy: {
+      title: "Tung dag",
+      desc: "Baslyft / progression",
+      color: "#6b2d3e",
+    },
+    volume: {
+      title: "Volym",
+      desc: "Fler set, kontrollerad vikt",
+      color: "#14532d",
+    },
+    technique: {
+      title: "Teknik",
+      desc: "Tempo, kontroll, rörlighet",
+      color: "#1e3a8a",
+    },
+    recovery: {
+      title: "Återhämtning",
+      desc: "Vila, rörlighet",
+      color: "#312e81",
+    },
+    deload: {
+      title: "Deload",
+      desc: "Mycket lätt träning",
+      color: "#334155",
+    },
+  };
 
   const [selectedDate, setSelectedDate] = React.useState(iso(new Date()));
 
@@ -269,8 +294,15 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   });
 
   React.useEffect(() => {
-    localStorage.setItem("cycle_daily_feelings", JSON.stringify(dailyFeelings));
+    localStorage.setItem(
+      "cycle_daily_feelings",
+      JSON.stringify(dailyFeelings)
+    );
   }, [dailyFeelings]);
+
+  /* =========================
+     CORE HELPERS
+  ========================= */
 
   function getFeelingForDate(dateStr) {
     const entries = Object.entries(dailyFeelings)
@@ -291,87 +323,162 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     }));
   }
 
+  /* =========================
+     BUILD CALENDAR (ADVANCED)
+  ========================= */
+
   const days = React.useMemo(() => {
-    const base = cycleConfig.startDate
-      ? new Date(cycleConfig.startDate)
-      : new Date();
+    const base =
+      cycleConfig.startDate != null
+        ? new Date(cycleConfig.startDate)
+        : new Date();
 
     const length = Number(cycleConfig.length) || 28;
+
+    let fatigue = 0;
+    let blockDay = 0;
+    let blockType = "volume";
+
     const result = [];
 
     for (let i = 0; i < length; i++) {
       const d = new Date(base);
       d.setDate(d.getDate() + i);
+      const dateStr = iso(d);
+      const feeling = getFeelingForDate(dateStr);
 
-      const feeling = getFeelingForDate(iso(d));
-      let pass = PASS_TYPES[Math.floor(i / 3) % PASS_TYPES.length];
+      const explanation = [];
 
-      if (feeling.bleeding || feeling.energy <= 2) {
-        pass = PASS_TYPES.find((p) => p.key === "recovery");
-      } else if (feeling.energy >= 4 && feeling.strength >= 4) {
-        pass = PASS_TYPES.find((p) => p.key === "heavy");
-      } else if (feeling.energy === 3) {
-        pass = PASS_TYPES.find((p) => p.key === "volume");
+      // 📉 fatigue accumulation
+      if (feeling.energy <= 2) {
+        fatigue += 1;
+        explanation.push("låg energi");
+      } else if (feeling.energy >= 4) {
+        fatigue = Math.max(0, fatigue - 0.5);
       }
 
-      result.push({ date: iso(d), pass });
+      // 🔁 auto deload var 4:e vecka
+      if (i > 0 && i % 28 === 0) {
+        blockType = "deload";
+        blockDay = 0;
+        explanation.push("automatisk deload (4 veckor)");
+      }
+
+      // 🩸 bleeding overrides
+      if (feeling.bleeding) {
+        blockType = "recovery";
+        blockDay = 0;
+        explanation.push("blödning");
+      }
+
+      // 🔄 block progression (var 3–4 dag)
+      if (blockDay >= 3) {
+        blockDay = 0;
+
+        if (fatigue >= 3) {
+          blockType = "recovery";
+          explanation.push("ackumulerad trötthet");
+        } else if (blockType === "volume") {
+          blockType = "heavy";
+        } else if (blockType === "heavy") {
+          blockType = "technique";
+        } else if (blockType === "technique") {
+          blockType = "power";
+        } else {
+          blockType = "volume";
+        }
+      }
+
+      // ⛔ block safety
+      if (fatigue >= 4) {
+        blockType = "recovery";
+      }
+
+      blockDay++;
+
+      result.push({
+        date: dateStr,
+        pass: PASS_TYPES[blockType],
+        tooltip:
+          explanation.length > 0
+            ? `Påverkas av logg ${Object.keys(dailyFeelings).at(-1) || "—"} (${explanation.join(", ")})`
+            : null,
+      });
     }
 
     return result;
   }, [cycleConfig, dailyFeelings]);
 
+  /* =========================
+     RENDER
+  ========================= */
+
   return (
     <div className="card">
-      <h3>Cykel & Daglig Träningscoach 🌙</h3>
+      <h3 style={{ marginTop: 0 }}>Cykel & Träningscoach 🌙</h3>
 
-      <label className="small">Första mensdag (valfritt)</label>
+      <label className="small">Första mensdag</label>
       <input
         type="date"
         value={cycleConfig.startDate || ""}
         onChange={(e) =>
-          setCycleConfig((p) => ({ ...p, startDate: e.target.value || null }))
+          setCycleConfig((p) => ({
+            ...p,
+            startDate: e.target.value || null,
+          }))
         }
       />
 
-      <label className="small">Välj dag att logga</label>
+      <label className="small">Logga dag</label>
       <input
         type="date"
         value={selectedDate}
         onChange={(e) => setSelectedDate(e.target.value)}
       />
 
-      <div style={{ display: "flex", gap: 8 }}>
-        <select value={getFeelingForDate(selectedDate).strength}
-          onChange={(e) => updateFeeling("strength", Number(e.target.value))}>
-          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
-        </select>
-
-        <select value={getFeelingForDate(selectedDate).psyche}
-          onChange={(e) => updateFeeling("psyche", Number(e.target.value))}>
-          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
-        </select>
-
-        <select value={getFeelingForDate(selectedDate).energy}
-          onChange={(e) => updateFeeling("energy", Number(e.target.value))}>
-          {[1,2,3,4,5].map(v => <option key={v}>{v}</option>)}
-        </select>
+      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        {["strength", "psyche", "energy"].map((k) => (
+          <select
+            key={k}
+            value={getFeelingForDate(selectedDate)[k]}
+            onChange={(e) => updateFeeling(k, Number(e.target.value))}
+          >
+            {[1, 2, 3, 4, 5].map((v) => (
+              <option key={v} value={v}>
+                {k} {v}
+              </option>
+            ))}
+          </select>
+        ))}
       </div>
 
-      <label>
+      <label style={{ marginTop: 6 }}>
         <input
           type="checkbox"
           checked={getFeelingForDate(selectedDate).bleeding}
-          onChange={() => updateFeeling(
-            "bleeding",
-            !getFeelingForDate(selectedDate).bleeding
-          )}
-        /> 🩸 Blöder idag
+          onChange={() =>
+            updateFeeling(
+              "bleeding",
+              !getFeelingForDate(selectedDate).bleeding
+            )
+          }
+        />{" "}
+        🩸 Blöder idag
       </label>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+      <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
         {days.map((d) => (
-          <div key={d.date}
-            style={{ background: d.pass.color, padding: 8, borderRadius: 8 }}>
+          <div
+            key={d.date}
+            title={d.tooltip || ""}
+            style={{
+              flex: "1 0 calc(50% - 6px)",
+              background: d.pass.color,
+              borderRadius: 10,
+              padding: 8,
+              fontSize: 12,
+            }}
+          >
             <strong>{d.date}</strong>
             <div>{d.pass.title}</div>
             <div className="small">{d.pass.desc}</div>
@@ -381,7 +488,6 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     </div>
   );
 }
-
 
 // ------------------ HUVUDKOMPONENT ------------------
 
