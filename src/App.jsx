@@ -245,7 +245,7 @@ function getCycleInfoForDay(date, config) {
 
 function CycleView({ cycleConfig, setCycleConfig }) {
   const length = Number(cycleConfig.length) || 28;
-  const baseDate = cycleConfig.startDate
+  const startDate = cycleConfig.startDate
     ? new Date(cycleConfig.startDate)
     : new Date();
 
@@ -270,110 +270,99 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   ========================= */
 
   function getFeelingForDate(dateStr) {
-    const exact = dailyFeelings[dateStr];
-    const bleeding = exact?.bleeding || false;
-
-    const entries = Object.entries(dailyFeelings)
-      .filter(([d]) => d <= dateStr)
-      .sort((a, b) => b[0].localeCompare(a[0]));
-
-    const base =
-      entries.length > 0
-        ? entries[0][1]
-        : { strength: 3, psyche: 3, energy: 3 };
-
+    const exact = dailyFeelings[dateStr] || {};
     return {
-      strength: base.strength ?? 3,
-      psyche: base.psyche ?? 3,
-      energy: base.energy ?? 3,
-      bleeding,
+      strength: exact.strength ?? 3,
+      psyche: exact.psyche ?? 3,
+      energy: exact.energy ?? 3,
+      bleeding: exact.bleeding ?? false,
     };
   }
 
-  const PASS_TYPES = {
-    heavy: {
-      title: "Tung dag",
-      detail: "Baslyft / progression",
-      color: "rgba(239,68,68,0.35)", // röd
-    },
-    volume: {
+  /* =========================
+     PASS BLOCKS (3–4 dagar)
+  ========================= */
+
+  const PASS_BLOCKS = [
+    {
+      type: "volume",
       title: "Volym",
       detail: "Fler set, kontrollerad vikt",
-      color: "rgba(34,197,94,0.35)", // grön
+      color: "rgba(34,197,94,0.35)",
     },
-    technique: {
+    {
+      type: "heavy",
+      title: "Tung dag",
+      detail: "Baslyft / progression",
+      color: "rgba(239,68,68,0.35)",
+    },
+    {
+      type: "technique",
       title: "Teknik",
       detail: "Tempo, kontroll, rörlighet",
-      color: "rgba(59,130,246,0.35)", // blå
+      color: "rgba(59,130,246,0.35)",
     },
-    power: {
+    {
+      type: "power",
       title: "Power",
       detail: "Explosivt, få set",
-      color: "rgba(249,115,22,0.35)", // orange
+      color: "rgba(249,115,22,0.35)",
     },
-    active: {
-      title: "Aktiv vila",
-      detail: "Promenad, lätt pump",
-      color: "rgba(168,85,247,0.35)", // lila
+    {
+      type: "deload",
+      title: "Deload",
+      detail: "Lättare pass, återhämtning",
+      color: "rgba(168,85,247,0.35)",
     },
-    recovery: {
-      title: "Återhämtning",
-      detail: "Vila, rörlighet",
-      color: "rgba(15,23,42,0.9)", // mörk
-    },
-  };
+  ];
 
   /* =========================
-     BUILD CALENDAR + DECISION ENGINE
+     BUILD CALENDAR (BLOCK-BASED)
   ========================= */
 
   const days = [];
-  const recentTypes = [];
+  let blockIndex = 0;
+  let blockDayCount = 0;
 
   for (let i = 0; i < length; i++) {
-    const d = new Date(baseDate);
+    const d = new Date(startDate);
     d.setDate(d.getDate() + i);
     const dateStr = d.toISOString().slice(0, 10);
     const feeling = getFeelingForDate(dateStr);
 
-    let type = "volume";
+    // ny block var 3:e dag
+    if (blockDayCount >= 3) {
+      blockDayCount = 0;
+      blockIndex = (blockIndex + 1) % PASS_BLOCKS.length;
+    }
 
-    // 1️⃣ Blödning
+    let block = PASS_BLOCKS[blockIndex];
+
+    // 🔁 Modifierare (påverkar nästa block)
     if (feeling.bleeding) {
-      type = "recovery";
+      block = {
+        type: "recovery",
+        title: "Återhämtning",
+        detail: "Vila, rörlighet",
+        color: "rgba(15,23,42,0.9)",
+      };
+    } else if (feeling.energy <= 2 || feeling.psyche <= 2) {
+      block = {
+        ...PASS_BLOCKS.find((b) => b.type === "deload"),
+      };
+    } else if (feeling.energy >= 4 && feeling.strength >= 4) {
+      // tillåt power/tung lite tidigare
+      if (PASS_BLOCKS[blockIndex].type === "volume") {
+        block = PASS_BLOCKS.find((b) => b.type === "heavy");
+      }
     }
-    // 2️⃣ Väldigt låg energi / psyke
-    else if (feeling.energy <= 2 || feeling.psyche <= 2) {
-      type = "active";
-    }
-    // 3️⃣ Power-dag (max 1 per 4 dagar)
-    else if (
-      feeling.energy === 5 &&
-      feeling.psyche >= 4 &&
-      !recentTypes.slice(-3).includes("power")
-    ) {
-      type = "power";
-    }
-    // 4️⃣ Tung dag (ej efter tung/power)
-    else if (
-      feeling.energy >= 4 &&
-      feeling.strength >= 4 &&
-      !["heavy", "power"].includes(recentTypes.at(-1))
-    ) {
-      type = "heavy";
-    }
-    // 5️⃣ Teknikdag
-    else if (feeling.energy === 3) {
-      type = "technique";
-    }
-
-    recentTypes.push(type);
 
     days.push({
       dateObj: d,
-      feeling,
-      recommendation: { type, ...PASS_TYPES[type] },
+      recommendation: block,
     });
+
+    blockDayCount++;
   }
 
   const inputStyle = {
@@ -394,7 +383,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     <div className="card">
       <h3 style={{ marginTop: 0 }}>Cykel & Daglig Träningscoach 🌙</h3>
 
-      <label className="small">Första mensdag (valfritt)</label>
+      <label className="small">Första mensdag (påverkar grundrytm)</label>
       <input
         type="date"
         value={cycleConfig.startDate || ""}
@@ -453,7 +442,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       <label className="small" style={{ display: "flex", gap: 6, marginTop: 8 }}>
         <input
           type="checkbox"
-          checked={dailyFeelings[selectedDate]?.bleeding || false}
+          checked={getFeelingForDate(selectedDate).bleeding}
           onChange={(e) =>
             setDailyFeelings((prev) => ({
               ...prev,
@@ -468,7 +457,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       </label>
 
       <div className="small" style={{ opacity: 0.7, marginBottom: 12 }}>
-        Sparas automatiskt 💾
+        Sparas automatiskt 💾 (påverkar kommande block)
       </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
