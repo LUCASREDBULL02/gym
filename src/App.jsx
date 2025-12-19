@@ -268,6 +268,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     const entries = Object.entries(logs)
       .filter(([d]) => d <= date)
       .sort((a, b) => b[0].localeCompare(a[0]));
+
     return entries.length
       ? entries[0][1]
       : { strength: 3, psyche: 3, energy: 3, bleeding: false };
@@ -278,6 +279,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       ...p,
       [selectedDate]: { ...latestLog(selectedDate), [key]: value },
     }));
+  }
+
+  function readiness(log) {
+    return (log.strength + log.psyche + log.energy) / 3;
   }
 
   function cyclePhase(date) {
@@ -303,29 +308,39 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       d.setDate(d.getDate() + i);
       const date = iso(d);
       const log = latestLog(date);
+      const score = readiness(log);
 
-      const weekKey = `${d.getFullYear()}-${d.getWeek?.() ?? Math.floor(d / 604800000)}`;
+      const weekKey = `${d.getFullYear()}-${Math.floor(i / 7)}`;
       weeklyRecovery[weekKey] ??= 0;
 
       let type = cyclePhase(d);
 
-      // Blödning / låg energi → vilja vila
-      if (log.bleeding || log.energy <= 2) type = "recovery";
+      // Mens / låg readiness
+      if (log.bleeding || score <= 2) type = "recovery";
 
-      // Begränsa vila
+      // Max 2 vilodagar / vecka
       if (type === "recovery") {
         if (weeklyRecovery[weekKey] >= 2) type = "technique";
         else weeklyRecovery[weekKey]++;
       }
 
-      // Uppgradering om bra dagsform
-      if (log.energy >= 4 && log.strength >= 4) {
+      // Uppgradering baserat på readiness
+      if (score >= 4) {
         if (type === "volume") type = "heavy";
-        if (type === "heavy") type = "power";
+        else if (type === "heavy") type = "power";
+      }
+
+      // Nedgradering vid mentalt slitage
+      if (log.psyche <= 2 && type === "power") {
+        type = "technique";
       }
 
       // Tvinga variation
-      if (i >= 2 && result[i - 1]?.type === type && result[i - 2]?.type === type) {
+      if (
+        i >= 2 &&
+        result[i - 1]?.type === type &&
+        result[i - 2]?.type === type
+      ) {
         type =
           type === "power"
             ? "technique"
@@ -363,21 +378,15 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       <div style={{ display: "flex", gap: 6 }}>
         <select onChange={(e) => logToday("strength", +e.target.value)}>
           <option>💪 Styrka</option>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
+          {[1, 2, 3, 4, 5].map((v) => <option key={v}>{v}</option>)}
         </select>
         <select onChange={(e) => logToday("psyche", +e.target.value)}>
           <option>🧠 Psyke</option>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
+          {[1, 2, 3, 4, 5].map((v) => <option key={v}>{v}</option>)}
         </select>
         <select onChange={(e) => logToday("energy", +e.target.value)}>
           <option>⚡ Energi</option>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
+          {[1, 2, 3, 4, 5].map((v) => <option key={v}>{v}</option>)}
         </select>
       </div>
 
