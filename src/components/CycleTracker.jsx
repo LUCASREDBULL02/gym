@@ -132,11 +132,18 @@ export default function CycleTracker() {
       {/* Daglig input */}
       <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
         {["strength", "psyche", "energy"].map((key) => (
-          <select
-            key={key}
-            value={getFeelingForDate(selectedDate)[key]}
-            onChange={(e) => updateFeeling(key, Number(e.target.value))}
-          >
+         <select
+  key={key}
+  style={{
+    padding: "6px 8px",
+    background: "#0f172a",
+    color: "white",
+    border: "1px solid #64748b",
+    borderRadius: 6,
+  }}
+  value={getFeelingForDate(selectedDate)[key]}
+  onChange={(e) => updateFeeling(key, Number(e.target.value))}
+>
             {[1, 2, 3, 4, 5].map((v) => (
               <option key={v} value={v}>
                 {key === "strength" && "💪 "}
