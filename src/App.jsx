@@ -290,25 +290,8 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     return fallback;
   }
 
-  function getWeeklyEnergyAverage() {
-    const today = new Date();
-    const values = [];
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      if (dailyFeelings[key]) {
-        values.push(dailyFeelings[key].energy);
-      }
-    }
-
-    if (values.length === 0) return null;
-    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
-  }
-
   /* =========================
-     CORE: REKOMMENDERAT PASS
+     RECOMMENDATION ENGINE
   ========================= */
 
   function getRecommendedWorkout(dateObj, baseInfo) {
@@ -316,46 +299,44 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       dateObj.toISOString().slice(0, 10)
     );
 
-    // 🔹 Baseline (ingen mens loggad)
-    let recommendation = {
-      title: "Baspass",
-      detail: "Teknik + lätt styrka (RPE 6–7)",
+    // Basrekommendation (funkar alltid)
+    let rec = {
+      title: "Byggpass",
+      detail: "Teknik + måttlig volym (RPE 7)",
     };
 
-    // 🔹 Om cykelinfo finns → använd den
+    // Modifiera via cykel (om finns)
     if (baseInfo?.phase) {
       if (baseInfo.phase.toLowerCase().includes("peak")) {
-        recommendation = {
+        rec = {
           title: "Tung dag",
-          detail: "Tunga baslyft / PR-försök",
+          detail: "Tunga baslyft / toppset",
         };
-      } else if (baseInfo.phase.toLowerCase().includes("mens")) {
-        recommendation = {
+      }
+      if (baseInfo.phase.toLowerCase().includes("mens")) {
+        rec = {
           title: "Återhämtning",
-          detail: "Rörlighet, lätt pump, promenad",
-        };
-      } else {
-        recommendation = {
-          title: "Byggpass",
-          detail: "Volym + teknik",
+          detail: "Lätt pump, rörlighet, promenad",
         };
       }
     }
 
-    // 🔹 Modifiera baserat på känsla
+    // Modifiera via daglig logg (PRIORITERAS)
     if (feeling.energy <= 2 || feeling.psyche <= 2) {
-      recommendation = {
+      rec = {
         title: "Lätt dag",
         detail: "Sänk volym, fokus på känsla & teknik",
       };
-    } else if (feeling.energy >= 4 && feeling.strength >= 4) {
-      recommendation = {
+    }
+
+    if (feeling.energy >= 4 && feeling.strength >= 4) {
+      rec = {
         title: "Push-dag",
-        detail: "Hårdare set, extra top set",
+        detail: "Extra toppset / progression",
       };
     }
 
-    return recommendation;
+    return rec;
   }
 
   const inputStyle = {
@@ -382,21 +363,11 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     const feeling = getFeelingForDate(dateStr);
     const recommendation = getRecommendedWorkout(d, baseInfo);
 
-    const info = {
-      ...baseInfo,
-      strengthNote:
-        feeling.energy <= 2
-          ? "Låg energi – sänk volym / tempo"
-          : feeling.strength >= 4
-          ? "Känner dig stark – bra dag för tunga set"
-          : baseInfo?.strengthNote,
-    };
-
     days.push({
       dateObj: d,
-      info,
-      recommendation,
+      baseInfo,
       feeling,
+      recommendation,
     });
   }
 
@@ -406,80 +377,97 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   return (
     <div className="card">
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>
-        Cykel & Träningsrekommendation 🌙
-      </h3>
+      <h3 style={{ marginTop: 0 }}>Cykel & Daglig Träningsguide 🌙</h3>
 
-      <p className="small" style={{ marginBottom: 12 }}>
-        Kalendern ger dagliga träningsrekommendationer – även utan loggad mens.
-        Dina loggade känslor justerar passen automatiskt.
+      <p className="small">
+        Logga hur du känner dig för en dag. Kalendern ger dagliga
+        träningsrekommendationer – även utan mens.
       </p>
 
-      {/* Mens + längd */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <div style={{ flex: 1 }}>
-          <label className="small">Senaste mensens första dag</label>
-          <input
-            type="date"
-            value={cycleConfig.startDate || ""}
-            onChange={(e) =>
-              setCycleConfig((prev) => ({
-                ...prev,
-                startDate: e.target.value || null,
-              }))
-            }
-            style={inputStyle}
-          />
-        </div>
+      {/* Mens */}
+      <label className="small">Senaste mensens första dag</label>
+      <input
+        type="date"
+        value={cycleConfig.startDate || ""}
+        onChange={(e) =>
+          setCycleConfig((prev) => ({
+            ...prev,
+            startDate: e.target.value || null,
+          }))
+        }
+        style={{ ...inputStyle, marginBottom: 10 }}
+      />
 
-        <div style={{ width: 110 }}>
-          <label className="small">Cykellängd</label>
-          <input
-            type="number"
-            min={21}
-            max={40}
-            value={cycleConfig.length}
-            onChange={(e) =>
-              setCycleConfig((prev) => ({
-                ...prev,
-                length: e.target.value || 28,
-              }))
-            }
-            style={inputStyle}
-          />
-        </div>
+      {/* Daglig logg */}
+      <label className="small">Välj dag att logga</label>
+      <input
+        type="date"
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        style={{ ...inputStyle, marginBottom: 8 }}
+      />
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+          gap: 10,
+          marginBottom: 12,
+        }}
+      >
+        {[
+          ["strength", "💪 Styrka"],
+          ["psyche", "🧠 Psyke"],
+          ["energy", "⚡ Energi"],
+        ].map(([key, label]) => (
+          <div key={key}>
+            <label className="small">{label}</label>
+            <select
+              value={getFeelingForDate(selectedDate)[key]}
+              onChange={(e) =>
+                setDailyFeelings((prev) => ({
+                  ...prev,
+                  [selectedDate]: {
+                    ...getFeelingForDate(selectedDate),
+                    [key]: Number(e.target.value),
+                  },
+                }))
+              }
+              style={inputStyle}
+            >
+              {[1, 2, 3, 4, 5].map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+      <div className="small" style={{ opacity: 0.7, marginBottom: 12 }}>
+        Sparas automatiskt 💾
       </div>
 
       {/* Kalender */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {days.map(({ dateObj, info, recommendation, feeling }, idx) => {
+        {days.map(({ dateObj, baseInfo, feeling, recommendation }, idx) => {
           const dateStr = dateObj.toISOString().slice(0, 10);
-
           return (
             <div
               key={idx}
               style={{
                 flex: "1 0 calc(50% - 6px)",
                 borderRadius: 10,
-                border: "1px solid rgba(148,163,184,0.4)",
-                background: energyColor(feeling.energy, info?.color),
                 padding: "6px 8px",
+                border: "1px solid rgba(148,163,184,0.4)",
+                background: energyColor(feeling.energy, baseInfo?.color),
                 fontSize: 11,
               }}
             >
               <div style={{ fontWeight: 600 }}>{dateStr}</div>
-
-              <div style={{ marginTop: 2, fontWeight: 600 }}>
-                🏋️ {recommendation.title}
-              </div>
-
+              <div>🏋️ {recommendation.title}</div>
               <div className="small">{recommendation.detail}</div>
-
-              {info?.phase && (
-                <div className="small" style={{ opacity: 0.8 }}>
-                  Fas: {info.phase}
-                </div>
-              )}
             </div>
           );
         })}
