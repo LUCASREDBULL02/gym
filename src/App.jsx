@@ -10,7 +10,7 @@ import ProgramRunner from "./components/ProgramRunner.jsx";
 import PRList from "./components/PRList.jsx";
 import MuscleComparison from "./components/MuscleComparison.jsx";
 import LiftTools from "./components/LiftTools.jsx";
-import CycleView from "./components/Cycleview.jsx";
+import CycleTracker from "./components/CycleTracker.jsx";
 import { buildComparisonChartData } from "./utils/comparisonData.js";
 import { useBebiMood } from "./hooks/useBebiMood.js";
 import { EXERCISES } from "./data/exercises";
@@ -192,6 +192,205 @@ function computeMuscleStatsFromLogs(logs, profile) {
   return stats;
 }
 
+// ---------- CYCLE TRACKER HJÄLPSFUNKTION ----------
+
+function getCycleInfoForDay(date, config) {
+  const length = Number(config.length) || 28;
+  const start = config.startDate ? new Date(config.startDate) : null;
+
+  if (!start || isNaN(start.getTime())) {
+    return {
+      dayInCycle: null,
+      phase: "Ingen start satt",
+      strengthNote: "Fyll i datum för senaste mens",
+      color: "rgba(148,163,184,0.25)",
+    };
+  }
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const diffDays = Math.floor((date - start) / msPerDay);
+  const dayInCycle = ((diffDays % length) + length) % length + 1;
+
+  let phase = "";
+  let strengthNote = "";
+  let color = "";
+
+  // Väldigt förenklad modell (du kan tweaka exakt gränser senare)
+  if (dayInCycle >= 1 && dayInCycle <= 4) {
+    phase = "Mens / Låg energi";
+    strengthNote = "Planera lättare pass, fokus teknik & rörlighet.";
+    color = "rgba(148,163,184,0.25)";
+  } else if (dayInCycle >= 5 && dayInCycle <= 11) {
+    phase = "Stigande styrka";
+    strengthNote = "Bra läge för tyngre sets & progression.";
+    color = "rgba(56,189,248,0.25)";
+  } else if (dayInCycle >= 12 && dayInCycle <= 17) {
+    phase = "Peak / Starkast";
+    strengthNote = "Bästa dagarna för PR, tunga hip thrust & böj.";
+    color = "rgba(244,114,182,0.25)";
+  } else if (dayInCycle >= 18 && dayInCycle <= 24) {
+    phase = "Stabil men lite svajig";
+    strengthNote = "Håll intensitet, men lyssna extra på kroppen.";
+    color = "rgba(129,140,248,0.25)";
+  } else {
+    phase = "PMS / Lugn fas";
+    strengthNote = "Perfekt för deload, pump-pass & feel-good-träning.";
+    color = "rgba(96,165,250,0.25)";
+  }
+
+  return { dayInCycle, phase, strengthNote, color };
+}
+
+// ---------- CYCLE VIEW KOMPONENT ----------
+
+function CycleView({ cycleConfig, setCycleConfig }) {
+  const length = Number(cycleConfig.length) || 28;
+  const baseDate = cycleConfig.startDate
+    ? new Date(cycleConfig.startDate)
+    : new Date();
+
+  const days = [];
+  for (let i = 0; i < length; i++) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + i);
+    const info = getCycleInfoForDay(d, cycleConfig);
+    days.push({ dateObj: d, info });
+  }
+
+  return (
+    <div className="card">
+      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Cykel & Styrka 🌸</h3>
+      <p className="small" style={{ marginBottom: 10 }}>
+        Här kan du se ungefär vilken fas du är i cykeln och hur du kan anpassa
+        träningen. Det är en förenklad modell, men ger en bra känsla för när
+        det är PR-läge och när det är deload-läge.
+      </p>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          marginBottom: 12,
+        }}
+      >
+        <div style={{ flex: "1 1 160px", minWidth: 0 }}>
+          <label className="small" style={{ display: "block", marginBottom: 4 }}>
+            Senaste mensens första dag
+          </label>
+          <input
+            type="date"
+            value={cycleConfig.startDate || ""}
+            onChange={(e) =>
+              setCycleConfig((prev) => ({
+                ...prev,
+                startDate: e.target.value || null,
+              }))
+            }
+            style={{
+              width: "100%",
+              padding: "6px 8px",
+              borderRadius: 8,
+              border: "1px solid rgba(148,163,184,0.7)",
+              background: "rgba(15,23,42,0.9)",
+              color: "#e5e7eb",
+              fontSize: 12,
+            }}
+          />
+        </div>
+
+        <div style={{ flex: "0 0 100px", minWidth: 0 }}>
+          <label className="small" style={{ display: "block", marginBottom: 4 }}>
+            Cykellängd (dagar)
+          </label>
+          <input
+            type="number"
+            min={21}
+            max={40}
+            value={cycleConfig.length}
+            onChange={(e) =>
+              setCycleConfig((prev) => ({
+                ...prev,
+                length: e.target.value || 28,
+              }))
+            }
+            style={{
+              width: "100%",
+              padding: "6px 8px",
+              borderRadius: 8,
+              border: "1px solid rgba(148,163,184,0.7)",
+              background: "rgba(15,23,42,0.9)",
+              color: "#e5e7eb",
+              fontSize: 12,
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="small" style={{ marginBottom: 8, opacity: 0.9 }}>
+        Kalendern nedan visar en hel cykel framåt från vald startdag. Färgen
+        visar fas, och texten ger en hint om hur du kan planera passen.
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          marginTop: 6,
+        }}
+      >
+        {days.map(({ dateObj, info }, idx) => {
+          const dateStr = dateObj.toISOString().slice(0, 10);
+          return (
+            <div
+              key={idx}
+              style={{
+                flex: "1 0 calc(50% - 6px)",
+                minWidth: 0,
+                borderRadius: 10,
+                border: "1px solid rgba(148,163,184,0.4)",
+                background: info.color,
+                padding: "6px 8px",
+                fontSize: 11,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 2,
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>{dateStr}</span>
+                {info.dayInCycle != null && (
+                  <span style={{ opacity: 0.9 }}>Dag {info.dayInCycle}</span>
+                )}
+              </div>
+              <div style={{ fontWeight: 500 }}>{info.phase}</div>
+              <div className="small" style={{ marginTop: 2 }}>
+                {info.strengthNote}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        className="small"
+        style={{
+          marginTop: 10,
+          paddingTop: 8,
+          borderTop: "1px dashed rgba(148,163,184,0.5)",
+        }}
+      >
+        Tips: Använd denna vy tillsammans med program & boss raid. Planera dina
+        tyngsta pass under “Peak / Starkast”-dagarna och lägg deload / pump
+        runt PMS och mens. 💗
+      </div>
+    </div>
+  );
+}
 
 // ------------------ HUVUDKOMPONENT ------------------
 
@@ -246,6 +445,21 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("bebi_bodyStats", JSON.stringify(bodyStats));
   }, [bodyStats]);
+
+  // Cykelkonfiguration – persisteras
+  const [cycleConfig, setCycleConfig] = useState(() => {
+    const saved = localStorage.getItem("bebi_cycle");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          startDate: null,
+          length: 28,
+        };
+  });
+
+  useEffect(() => {
+    localStorage.setItem("bebi_cycle", JSON.stringify(cycleConfig));
+  }, [cycleConfig]);
 
   const [toast, setToast] = useState(null);
   const [showModal, setShowModal] = useState(false);
