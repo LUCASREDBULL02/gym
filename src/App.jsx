@@ -307,6 +307,57 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   }
 
+  /* =========================
+     CORE: REKOMMENDERAT PASS
+  ========================= */
+
+  function getRecommendedWorkout(dateObj, baseInfo) {
+    const feeling = getFeelingForDate(
+      dateObj.toISOString().slice(0, 10)
+    );
+
+    // 🔹 Baseline (ingen mens loggad)
+    let recommendation = {
+      title: "Baspass",
+      detail: "Teknik + lätt styrka (RPE 6–7)",
+    };
+
+    // 🔹 Om cykelinfo finns → använd den
+    if (baseInfo?.phase) {
+      if (baseInfo.phase.toLowerCase().includes("peak")) {
+        recommendation = {
+          title: "Tung dag",
+          detail: "Tunga baslyft / PR-försök",
+        };
+      } else if (baseInfo.phase.toLowerCase().includes("mens")) {
+        recommendation = {
+          title: "Återhämtning",
+          detail: "Rörlighet, lätt pump, promenad",
+        };
+      } else {
+        recommendation = {
+          title: "Byggpass",
+          detail: "Volym + teknik",
+        };
+      }
+    }
+
+    // 🔹 Modifiera baserat på känsla
+    if (feeling.energy <= 2 || feeling.psyche <= 2) {
+      recommendation = {
+        title: "Lätt dag",
+        detail: "Sänk volym, fokus på känsla & teknik",
+      };
+    } else if (feeling.energy >= 4 && feeling.strength >= 4) {
+      recommendation = {
+        title: "Push-dag",
+        detail: "Hårdare set, extra top set",
+      };
+    }
+
+    return recommendation;
+  }
+
   const inputStyle = {
     width: "100%",
     padding: "6px 8px",
@@ -329,6 +380,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
     const baseInfo = getCycleInfoForDay(d, cycleConfig);
     const feeling = getFeelingForDate(dateStr);
+    const recommendation = getRecommendedWorkout(d, baseInfo);
 
     const info = {
       ...baseInfo,
@@ -337,10 +389,15 @@ function CycleView({ cycleConfig, setCycleConfig }) {
           ? "Låg energi – sänk volym / tempo"
           : feeling.strength >= 4
           ? "Känner dig stark – bra dag för tunga set"
-          : baseInfo.strengthNote,
+          : baseInfo?.strengthNote,
     };
 
-    days.push({ dateObj: d, info });
+    days.push({
+      dateObj: d,
+      info,
+      recommendation,
+      feeling,
+    });
   }
 
   /* =========================
@@ -350,12 +407,12 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   return (
     <div className="card">
       <h3 style={{ marginTop: 0, marginBottom: 8 }}>
-        Cykel & Daglig Status 🌙
+        Cykel & Träningsrekommendation 🌙
       </h3>
 
       <p className="small" style={{ marginBottom: 12 }}>
-        Logga hur du känner dig för en dag. Det påverkar hur kommande dagar
-        rekommenderas i kalendern.
+        Kalendern ger dagliga träningsrekommendationer – även utan loggad mens.
+        Dina loggade känslor justerar passen automatiskt.
       </p>
 
       {/* Mens + längd */}
@@ -393,112 +450,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         </div>
       </div>
 
-      {/* Daglig logg */}
-      <div style={{ marginBottom: 14 }}>
-        <label className="small">Välj dag att logga</label>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          style={{ ...inputStyle, marginBottom: 8 }}
-        />
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-            gap: 10,
-          }}
-        >
-          {/* STYRKA */}
-          <div>
-            <label className="small">💪 Styrka</label>
-            <select
-              value={getFeelingForDate(selectedDate).strength}
-              onChange={(e) =>
-                setDailyFeelings((prev) => ({
-                  ...prev,
-                  [selectedDate]: {
-                    ...getFeelingForDate(selectedDate),
-                    strength: Number(e.target.value),
-                  },
-                }))
-              }
-              style={inputStyle}
-            >
-              <option value={1}>1 – Mycket svag</option>
-              <option value={2}>2 – Trött</option>
-              <option value={3}>3 – Normal</option>
-              <option value={4}>4 – Stark</option>
-              <option value={5}>5 – Väldigt stark</option>
-            </select>
-          </div>
-
-          {/* PSYKE */}
-          <div>
-            <label className="small">🧠 Psyke</label>
-            <select
-              value={getFeelingForDate(selectedDate).psyche}
-              onChange={(e) =>
-                setDailyFeelings((prev) => ({
-                  ...prev,
-                  [selectedDate]: {
-                    ...getFeelingForDate(selectedDate),
-                    psyche: Number(e.target.value),
-                  },
-                }))
-              }
-              style={inputStyle}
-            >
-              <option value={1}>1 – Väldigt låg</option>
-              <option value={2}>2 – Låg</option>
-              <option value={3}>3 – Okej</option>
-              <option value={4}>4 – Bra</option>
-              <option value={5}>5 – Väldigt bra</option>
-            </select>
-          </div>
-
-          {/* ENERGI */}
-          <div>
-            <label className="small">⚡ Energi</label>
-            <select
-              value={getFeelingForDate(selectedDate).energy}
-              onChange={(e) =>
-                setDailyFeelings((prev) => ({
-                  ...prev,
-                  [selectedDate]: {
-                    ...getFeelingForDate(selectedDate),
-                    energy: Number(e.target.value),
-                  },
-                }))
-              }
-              style={inputStyle}
-            >
-              <option value={1}>1 – Urlakad</option>
-              <option value={2}>2 – Låg</option>
-              <option value={3}>3 – Stabil</option>
-              <option value={4}>4 – Pigg</option>
-              <option value={5}>5 – Explosiv</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="small" style={{ marginTop: 6, opacity: 0.7 }}>
-          Sparas automatiskt 💾
-        </div>
-
-        {getWeeklyEnergyAverage() && (
-          <div className="small" style={{ opacity: 0.75 }}>
-            Veckosnitt energi (7 dagar): ⚡ {getWeeklyEnergyAverage()}
-          </div>
-        )}
-      </div>
-
       {/* Kalender */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {days.map(({ dateObj, info }, idx) => {
+        {days.map(({ dateObj, info, recommendation, feeling }, idx) => {
           const dateStr = dateObj.toISOString().slice(0, 10);
-          const feeling = getFeelingForDate(dateStr);
 
           return (
             <div
@@ -507,24 +462,24 @@ function CycleView({ cycleConfig, setCycleConfig }) {
                 flex: "1 0 calc(50% - 6px)",
                 borderRadius: 10,
                 border: "1px solid rgba(148,163,184,0.4)",
-                background: energyColor(feeling.energy, info.color),
+                background: energyColor(feeling.energy, info?.color),
                 padding: "6px 8px",
                 fontSize: 11,
               }}
             >
               <div style={{ fontWeight: 600 }}>{dateStr}</div>
-              <div>{info.phase}</div>
-              <div className="small">{info.strengthNote}</div>
 
-              {feeling.energy <= 2 &&
-                info.phase?.toLowerCase().includes("peak") && (
-                  <div
-                    className="small"
-                    style={{ color: "#f87171", marginTop: 2 }}
-                  >
-                    ⚠️ Låg energi + tung fas – överväg lättare pass
-                  </div>
-                )}
+              <div style={{ marginTop: 2, fontWeight: 600 }}>
+                🏋️ {recommendation.title}
+              </div>
+
+              <div className="small">{recommendation.detail}</div>
+
+              {info?.phase && (
+                <div className="small" style={{ opacity: 0.8 }}>
+                  Fas: {info.phase}
+                </div>
+              )}
             </div>
           );
         })}
