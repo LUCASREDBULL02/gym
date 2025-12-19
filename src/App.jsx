@@ -241,22 +241,6 @@ function getCycleInfoForDay(date, config) {
   return { dayInCycle, phase, strengthNote, color };
 }
 
-// ---------- CYCLE VIEW KOMPONENT ----------
-
-function CycleView({ cycleConfig, setCycleConfig }) {
-  const length = Number(cycleConfig.length) || 28;
-  const baseDate = cycleConfig.startDate
-    ? new Date(cycleConfig.startDate)
-    : new Date();
-
-  const days = [];
-  for (let i = 0; i < length; i++) {
-    const d = new Date(baseDate);
-    d.setDate(d.getDate() + i);
-    const info = getCycleInfoForDay(d, cycleConfig);
-    days.push({ dateObj: d, info });
-  }
-
   return (
     <div className="card">
       <h3 style={{ marginTop: 0, marginBottom: 8 }}>Cykel & Styrka 🌸</h3>
