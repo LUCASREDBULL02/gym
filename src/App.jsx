@@ -290,11 +290,38 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     };
   }
 
-  function energyColor(energy) {
-    if (energy <= 2) return "rgba(59,130,246,0.35)";
-    if (energy >= 4) return "rgba(34,197,94,0.35)";
-    return "rgba(15,23,42,0.9)";
-  }
+  const PASS_TYPES = {
+    heavy: {
+      title: "Tung dag",
+      detail: "Baslyft / progression",
+      color: "rgba(239,68,68,0.35)", // röd
+    },
+    volume: {
+      title: "Volym",
+      detail: "Fler set, kontrollerad vikt",
+      color: "rgba(34,197,94,0.35)", // grön
+    },
+    technique: {
+      title: "Teknik",
+      detail: "Tempo, kontroll, rörlighet",
+      color: "rgba(59,130,246,0.35)", // blå
+    },
+    power: {
+      title: "Power",
+      detail: "Explosivt, få set",
+      color: "rgba(249,115,22,0.35)", // orange
+    },
+    active: {
+      title: "Aktiv vila",
+      detail: "Promenad, lätt pump",
+      color: "rgba(168,85,247,0.35)", // lila
+    },
+    recovery: {
+      title: "Återhämtning",
+      detail: "Vila, rörlighet",
+      color: "rgba(15,23,42,0.9)", // mörk
+    },
+  };
 
   /* =========================
      BUILD CALENDAR + DECISION ENGINE
@@ -309,51 +336,43 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     const dateStr = d.toISOString().slice(0, 10);
     const feeling = getFeelingForDate(dateStr);
 
-    let recommendation;
+    let type = "volume";
 
-    // 1️⃣ Mens / blödning
+    // 1️⃣ Blödning
     if (feeling.bleeding) {
-      recommendation = {
-        type: "recovery",
-        title: "Återhämtning",
-        detail: "Rörlighet, promenad, lätt pump",
-      };
+      type = "recovery";
     }
-    // 2️⃣ Låg readiness
+    // 2️⃣ Väldigt låg energi / psyke
     else if (feeling.energy <= 2 || feeling.psyche <= 2) {
-      recommendation = {
-        type: "light",
-        title: "Lätt dag",
-        detail: "Teknik, tempo, låg volym",
-      };
+      type = "active";
     }
-    // 3️⃣ Tung dag (max var 3:e dag)
+    // 3️⃣ Power-dag (max 1 per 4 dagar)
+    else if (
+      feeling.energy === 5 &&
+      feeling.psyche >= 4 &&
+      !recentTypes.slice(-3).includes("power")
+    ) {
+      type = "power";
+    }
+    // 4️⃣ Tung dag (ej efter tung/power)
     else if (
       feeling.energy >= 4 &&
       feeling.strength >= 4 &&
-      !recentTypes.slice(-2).includes("heavy")
+      !["heavy", "power"].includes(recentTypes.at(-1))
     ) {
-      recommendation = {
-        type: "heavy",
-        title: "Tung dag",
-        detail: "Baslyft / progression",
-      };
+      type = "heavy";
     }
-    // 4️⃣ Default
-    else {
-      recommendation = {
-        type: "volume",
-        title: "Volymdag",
-        detail: "Fler set, kontrollerad vikt",
-      };
+    // 5️⃣ Teknikdag
+    else if (feeling.energy === 3) {
+      type = "technique";
     }
 
-    recentTypes.push(recommendation.type);
+    recentTypes.push(type);
 
     days.push({
       dateObj: d,
       feeling,
-      recommendation,
+      recommendation: { type, ...PASS_TYPES[type] },
     });
   }
 
@@ -424,9 +443,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
               style={inputStyle}
             >
               {[1, 2, 3, 4, 5].map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
+                <option key={v} value={v}>{v}</option>
               ))}
             </select>
           </div>
@@ -455,7 +472,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {days.map(({ dateObj, feeling, recommendation }, idx) => (
+        {days.map(({ dateObj, recommendation }, idx) => (
           <div
             key={idx}
             style={{
@@ -463,7 +480,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
               borderRadius: 10,
               padding: "6px 8px",
               border: "1px solid rgba(148,163,184,0.4)",
-              background: energyColor(feeling.energy),
+              background: recommendation.color,
               fontSize: 11,
             }}
           >
