@@ -273,22 +273,28 @@ function getFeelingForDate(dateStr) {
     ? entries[0][1]
     : { strength: 3, psyche: 3, energy: 3 };
 }
-  const days = [];
-  for (let i = 0; i < length; i++) {
-    const d = new Date(baseDate);
-    d.setDate(d.getDate() + i);
-   const baseInfo = getCycleInfoForDay(d, cycleConfig);
-const feeling = getFeelingForDate(d.toISOString().slice(0, 10));
+  
+const days = [];
+for (let i = 0; i < length; i++) {
+  const d = new Date(baseDate);
+  d.setDate(d.getDate() + i);
 
-const info = {
-  ...baseInfo,
-  strengthNote:
-    feeling.energy <= 2
-      ? "Låg energi – sänk volym / tempo"
-      : feeling.strength >= 4
-      ? "Känner dig stark – bra dag för tunga set"
-      : baseInfo.strengthNote,
-};
+  const dateStr = d.toISOString().slice(0, 10);
+  const baseInfo = getCycleInfoForDay(d, cycleConfig);
+  const feeling = getFeelingForDate(dateStr);
+
+  const info = {
+    ...baseInfo,
+    strengthNote:
+      feeling.energy <= 2
+        ? "Låg energi – sänk volym / tempo"
+        : feeling.strength >= 4
+        ? "Känner dig stark – bra dag för tunga set"
+        : baseInfo.strengthNote,
+  };
+
+  days.push({ dateObj: d, info });
+}
 
   return (
     <div className="card">
