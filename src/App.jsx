@@ -247,11 +247,31 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const iso = (d) => d.toISOString().slice(0, 10);
 
   const PASS = {
-    recovery: { name: "Återhämtning", color: "#4c1d95", desc: "Vila, rörlighet" },
-    technique: { name: "Teknik", color: "#1e3a8a", desc: "Tempo & kontroll" },
-    volume: { name: "Volym", color: "#166534", desc: "Fler set, kontrollerat" },
-    heavy: { name: "Tung", color: "#9f1239", desc: "Baslyft, progression" },
-    power: { name: "Power", color: "#c2410c", desc: "Explosivt, få set" },
+    recovery: {
+      name: "Återhämtning",
+      color: "linear-gradient(135deg, #4c1d95, #312e81)",
+      desc: "Vila, rörlighet & lugn puls",
+    },
+    technique: {
+      name: "Teknik",
+      color: "linear-gradient(135deg, #1e3a8a, #1e40af)",
+      desc: "Tempo, kontroll & kvalitet",
+    },
+    volume: {
+      name: "Volym",
+      color: "linear-gradient(135deg, #166534, #14532d)",
+      desc: "Fler set, kontrollerad vikt",
+    },
+    heavy: {
+      name: "Tung",
+      color: "linear-gradient(135deg, #9f1239, #7f1d1d)",
+      desc: "Baslyft & progression",
+    },
+    power: {
+      name: "Power",
+      color: "linear-gradient(135deg, #c2410c, #9a3412)",
+      desc: "Explosivt, få set",
+    },
   };
 
   const [selectedDate, setSelectedDate] = React.useState(iso(new Date()));
@@ -268,7 +288,6 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     const entries = Object.entries(logs)
       .filter(([d]) => d <= date)
       .sort((a, b) => b[0].localeCompare(a[0]));
-
     return entries.length
       ? entries[0][1]
       : { strength: 3, psyche: 3, energy: 3, bleeding: false };
@@ -310,32 +329,25 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       const log = latestLog(date);
       const score = readiness(log);
 
-      const weekKey = `${d.getFullYear()}-${Math.floor(i / 7)}`;
+      const weekKey = Math.floor(i / 7);
       weeklyRecovery[weekKey] ??= 0;
 
       let type = cyclePhase(d);
 
-      // Mens / låg readiness
       if (log.bleeding || score <= 2) type = "recovery";
 
-      // Max 2 vilodagar / vecka
       if (type === "recovery") {
         if (weeklyRecovery[weekKey] >= 2) type = "technique";
         else weeklyRecovery[weekKey]++;
       }
 
-      // Uppgradering baserat på readiness
       if (score >= 4) {
         if (type === "volume") type = "heavy";
         else if (type === "heavy") type = "power";
       }
 
-      // Nedgradering vid mentalt slitage
-      if (log.psyche <= 2 && type === "power") {
-        type = "technique";
-      }
+      if (log.psyche <= 2 && type === "power") type = "technique";
 
-      // Tvinga variation
       if (
         i >= 2 &&
         result[i - 1]?.type === type &&
@@ -357,40 +369,74 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   return (
     <div className="card">
-      <h3>Cykel & Träningscoach 🌙</h3>
+      <h3 style={{ marginBottom: 4 }}>Cykel & Träningscoach 🌙</h3>
+      <p className="small" style={{ opacity: 0.8, marginBottom: 12 }}>
+        Logga hur du mår – kalendern anpassar träningen automatiskt.
+      </p>
 
-      <label className="small">Första mensdag</label>
-      <input
-        type="date"
-        value={cycleConfig.startDate || ""}
-        onChange={(e) =>
-          setCycleConfig((p) => ({ ...p, startDate: e.target.value || null }))
-        }
-      />
+      {/* INPUT */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
+        <div>
+          <label className="small">🌸 Första mensdag</label>
+          <input
+            type="date"
+            value={cycleConfig.startDate || ""}
+            onChange={(e) =>
+              setCycleConfig((p) => ({
+                ...p,
+                startDate: e.target.value || null,
+              }))
+            }
+          />
+        </div>
 
-      <label className="small">Logga dag</label>
-      <input
-        type="date"
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-      />
+        <div>
+          <label className="small">📅 Logga dag</label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+        </div>
+      </div>
 
-      <div style={{ display: "flex", gap: 6 }}>
+      {/* FEELINGS */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 8,
+          marginBottom: 10,
+        }}
+      >
         <select onChange={(e) => logToday("strength", +e.target.value)}>
           <option>💪 Styrka</option>
-          {[1, 2, 3, 4, 5].map((v) => <option key={v}>{v}</option>)}
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
         </select>
         <select onChange={(e) => logToday("psyche", +e.target.value)}>
           <option>🧠 Psyke</option>
-          {[1, 2, 3, 4, 5].map((v) => <option key={v}>{v}</option>)}
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
         </select>
         <select onChange={(e) => logToday("energy", +e.target.value)}>
           <option>⚡ Energi</option>
-          {[1, 2, 3, 4, 5].map((v) => <option key={v}>{v}</option>)}
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
         </select>
       </div>
 
-      <label>
+      <label className="small" style={{ marginBottom: 14, display: "block" }}>
         <input
           type="checkbox"
           onChange={(e) => logToday("bleeding", e.target.checked)}
@@ -398,20 +444,25 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         🩸 Blöder idag
       </label>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
+      {/* CALENDAR */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
         {days.map((d) => (
           <div
             key={d.date}
             style={{
-              flex: "1 0 calc(50% - 8px)",
+              flex: "1 0 calc(50% - 6px)",
               background: d.pass.color,
-              padding: 10,
-              borderRadius: 12,
+              padding: 12,
+              borderRadius: 14,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              transition: "transform 0.15s ease",
             }}
           >
-            <strong>{d.date}</strong>
-            <div>{d.pass.name}</div>
-            <div className="small">{d.pass.desc}</div>
+            <div style={{ fontWeight: 700 }}>{d.date}</div>
+            <div style={{ fontSize: 14 }}>{d.pass.name}</div>
+            <div className="small" style={{ opacity: 0.85 }}>
+              {d.pass.desc}
+            </div>
           </div>
         ))}
       </div>
