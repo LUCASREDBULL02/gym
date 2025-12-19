@@ -249,10 +249,6 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     ? new Date(cycleConfig.startDate)
     : new Date();
 
-  /* =========================
-     STATE
-  ========================= */
-
   const [selectedDate, setSelectedDate] = React.useState(
     new Date().toISOString().slice(0, 10)
   );
@@ -275,11 +271,8 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   function getFeelingForDate(dateStr) {
     const exact = dailyFeelings[dateStr];
-
-    // blödning gäller ENDAST exakt dag
     const bleeding = exact?.bleeding || false;
 
-    // energi/psyke/styrka kan ärvas bakåt
     const entries = Object.entries(dailyFeelings)
       .filter(([d]) => d <= dateStr)
       .sort((a, b) => b[0].localeCompare(a[0]));
@@ -299,52 +292,69 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   function energyColor(energy) {
     if (energy <= 2) return "rgba(59,130,246,0.35)";
-    if (energy === 3) return "rgba(15,23,42,0.9)";
     if (energy >= 4) return "rgba(34,197,94,0.35)";
     return "rgba(15,23,42,0.9)";
   }
 
   /* =========================
-     RECOMMENDATION ENGINE
+     BUILD CALENDAR + DECISION ENGINE
   ========================= */
 
-  function getRecentTypes(dateObj) {
-    const types = [];
-    for (let i = 1; i <= 3; i++) {
-      const d = new Date(dateObj);
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      const rec = dailyFeelings[key]?.recommendedType;
-      if (rec) types.push(rec);
-    }
-    return types;
-  }
+  const days = [];
+  const recentTypes = [];
 
-  function getRecommendedWorkout(dateObj) {
-    const dateStr = dateObj.toISOString().slice(0, 10);
+  for (let i = 0; i < length; i++) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
     const feeling = getFeelingForDate(dateStr);
-    const recentTypes = getRecentTypes(dateObj);
 
-    // 1️⃣ Blödning → återhämtning (endast den dagen)
+    let recommendation;
+
+    // 1️⃣ Mens / blödning
     if (feeling.bleeding) {
-      return { type: "recovery", title: "Återhämtning", detail: "Rörlighet, promenad, lätt pump" };
+      recommendation = {
+        type: "recovery",
+        title: "Återhämtning",
+        detail: "Rörlighet, promenad, lätt pump",
+      };
     }
-
     // 2️⃣ Låg readiness
-    if (feeling.energy <= 2 || feeling.psyche <= 2) {
-      return { type: "light", title: "Lätt dag", detail: "Teknik, tempo, låg volym" };
+    else if (feeling.energy <= 2 || feeling.psyche <= 2) {
+      recommendation = {
+        type: "light",
+        title: "Lätt dag",
+        detail: "Teknik, tempo, låg volym",
+      };
     }
-
-    // 3️⃣ Växla tung / volym
-    if (
+    // 3️⃣ Tung dag (max var 3:e dag)
+    else if (
       feeling.energy >= 4 &&
       feeling.strength >= 4 &&
-      !recentTypes.includes("heavy")
+      !recentTypes.slice(-2).includes("heavy")
     ) {
-      return { type: "heavy", title: "Tung dag", detail: "Baslyft / progression" };
+      recommendation = {
+        type: "heavy",
+        title: "Tung dag",
+        detail: "Baslyft / progression",
+      };
+    }
+    // 4️⃣ Default
+    else {
+      recommendation = {
+        type: "volume",
+        title: "Volymdag",
+        detail: "Fler set, kontrollerad vikt",
+      };
     }
 
-    return { type: "volume", title: "Volymdag", detail: "Fler set, kontrollerad vikt" };
+    recentTypes.push(recommendation.type);
+
+    days.push({
+      dateObj: d,
+      feeling,
+      recommendation,
+    });
   }
 
   const inputStyle = {
@@ -356,25 +366,6 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     border: "1px solid rgba(148,163,184,0.6)",
     fontSize: 12,
   };
-
-  /* =========================
-     BUILD CALENDAR
-  ========================= */
-
-  const days = [];
-  for (let i = 0; i < length; i++) {
-    const d = new Date(baseDate);
-    d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-
-    const recommendation = getRecommendedWorkout(d);
-
-    days.push({
-      dateObj: d,
-      feeling: getFeelingForDate(dateStr),
-      recommendation,
-    });
-  }
 
   /* =========================
      RENDER
@@ -405,7 +396,13 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         style={{ ...inputStyle, marginBottom: 8 }}
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+          gap: 10,
+        }}
+      >
         {[
           ["strength", "💪 Styrka"],
           ["psyche", "🧠 Psyke"],
@@ -427,7 +424,9 @@ function CycleView({ cycleConfig, setCycleConfig }) {
               style={inputStyle}
             >
               {[1, 2, 3, 4, 5].map((v) => (
-                <option key={v} value={v}>{v}</option>
+                <option key={v} value={v}>
+                  {v}
+                </option>
               ))}
             </select>
           </div>
@@ -468,7 +467,9 @@ function CycleView({ cycleConfig, setCycleConfig }) {
               fontSize: 11,
             }}
           >
-            <div style={{ fontWeight: 600 }}>{dateObj.toISOString().slice(0, 10)}</div>
+            <div style={{ fontWeight: 600 }}>
+              {dateObj.toISOString().slice(0, 10)}
+            </div>
             <div>🏋️ {recommendation.title}</div>
             <div className="small">{recommendation.detail}</div>
           </div>
