@@ -243,104 +243,238 @@ function getCycleInfoForDay(date, config) {
 
 // ---------- CYCLE VIEW KOMPONENT ----------
 
-<div className="cycle-inputs">
+function CycleView({ cycleConfig, setCycleConfig }) {
+  const todayStr = new Date().toISOString().slice(0, 10);
 
-  {/* Datum */}
-  <div className="cycle-stat">
-    <div className="cycle-stat-label">📅 Dag</div>
-    <input
-      type="date"
-      className="cycle-date"
-      value={selectedDate}
-      onChange={e =>
-        setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
+  /* =========================
+     HJÄLP
+  ========================= */
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const daysBetween = (a, b) =>
+    Math.floor((new Date(b) - new Date(a)) / 86400000);
+
+  /* =========================
+     STATE
+  ========================= */
+
+  const selectedDate = cycleConfig.selectedDate || todayStr;
+  const strength = cycleConfig.strength ?? 3;
+  const psyche = cycleConfig.psyche ?? 3;
+  const energy = cycleConfig.energy ?? 3;
+  const bleedingToday = cycleConfig.bleedingToday ?? false;
+  const startDate = cycleConfig.startDate || null;
+
+  /* =========================
+     TYDLIGARE READINESS
+  ========================= */
+
+  // Mer aggressiv påverkan
+  let readiness =
+    energy * 0.45 +
+    strength * 0.35 +
+    psyche * 0.2;
+
+  if (bleedingToday) readiness -= 1.5;
+
+  readiness = clamp(readiness, 0, 5);
+
+  /* =========================
+     PASS-TYPER
+  ========================= */
+
+  const PASS = {
+    power: {
+      title: "⚡ Power",
+      note: "Explosivt, få set",
+      color: "rgba(124,58,237,0.35)",
+    },
+    heavy: {
+      title: "🏋️ Tung dag",
+      note: "Baslyft / progression",
+      color: "rgba(22,163,74,0.35)",
+    },
+    volume: {
+      title: "📈 Volym",
+      note: "Fler set, kontrollerad vikt",
+      color: "rgba(14,165,233,0.35)",
+    },
+    technique: {
+      title: "🎯 Teknik",
+      note: "Tempo, kontroll, rörlighet",
+      color: "rgba(59,130,246,0.35)",
+    },
+    recovery: {
+      title: "🧘 Återhämtning",
+      note: "Vila, promenad, rörlighet",
+      color: "rgba(168,85,247,0.35)",
+    },
+  };
+
+  const ROTATION = ["heavy", "volume", "power", "technique"];
+
+  /* =========================
+     LOGIK PER DAG
+  ========================= */
+
+  function getPassForDay(dateStr, index, restCount) {
+    let score = readiness;
+
+    // Mens-fas påverkar
+    if (startDate) {
+      const dayInCycle = daysBetween(startDate, dateStr) % 28;
+
+      if (dayInCycle >= 0 && dayInCycle <= 2) score -= 2.0; // mens
+      if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
+      if (dayInCycle >= 25) score -= 1.0; // PMS
+    }
+
+    score = clamp(score, 0, 5);
+
+    // Låg readiness → vila / teknik
+    if (score <= 1.8) {
+      if (restCount < 2) return PASS.recovery;
+      return PASS.technique;
+    }
+
+    // Medel
+    if (score <= 3) {
+      return PASS[ROTATION[(index + 1) % ROTATION.length]];
+    }
+
+    // Hög readiness → tung / power
+    if (score >= 4.2) {
+      return PASS[ROTATION[index % 3]];
+    }
+
+    return PASS.volume;
+  }
+
+  /* =========================
+     KALENDER
+  ========================= */
+
+  const calendarDays = [];
+  const restPerWeek = {};
+
+  for (let i = 0; i < 28; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const weekKey = `${d.getFullYear()}-${d.getWeek?.() || d.getMonth()}`;
+
+    restPerWeek[weekKey] = restPerWeek[weekKey] || 0;
+
+    let pass = getPassForDay(dateStr, i, restPerWeek[weekKey]);
+
+    if (pass === PASS.recovery) {
+      restPerWeek[weekKey]++;
+      if (restPerWeek[weekKey] > 2) {
+        pass = PASS.technique;
       }
-    />
-  </div>
+    }
 
-  {/* Styrka */}
-  <div className="cycle-stat">
-    <div className="cycle-stat-label">💪 Styrka</div>
-    <div className="cycle-rating">
-      {[1,2,3,4,5].map(v => (
-        <button
-          key={v}
-          className={strength === v ? "active" : ""}
-          onClick={() =>
-            setCycleConfig(p => ({ ...p, strength: v }))
+    calendarDays.push({
+      date: dateStr,
+      ...pass,
+    });
+  }
+
+  /* =========================
+     RENDER
+  ========================= */
+
+  return (
+    <div className="card">
+      <h3 style={{ marginTop: 0 }}>🌙 Cykel & Träningscoach</h3>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={e =>
+            setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
+          }
+        />
+
+        <select
+          value={strength}
+          onChange={e =>
+            setCycleConfig(p => ({ ...p, strength: Number(e.target.value) }))
           }
         >
-          {v}
-        </button>
-      ))}
-    </div>
-  </div>
+          {[1,2,3,4,5].map(v => (
+            <option key={v} value={v}>💪 Styrka {v}</option>
+          ))}
+        </select>
 
-  {/* Psyke */}
-  <div className="cycle-stat">
-    <div className="cycle-stat-label">🧠 Psyke</div>
-    <div className="cycle-rating">
-      {[1,2,3,4,5].map(v => (
-        <button
-          key={v}
-          className={psyche === v ? "active" : ""}
-          onClick={() =>
-            setCycleConfig(p => ({ ...p, psyche: v }))
+        <select
+          value={psyche}
+          onChange={e =>
+            setCycleConfig(p => ({ ...p, psyche: Number(e.target.value) }))
           }
         >
-          {v}
-        </button>
-      ))}
-    </div>
-  </div>
+          {[1,2,3,4,5].map(v => (
+            <option key={v} value={v}>🧠 Psyke {v}</option>
+          ))}
+        </select>
 
-  {/* Energi */}
-  <div className="cycle-stat">
-    <div className="cycle-stat-label">⚡ Energi</div>
-    <div className="cycle-rating">
-      {[1,2,3,4,5].map(v => (
-        <button
-          key={v}
-          className={energy === v ? "active" : ""}
-          onClick={() =>
-            setCycleConfig(p => ({ ...p, energy: v }))
+        <select
+          value={energy}
+          onChange={e =>
+            setCycleConfig(p => ({ ...p, energy: Number(e.target.value) }))
           }
         >
-          {v}
-        </button>
-      ))}
+          {[1,2,3,4,5].map(v => (
+            <option key={v} value={v}>⚡ Energi {v}</option>
+          ))}
+        </select>
+
+        <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <input
+            type="checkbox"
+            checked={bleedingToday}
+            onChange={e =>
+              setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
+            }
+          />
+          🩸 Blöder idag
+        </label>
+
+        {/* OBS: tomt default */}
+        <input
+          type="date"
+          value={startDate || ""}
+          placeholder="Första mensdag"
+          onChange={e =>
+            setCycleConfig(p => ({
+              ...p,
+              startDate: e.target.value || null,
+            }))
+          }
+        />
+      </div>
+
+      <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
+        {calendarDays.map(d => (
+          <div
+            key={d.date}
+            style={{
+              padding: 10,
+              borderRadius: 12,
+              background: d.color,
+              border: "1px solid rgba(148,163,184,0.3)",
+            }}
+          >
+            <div style={{ fontSize: 11, opacity: 0.7 }}>{d.date}</div>
+            <div style={{ fontWeight: 600 }}>{d.title}</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>{d.note}</div>
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-
-  {/* Blödning */}
-  <label className="cycle-bleeding">
-    <input
-      type="checkbox"
-      checked={bleedingToday}
-      onChange={e =>
-        setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
-      }
-    />
-    🩸 Blöder idag
-  </label>
-
-  {/* Första mensdag */}
-  <div className="cycle-stat">
-    <div className="cycle-stat-label">🌸 Första mensdag</div>
-    <input
-      type="date"
-      className="cycle-startdate"
-      value={startDate || ""}
-      onChange={e =>
-        setCycleConfig(p => ({
-          ...p,
-          startDate: e.target.value || null,
-        }))
-      }
-    />
-  </div>
-
-</div>
+  );
+}
 
 
 
