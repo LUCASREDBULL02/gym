@@ -385,14 +385,14 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   ========================= */
 
   return (
-    <div className="cycle-controls">
+ <div className="cycle-controls">
   <div className="cycle-control">
     <label>Första mensdag</label>
     <input
       type="date"
-      value={startDate || ""}
-      onChange={e =>
-        setCycleConfig(p => ({
+      value={startDate ?? ""}
+      onChange={(e) =>
+        setCycleConfig((p) => ({
           ...p,
           startDate: e.target.value || null,
         }))
@@ -404,12 +404,17 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     <label>💪 Styrka</label>
     <select
       value={strength}
-      onChange={e =>
-        setCycleConfig(p => ({ ...p, strength: Number(e.target.value) }))
+      onChange={(e) =>
+        setCycleConfig((p) => ({
+          ...p,
+          strength: Number(e.target.value),
+        }))
       }
     >
-      {[1,2,3,4,5].map(v => (
-        <option key={v} value={v}>{v}/5</option>
+      {[1, 2, 3, 4, 5].map((v) => (
+        <option key={v} value={v}>
+          {v}/5
+        </option>
       ))}
     </select>
   </div>
@@ -418,12 +423,17 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     <label>🧠 Psyke</label>
     <select
       value={psyche}
-      onChange={e =>
-        setCycleConfig(p => ({ ...p, psyche: Number(e.target.value) }))
+      onChange={(e) =>
+        setCycleConfig((p) => ({
+          ...p,
+          psyche: Number(e.target.value),
+        }))
       }
     >
-      {[1,2,3,4,5].map(v => (
-        <option key={v} value={v}>{v}/5</option>
+      {[1, 2, 3, 4, 5].map((v) => (
+        <option key={v} value={v}>
+          {v}/5
+        </option>
       ))}
     </select>
   </div>
@@ -432,26 +442,36 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     <label>⚡ Energi</label>
     <select
       value={energy}
-      onChange={e =>
-        setCycleConfig(p => ({ ...p, energy: Number(e.target.value) }))
+      onChange={(e) =>
+        setCycleConfig((p) => ({
+          ...p,
+          energy: Number(e.target.value),
+        }))
       }
     >
-      {[1,2,3,4,5].map(v => (
-        <option key={v} value={v}>{v}/5</option>
+      {[1, 2, 3, 4, 5].map((v) => (
+        <option key={v} value={v}>
+          {v}/5
+        </option>
       ))}
     </select>
   </div>
 
-  <label className="cycle-checkbox">
-    <input
-      type="checkbox"
-      checked={bleedingToday}
-      onChange={e =>
-        setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
-      }
-    />
-    🩸 Blöder idag
-  </label>
+  <div className="cycle-control cycle-checkbox">
+    <label>
+      <input
+        type="checkbox"
+        checked={bleedingToday}
+        onChange={(e) =>
+          setCycleConfig((p) => ({
+            ...p,
+            bleedingToday: e.target.checked,
+          }))
+        }
+      />
+      🩸 Blöder idag
+    </label>
+  </div>
 </div>
 
   <div className="cycle-input">
