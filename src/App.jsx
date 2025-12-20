@@ -388,14 +388,88 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     <div className="card">
       <h3 style={{ marginTop: 0 }}>🌙 Cykel & Träningscoach</h3>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={e =>
-            setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
-          }
-        />
+     <div className="cycle-inputs">
+  <div className="cycle-input">
+    <label>📅 Vald dag</label>
+    <input
+      type="date"
+      value={selectedDate}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
+      }
+    />
+  </div>
+
+  <div className="cycle-input">
+    <label>💪 Styrka</label>
+    <select
+      value={strength}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, strength: Number(e.target.value) }))
+      }
+    >
+      {[1,2,3,4,5].map(v => (
+        <option key={v} value={v}>{v} / 5</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="cycle-input">
+    <label>🧠 Psyke</label>
+    <select
+      value={psyche}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, psyche: Number(e.target.value) }))
+      }
+    >
+      {[1,2,3,4,5].map(v => (
+        <option key={v} value={v}>{v} / 5</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="cycle-input">
+    <label>⚡ Energi</label>
+    <select
+      value={energy}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, energy: Number(e.target.value) }))
+      }
+    >
+      {[1,2,3,4,5].map(v => (
+        <option key={v} value={v}>{v} / 5</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="cycle-input">
+    <label>🩸 Mens</label>
+    <label className="cycle-checkbox">
+      <input
+        type="checkbox"
+        checked={bleedingToday}
+        onChange={e =>
+          setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
+        }
+      />
+      Blöder idag
+    </label>
+  </div>
+
+  <div className="cycle-input">
+    <label>🌙 Första mensdag</label>
+    <input
+      type="date"
+      value={startDate || ""}
+      onChange={e =>
+        setCycleConfig(p => ({
+          ...p,
+          startDate: e.target.value || null,
+        }))
+      }
+    />
+  </div>
+</div>
 
         <select
           value={strength}
