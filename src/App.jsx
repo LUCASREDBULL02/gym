@@ -384,129 +384,130 @@ function CycleView({ cycleConfig, setCycleConfig }) {
      RENDER
   ========================= */
 
-  return (
- <div className="cycle-controls">
-  <div className="cycle-control">
-    <label>Första mensdag</label>
-    <input
-      type="date"
-      value={startDate ?? ""}
-      onChange={(e) =>
-        setCycleConfig((p) => ({
-          ...p,
-          startDate: e.target.value || null,
-        }))
-      }
-    />
-  </div>
+ return (
+  <div className="card">
+    <h3 style={{ marginTop: 0 }}>🌙 Cykel & Träningscoach</h3>
 
-  <div className="cycle-control">
-    <label>💪 Styrka</label>
-    <select
-      value={strength}
-      onChange={(e) =>
-        setCycleConfig((p) => ({
-          ...p,
-          strength: Number(e.target.value),
-        }))
-      }
-    >
-      {[1, 2, 3, 4, 5].map((v) => (
-        <option key={v} value={v}>
-          {v}/5
-        </option>
-      ))}
-    </select>
-  </div>
+    {/* INPUTS */}
+    <div className="cycle-controls">
+      <div className="cycle-control">
+        <label>📅 Vald dag</label>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) =>
+            setCycleConfig((p) => ({
+              ...p,
+              selectedDate: e.target.value,
+            }))
+          }
+        />
+      </div>
 
-  <div className="cycle-control">
-    <label>🧠 Psyke</label>
-    <select
-      value={psyche}
-      onChange={(e) =>
-        setCycleConfig((p) => ({
-          ...p,
-          psyche: Number(e.target.value),
-        }))
-      }
-    >
-      {[1, 2, 3, 4, 5].map((v) => (
-        <option key={v} value={v}>
-          {v}/5
-        </option>
-      ))}
-    </select>
-  </div>
+      <div className="cycle-control">
+        <label>💪 Styrka</label>
+        <select
+          value={strength}
+          onChange={(e) =>
+            setCycleConfig((p) => ({
+              ...p,
+              strength: Number(e.target.value),
+            }))
+          }
+        >
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v} value={v}>
+              {v}/5
+            </option>
+          ))}
+        </select>
+      </div>
 
-  <div className="cycle-control">
-    <label>⚡ Energi</label>
-    <select
-      value={energy}
-      onChange={(e) =>
-        setCycleConfig((p) => ({
-          ...p,
-          energy: Number(e.target.value),
-        }))
-      }
-    >
-      {[1, 2, 3, 4, 5].map((v) => (
-        <option key={v} value={v}>
-          {v}/5
-        </option>
-      ))}
-    </select>
-  </div>
+      <div className="cycle-control">
+        <label>🧠 Psyke</label>
+        <select
+          value={psyche}
+          onChange={(e) =>
+            setCycleConfig((p) => ({
+              ...p,
+              psyche: Number(e.target.value),
+            }))
+          }
+        >
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v} value={v}>
+              {v}/5
+            </option>
+          ))}
+        </select>
+      </div>
 
-  <div className="cycle-control cycle-checkbox">
-    <label>
-      <input
-        type="checkbox"
-        checked={bleedingToday}
-        onChange={(e) =>
-          setCycleConfig((p) => ({
-            ...p,
-            bleedingToday: e.target.checked,
-          }))
-        }
-      />
-      🩸 Blöder idag
-    </label>
-  </div>
-</div>
+      <div className="cycle-control">
+        <label>⚡ Energi</label>
+        <select
+          value={energy}
+          onChange={(e) =>
+            setCycleConfig((p) => ({
+              ...p,
+              energy: Number(e.target.value),
+            }))
+          }
+        >
+          {[1, 2, 3, 4, 5].map((v) => (
+            <option key={v} value={v}>
+              {v}/5
+            </option>
+          ))}
+        </select>
+      </div>
 
-  <div className="cycle-input">
-    <label>🌙 Första mensdag</label>
-    <input
-      type="date"
-      value={startDate || ""}
-      onChange={e =>
-        setCycleConfig(p => ({
-          ...p,
-          startDate: e.target.value || null,
-        }))
-      }
-    />
-  </div>
-</div>
+      <div className="cycle-control">
+        <label className="cycle-checkbox">
+          <input
+            type="checkbox"
+            checked={bleedingToday}
+            onChange={(e) =>
+              setCycleConfig((p) => ({
+                ...p,
+                bleedingToday: e.target.checked,
+              }))
+            }
+          />
+          🩸 Blöder idag
+        </label>
+      </div>
 
-     <div className="cycle-calendar">
-  {calendarDays.map(d => (
-    <div
-      key={d.date}
-      className="cycle-day"
-      style={{ background: d.color }}
-    >
-      <div className="cycle-date">{d.date}</div>
-      <div className="cycle-title">{d.title}</div>
-      <div className="cycle-note">{d.note}</div>
+      <div className="cycle-control">
+        <label>🌙 Första mensdag</label>
+        <input
+          type="date"
+          value={startDate ?? ""}
+          onChange={(e) =>
+            setCycleConfig((p) => ({
+              ...p,
+              startDate: e.target.value || null,
+            }))
+          }
+        />
+      </div>
     </div>
-  ))}
-</div>
-</div>
-  );
-}
 
-
+    {/* KALENDER */}
+    <div className="cycle-calendar">
+      {calendarDays.map((d) => (
+        <div
+          key={d.date}
+          className="cycle-day"
+          style={{ background: d.color }}
+        >
+          <div className="cycle-date">{d.date}</div>
+          <div className="cycle-title">{d.title}</div>
+          <div className="cycle-note">{d.note}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 // ------------------ HUVUDKOMPONENT ------------------
 
