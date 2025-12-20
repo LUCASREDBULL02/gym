@@ -247,11 +247,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const todayStr = new Date().toISOString().slice(0, 10);
 
   /* =========================
-     HJÄLPFUNKTIONER
+     HJÄLP
   ========================= */
 
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-
   const daysBetween = (a, b) =>
     Math.floor((new Date(b) - new Date(a)) / 86400000);
 
@@ -267,76 +266,88 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const startDate = cycleConfig.startDate || null;
 
   /* =========================
-     DAGLIG STATUS → GLOBAL PÅVERKAN
+     TYDLIGARE READINESS
   ========================= */
 
-  const readinessScore =
-    energy * 0.5 +
-    strength * 0.3 +
-    psyche * 0.2 -
-    (bleedingToday ? 1.2 : 0);
+  // Mer aggressiv påverkan
+  let readiness =
+    energy * 0.45 +
+    strength * 0.35 +
+    psyche * 0.2;
+
+  if (bleedingToday) readiness -= 1.5;
+
+  readiness = clamp(readiness, 0, 5);
 
   /* =========================
      PASS-TYPER
   ========================= */
 
-  const PASS_TYPES = [
-    {
-      key: "power",
+  const PASS = {
+    power: {
       title: "⚡ Power",
       note: "Explosivt, få set",
       color: "rgba(124,58,237,0.35)",
     },
-    {
-      key: "heavy",
+    heavy: {
       title: "🏋️ Tung dag",
       note: "Baslyft / progression",
       color: "rgba(22,163,74,0.35)",
     },
-    {
-      key: "volume",
+    volume: {
       title: "📈 Volym",
       note: "Fler set, kontrollerad vikt",
       color: "rgba(14,165,233,0.35)",
     },
-    {
-      key: "technique",
+    technique: {
       title: "🎯 Teknik",
       note: "Tempo, kontroll, rörlighet",
       color: "rgba(59,130,246,0.35)",
     },
-    {
-      key: "recovery",
+    recovery: {
       title: "🧘 Återhämtning",
       note: "Vila, promenad, rörlighet",
       color: "rgba(168,85,247,0.35)",
     },
-  ];
+  };
+
+  const ROTATION = ["heavy", "volume", "power", "technique"];
 
   /* =========================
-     LOGIK FÖR DAG
+     LOGIK PER DAG
   ========================= */
 
-  function getPassForDay(dateStr, index, weeklyRestCount) {
-    let score = readinessScore;
+  function getPassForDay(dateStr, index, restCount) {
+    let score = readiness;
 
+    // Mens-fas påverkar
     if (startDate) {
       const dayInCycle = daysBetween(startDate, dateStr) % 28;
-      if (dayInCycle >= 0 && dayInCycle <= 2) score -= 1.2; // mens
-      if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.0; // peak
+
+      if (dayInCycle >= 0 && dayInCycle <= 2) score -= 2.0; // mens
+      if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
+      if (dayInCycle >= 25) score -= 1.0; // PMS
     }
 
     score = clamp(score, 0, 5);
 
-    if (score <= 1.8 && weeklyRestCount < 2) {
-      return PASS_TYPES.find(p => p.key === "recovery");
+    // Låg readiness → vila / teknik
+    if (score <= 1.8) {
+      if (restCount < 2) return PASS.recovery;
+      return PASS.technique;
     }
 
-    const rotation = index % 4;
+    // Medel
+    if (score <= 3) {
+      return PASS[ROTATION[(index + 1) % ROTATION.length]];
+    }
 
-    if (score >= 4) return PASS_TYPES[rotation % 3];
-    if (score >= 2.8) return PASS_TYPES[(rotation + 1) % 4];
-    return PASS_TYPES.find(p => p.key === "technique");
+    // Hög readiness → tung / power
+    if (score >= 4.2) {
+      return PASS[ROTATION[index % 3]];
+    }
+
+    return PASS.volume;
   }
 
   /* =========================
@@ -356,18 +367,16 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
     let pass = getPassForDay(dateStr, i, restPerWeek[weekKey]);
 
-    if (pass.key === "recovery") {
+    if (pass === PASS.recovery) {
       restPerWeek[weekKey]++;
       if (restPerWeek[weekKey] > 2) {
-        pass = PASS_TYPES.find(p => p.key === "technique");
+        pass = PASS.technique;
       }
     }
 
     calendarDays.push({
       date: dateStr,
-      title: pass.title,
-      note: pass.note,
-      color: pass.color,
+      ...pass,
     });
   }
 
@@ -384,49 +393,40 @@ function CycleView({ cycleConfig, setCycleConfig }) {
           type="date"
           value={selectedDate}
           onChange={e =>
-            setCycleConfig(prev => ({ ...prev, selectedDate: e.target.value }))
+            setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
           }
         />
 
         <select
           value={strength}
           onChange={e =>
-            setCycleConfig(prev => ({
-              ...prev,
-              strength: Number(e.target.value),
-            }))
+            setCycleConfig(p => ({ ...p, strength: Number(e.target.value) }))
           }
         >
           {[1,2,3,4,5].map(v => (
-            <option key={v} value={v}>💪 {v}</option>
+            <option key={v} value={v}>💪 Styrka {v}</option>
           ))}
         </select>
 
         <select
           value={psyche}
           onChange={e =>
-            setCycleConfig(prev => ({
-              ...prev,
-              psyche: Number(e.target.value),
-            }))
+            setCycleConfig(p => ({ ...p, psyche: Number(e.target.value) }))
           }
         >
           {[1,2,3,4,5].map(v => (
-            <option key={v} value={v}>🧠 {v}</option>
+            <option key={v} value={v}>🧠 Psyke {v}</option>
           ))}
         </select>
 
         <select
           value={energy}
           onChange={e =>
-            setCycleConfig(prev => ({
-              ...prev,
-              energy: Number(e.target.value),
-            }))
+            setCycleConfig(p => ({ ...p, energy: Number(e.target.value) }))
           }
         >
           {[1,2,3,4,5].map(v => (
-            <option key={v} value={v}>⚡ {v}</option>
+            <option key={v} value={v}>⚡ Energi {v}</option>
           ))}
         </select>
 
@@ -435,21 +435,20 @@ function CycleView({ cycleConfig, setCycleConfig }) {
             type="checkbox"
             checked={bleedingToday}
             onChange={e =>
-              setCycleConfig(prev => ({
-                ...prev,
-                bleedingToday: e.target.checked,
-              }))
+              setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
             }
           />
           🩸 Blöder idag
         </label>
 
+        {/* OBS: tomt default */}
         <input
           type="date"
           value={startDate || ""}
+          placeholder="Första mensdag"
           onChange={e =>
-            setCycleConfig(prev => ({
-              ...prev,
+            setCycleConfig(p => ({
+              ...p,
               startDate: e.target.value || null,
             }))
           }
@@ -476,6 +475,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     </div>
   );
 }
+
 
 // ------------------ HUVUDKOMPONENT ------------------
 
