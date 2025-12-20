@@ -385,22 +385,22 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   ========================= */
 
   return (
-    <div className="card">
-      <h3 style={{ marginTop: 0 }}>🌙 Cykel & Träningscoach</h3>
-
-     <div className="cycle-inputs">
-  <div className="cycle-input">
-    <label>📅 Vald dag</label>
+    <div className="cycle-controls">
+  <div className="cycle-control">
+    <label>Första mensdag</label>
     <input
       type="date"
-      value={selectedDate}
+      value={startDate || ""}
       onChange={e =>
-        setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
+        setCycleConfig(p => ({
+          ...p,
+          startDate: e.target.value || null,
+        }))
       }
     />
   </div>
 
-  <div className="cycle-input">
+  <div className="cycle-control">
     <label>💪 Styrka</label>
     <select
       value={strength}
@@ -409,12 +409,12 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       }
     >
       {[1,2,3,4,5].map(v => (
-        <option key={v} value={v}>{v} / 5</option>
+        <option key={v} value={v}>{v}/5</option>
       ))}
     </select>
   </div>
 
-  <div className="cycle-input">
+  <div className="cycle-control">
     <label>🧠 Psyke</label>
     <select
       value={psyche}
@@ -423,12 +423,12 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       }
     >
       {[1,2,3,4,5].map(v => (
-        <option key={v} value={v}>{v} / 5</option>
+        <option key={v} value={v}>{v}/5</option>
       ))}
     </select>
   </div>
 
-  <div className="cycle-input">
+  <div className="cycle-control">
     <label>⚡ Energi</label>
     <select
       value={energy}
@@ -437,24 +437,22 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       }
     >
       {[1,2,3,4,5].map(v => (
-        <option key={v} value={v}>{v} / 5</option>
+        <option key={v} value={v}>{v}/5</option>
       ))}
     </select>
   </div>
 
-  <div className="cycle-input">
-    <label>🩸 Mens</label>
-    <label className="cycle-checkbox">
-      <input
-        type="checkbox"
-        checked={bleedingToday}
-        onChange={e =>
-          setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
-        }
-      />
-      Blöder idag
-    </label>
-  </div>
+  <label className="cycle-checkbox">
+    <input
+      type="checkbox"
+      checked={bleedingToday}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
+      }
+    />
+    🩸 Blöder idag
+  </label>
+</div>
 
   <div className="cycle-input">
     <label>🌙 Första mensdag</label>
