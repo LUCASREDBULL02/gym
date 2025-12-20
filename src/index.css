@@ -881,3 +881,101 @@ body {
   font-weight: 600;
   margin-bottom: 2px;
 }
+<div className="cycle-inputs">
+
+  {/* Datum */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">📅 Dag</div>
+    <input
+      type="date"
+      className="cycle-date"
+      value={selectedDate}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
+      }
+    />
+  </div>
+
+  {/* Styrka */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">💪 Styrka</div>
+    <div className="cycle-rating">
+      {[1,2,3,4,5].map(v => (
+        <button
+          key={v}
+          className={strength === v ? "active" : ""}
+          onClick={() =>
+            setCycleConfig(p => ({ ...p, strength: v }))
+          }
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* Psyke */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">🧠 Psyke</div>
+    <div className="cycle-rating">
+      {[1,2,3,4,5].map(v => (
+        <button
+          key={v}
+          className={psyche === v ? "active" : ""}
+          onClick={() =>
+            setCycleConfig(p => ({ ...p, psyche: v }))
+          }
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* Energi */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">⚡ Energi</div>
+    <div className="cycle-rating">
+      {[1,2,3,4,5].map(v => (
+        <button
+          key={v}
+          className={energy === v ? "active" : ""}
+          onClick={() =>
+            setCycleConfig(p => ({ ...p, energy: v }))
+          }
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* Blödning */}
+  <label className="cycle-bleeding">
+    <input
+      type="checkbox"
+      checked={bleedingToday}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
+      }
+    />
+    🩸 Blöder idag
+  </label>
+
+  {/* Första mensdag */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">🌸 Första mensdag</div>
+    <input
+      type="date"
+      className="cycle-startdate"
+      value={startDate || ""}
+      onChange={e =>
+        setCycleConfig(p => ({
+          ...p,
+          startDate: e.target.value || null,
+        }))
+      }
+    />
+  </div>
+
+</div>
