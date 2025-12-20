@@ -244,78 +244,62 @@ function getCycleInfoForDay(date, config) {
 // ---------- CYCLE VIEW KOMPONENT ----------
 
 function CycleView({ cycleConfig, setCycleConfig }) {
-  const [logDate, setLogDate] = React.useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [firstPeriodDate, setFirstPeriodDate] = React.useState("");
   const [strength, setStrength] = React.useState(3);
   const [psyche, setPsyche] = React.useState(3);
   const [energy, setEnergy] = React.useState(3);
   const [bleedingToday, setBleedingToday] = React.useState(false);
-  const [firstPeriodDate, setFirstPeriodDate] = React.useState("");
 
   const DAYS = 28;
+  const today = new Date();
 
-  // ---------- HELPERS ----------
   function daysBetween(a, b) {
     const d1 = new Date(a);
     const d2 = new Date(b);
-    return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
+    return Math.floor((d2 - d1) / 86400000);
   }
 
-  function getCyclePhase(dayIndex) {
-    if (!firstPeriodDate) return "unknown";
-    const offset = daysBetween(firstPeriodDate, dayIndex);
-    const d = ((offset % 28) + 28) % 28;
-
+  function getCyclePhase(dateStr) {
+    if (!firstPeriodDate) return "neutral";
+    const diff = daysBetween(firstPeriodDate, dateStr);
+    const d = ((diff % 28) + 28) % 28;
     if (d <= 4) return "menstrual";
     if (d <= 12) return "follicular";
     if (d <= 16) return "ovulation";
     return "luteal";
   }
 
-  // ---------- GENERATE CALENDAR ----------
   function generateCalendar() {
-    const today = new Date();
     const days = [];
-    let restDaysThisWeek = 0;
+    let restThisWeek = 0;
 
     for (let i = 0; i < DAYS; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const iso = d.toISOString().slice(0, 10);
+      const dateStr = d.toISOString().slice(0, 10);
 
-      const phase = getCyclePhase(iso);
+      const phase = getCyclePhase(dateStr);
 
-      let type = "volym";
+      let type = "volume";
       let title = "Volym";
       let desc = "Fler set, kontrollerad vikt";
 
-      // Mens / blödning
-      if ((phase === "menstrual" || bleedingToday) && i < 3) {
-        type = "vila";
+      if ((phase === "menstrual" || bleedingToday) && i < 2) {
+        type = "recovery";
         title = "Återhämtning";
-        desc = "Rörlighet, promenad";
+        desc = "Rörlighet & promenad";
       }
 
-      // Energi låg
       if (energy <= 2) {
-        type = "teknik";
+        type = "technique";
         title = "Teknik";
-        desc = "Tempo, kontroll";
+        desc = "Tempo & kontroll";
       }
 
-      // Psyke låg
-      if (psyche <= 2) {
-        type = "volym";
-        title = "Lätt volym";
-        desc = "Trygg belastning";
-      }
-
-      // Peak-dagar
       if (energy >= 4 && strength >= 4 && psyche >= 3) {
-        type = "tung";
+        type = "heavy";
         title = "Tung dag";
-        desc = "Baslyft / progression";
+        desc = "Baslyft & progression";
       }
 
       if (energy === 5 && psyche >= 4) {
@@ -324,26 +308,19 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         desc = "Explosivt, få set";
       }
 
-      // Max 2 vilodagar / vecka
-      if (type === "vila") {
-        if (restDaysThisWeek >= 2) {
-          type = "teknik";
+      if (type === "recovery") {
+        if (restThisWeek >= 2) {
+          type = "technique";
           title = "Teknik";
-          desc = "Lätt & kontrollerat";
+          desc = "Lätt belastning";
         } else {
-          restDaysThisWeek++;
+          restThisWeek++;
         }
       }
 
-      // Reset varje vecka
-      if (i % 7 === 0) restDaysThisWeek = 0;
+      if (i % 7 === 0) restThisWeek = 0;
 
-      days.push({
-        date: iso,
-        type,
-        title,
-        desc,
-      });
+      days.push({ date: dateStr, type, title, desc });
     }
 
     return days;
@@ -351,24 +328,14 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   const calendar = generateCalendar();
 
-  // ---------- COLOR MAP ----------
-  const typeClass = {
-    tung: "cycle-card heavy",
-    volym: "cycle-card volume",
-    power: "cycle-card power",
-    teknik: "cycle-card technique",
-    vila: "cycle-card rest",
-  };
-
-  // ---------- RENDER ----------
   return (
-    <div className="cycle-wrapper">
-      <h2 className="cycle-title">🌙 Cykel & Träningscoach</h2>
+    <div className="cycle-page">
+      <h2 className="cycle-header">🌙 Cykel & Träningscoach</h2>
 
-      {/* INPUTS */}
-      <div className="cycle-inputs">
-        <div className="input-group">
-          <label>Första mensdag (valfritt)</label>
+      {/* CONTROLS */}
+      <div className="cycle-controls">
+        <div className="control-card">
+          <label>Första mensdag</label>
           <input
             type="date"
             value={firstPeriodDate}
@@ -376,34 +343,43 @@ function CycleView({ cycleConfig, setCycleConfig }) {
           />
         </div>
 
-        <div className="input-group">
+        <div className="control-card">
           <label>Styrka</label>
-          <select value={strength} onChange={(e) => setStrength(+e.target.value)}>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n}>{n}</option>
-            ))}
-          </select>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            value={strength}
+            onChange={(e) => setStrength(+e.target.value)}
+          />
+          <span>{strength}/5</span>
         </div>
 
-        <div className="input-group">
+        <div className="control-card">
           <label>Psyke</label>
-          <select value={psyche} onChange={(e) => setPsyche(+e.target.value)}>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n}>{n}</option>
-            ))}
-          </select>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            value={psyche}
+            onChange={(e) => setPsyche(+e.target.value)}
+          />
+          <span>{psyche}/5</span>
         </div>
 
-        <div className="input-group">
+        <div className="control-card">
           <label>Energi</label>
-          <select value={energy} onChange={(e) => setEnergy(+e.target.value)}>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n}>{n}</option>
-            ))}
-          </select>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            value={energy}
+            onChange={(e) => setEnergy(+e.target.value)}
+          />
+          <span>{energy}/5</span>
         </div>
 
-        <label className="bleed-toggle">
+        <label className="bleed-check">
           <input
             type="checkbox"
             checked={bleedingToday}
@@ -413,13 +389,13 @@ function CycleView({ cycleConfig, setCycleConfig }) {
         </label>
       </div>
 
-      {/* CALENDAR */}
+      {/* CALENDAR GRID */}
       <div className="cycle-grid">
-        {calendar.map((day) => (
-          <div key={day.date} className={typeClass[day.type]}>
-            <div className="cycle-date">{day.date}</div>
-            <div className="cycle-title-sm">{day.title}</div>
-            <div className="cycle-desc">{day.desc}</div>
+        {calendar.map((d) => (
+          <div key={d.date} className={`cycle-day ${d.type}`}>
+            <div className="cycle-date">{d.date}</div>
+            <div className="cycle-day-title">{d.title}</div>
+            <div className="cycle-day-desc">{d.desc}</div>
           </div>
         ))}
       </div>
