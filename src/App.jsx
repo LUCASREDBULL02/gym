@@ -471,64 +471,6 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   </div>
 </div>
 
-        <select
-          value={strength}
-          onChange={e =>
-            setCycleConfig(p => ({ ...p, strength: Number(e.target.value) }))
-          }
-        >
-          {[1,2,3,4,5].map(v => (
-            <option key={v} value={v}>💪 Styrka {v}</option>
-          ))}
-        </select>
-
-        <select
-          value={psyche}
-          onChange={e =>
-            setCycleConfig(p => ({ ...p, psyche: Number(e.target.value) }))
-          }
-        >
-          {[1,2,3,4,5].map(v => (
-            <option key={v} value={v}>🧠 Psyke {v}</option>
-          ))}
-        </select>
-
-        <select
-          value={energy}
-          onChange={e =>
-            setCycleConfig(p => ({ ...p, energy: Number(e.target.value) }))
-          }
-        >
-          {[1,2,3,4,5].map(v => (
-            <option key={v} value={v}>⚡ Energi {v}</option>
-          ))}
-        </select>
-
-        <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <input
-            type="checkbox"
-            checked={bleedingToday}
-            onChange={e =>
-              setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
-            }
-          />
-          🩸 Blöder idag
-        </label>
-
-        {/* OBS: tomt default */}
-        <input
-          type="date"
-          value={startDate || ""}
-          placeholder="Första mensdag"
-          onChange={e =>
-            setCycleConfig(p => ({
-              ...p,
-              startDate: e.target.value || null,
-            }))
-          }
-        />
-      </div>
-
       <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
         {calendarDays.map(d => (
           <div
