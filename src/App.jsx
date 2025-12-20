@@ -471,24 +471,20 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   </div>
 </div>
 
-      <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
-        {calendarDays.map(d => (
-          <div
-            key={d.date}
-            style={{
-              padding: 10,
-              borderRadius: 12,
-              background: d.color,
-              border: "1px solid rgba(148,163,184,0.3)",
-            }}
-          >
-            <div style={{ fontSize: 11, opacity: 0.7 }}>{d.date}</div>
-            <div style={{ fontWeight: 600 }}>{d.title}</div>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>{d.note}</div>
-          </div>
-        ))}
-      </div>
+     <div className="cycle-calendar">
+  {calendarDays.map(d => (
+    <div
+      key={d.date}
+      className="cycle-day"
+      style={{ background: d.color }}
+    >
+      <div className="cycle-date">{d.date}</div>
+      <div className="cycle-title">{d.title}</div>
+      <div className="cycle-note">{d.note}</div>
     </div>
+  ))}
+</div>
+</div>
   );
 }
 
