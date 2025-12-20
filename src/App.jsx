@@ -243,121 +243,104 @@ function getCycleInfoForDay(date, config) {
 
 // ---------- CYCLE VIEW KOMPONENT ----------
 
-function CycleView({ cycleConfig, setCycleConfig }) {
-  const [firstPeriodDate, setFirstPeriodDate] = React.useState("");
-  const [strength, setStrength] = React.useState(3);
-  const [psyche, setPsyche] = React.useState(3);
-  const [energy, setEnergy] = React.useState(3);
-  const [bleedingToday, setBleedingToday] = React.useState(false);
+<div className="cycle-inputs">
 
-  const DAYS = 28;
-  const today = new Date();
+  {/* Datum */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">📅 Dag</div>
+    <input
+      type="date"
+      className="cycle-date"
+      value={selectedDate}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, selectedDate: e.target.value }))
+      }
+    />
+  </div>
 
-  function addDays(base, n) {
-    const d = new Date(base);
-    d.setDate(d.getDate() + n);
-    return d;
-  }
-
-  function daysBetween(a, b) {
-    return Math.floor((new Date(b) - new Date(a)) / 86400000);
-  }
-
-  function getCyclePhase(dateStr) {
-    if (!firstPeriodDate) return "neutral";
-    const diff = daysBetween(firstPeriodDate, dateStr);
-    const day = ((diff % 28) + 28) % 28;
-
-    if (day <= 4) return "menstrual";
-    if (day <= 12) return "follicular";
-    if (day <= 16) return "ovulation";
-    return "luteal";
-  }
-
-  function getDayType(phase) {
-    if (bleedingToday && phase === "menstrual") {
-      return { type: "recovery", title: "Återhämtning", desc: "Rörlighet & vila" };
-    }
-
-    if (energy <= 2) {
-      return { type: "technique", title: "Teknik", desc: "Tempo & kontroll" };
-    }
-
-    if (energy >= 4 && strength >= 4 && psyche >= 3) {
-      return { type: "heavy", title: "Tung dag", desc: "Baslyft & progression" };
-    }
-
-    if (energy === 5 && psyche >= 4) {
-      return { type: "power", title: "Power", desc: "Explosivt & få set" };
-    }
-
-    return { type: "volume", title: "Volym", desc: "Fler set, kontrollerad vikt" };
-  }
-
-  const calendar = Array.from({ length: DAYS }).map((_, i) => {
-    const d = addDays(today, i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const phase = getCyclePhase(dateStr);
-    const rec = getDayType(phase);
-
-    return {
-      date: dateStr,
-      ...rec,
-    };
-  });
-
-  return (
-    <div className="cycle-wrapper">
-      <h2 className="cycle-title">🌙 Cykel & Träningscoach</h2>
-
-      {/* INPUT PANEL */}
-      <div className="cycle-input-panel">
-        <div className="input-group">
-          <label>Första mensdag</label>
-          <input
-            type="date"
-            value={firstPeriodDate}
-            onChange={(e) => setFirstPeriodDate(e.target.value)}
-          />
-        </div>
-
-        <div className="slider-group">
-          <label>💪 Styrka</label>
-          <input type="range" min="1" max="5" value={strength} onChange={(e) => setStrength(+e.target.value)} />
-          <span>{strength}/5</span>
-        </div>
-
-        <div className="slider-group">
-          <label>🧠 Psyke</label>
-          <input type="range" min="1" max="5" value={psyche} onChange={(e) => setPsyche(+e.target.value)} />
-          <span>{psyche}/5</span>
-        </div>
-
-        <div className="slider-group">
-          <label>⚡ Energi</label>
-          <input type="range" min="1" max="5" value={energy} onChange={(e) => setEnergy(+e.target.value)} />
-          <span>{energy}/5</span>
-        </div>
-
-        <label className="checkbox-row">
-          <input type="checkbox" checked={bleedingToday} onChange={(e) => setBleedingToday(e.target.checked)} />
-          Blöder idag
-        </label>
-      </div>
-
-      {/* CALENDAR GRID */}
-      <div className="cycle-calendar-grid">
-        {calendar.map((day) => (
-          <div key={day.date} className={`cycle-day-card ${day.type}`}>
-            <div className="cycle-day-date">{day.date}</div>
-            <div className="cycle-day-title">{day.title}</div>
-            <div className="cycle-day-desc">{day.desc}</div>
-          </div>
-        ))}
-      </div>
+  {/* Styrka */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">💪 Styrka</div>
+    <div className="cycle-rating">
+      {[1,2,3,4,5].map(v => (
+        <button
+          key={v}
+          className={strength === v ? "active" : ""}
+          onClick={() =>
+            setCycleConfig(p => ({ ...p, strength: v }))
+          }
+        >
+          {v}
+        </button>
+      ))}
     </div>
-  );
-}
+  </div>
+
+  {/* Psyke */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">🧠 Psyke</div>
+    <div className="cycle-rating">
+      {[1,2,3,4,5].map(v => (
+        <button
+          key={v}
+          className={psyche === v ? "active" : ""}
+          onClick={() =>
+            setCycleConfig(p => ({ ...p, psyche: v }))
+          }
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* Energi */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">⚡ Energi</div>
+    <div className="cycle-rating">
+      {[1,2,3,4,5].map(v => (
+        <button
+          key={v}
+          className={energy === v ? "active" : ""}
+          onClick={() =>
+            setCycleConfig(p => ({ ...p, energy: v }))
+          }
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* Blödning */}
+  <label className="cycle-bleeding">
+    <input
+      type="checkbox"
+      checked={bleedingToday}
+      onChange={e =>
+        setCycleConfig(p => ({ ...p, bleedingToday: e.target.checked }))
+      }
+    />
+    🩸 Blöder idag
+  </label>
+
+  {/* Första mensdag */}
+  <div className="cycle-stat">
+    <div className="cycle-stat-label">🌸 Första mensdag</div>
+    <input
+      type="date"
+      className="cycle-startdate"
+      value={startDate || ""}
+      onChange={e =>
+        setCycleConfig(p => ({
+          ...p,
+          startDate: e.target.value || null,
+        }))
+      }
+    />
+  </div>
+
+</div>
 
 
 
