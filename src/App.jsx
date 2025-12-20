@@ -505,9 +505,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
           <div className="cycle-note">{d.note}</div>
         </div>
       ))}
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
 // ------------------ HUVUDKOMPONENT ------------------
 
