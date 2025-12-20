@@ -253,88 +253,66 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const DAYS = 28;
   const today = new Date();
 
+  function addDays(base, n) {
+    const d = new Date(base);
+    d.setDate(d.getDate() + n);
+    return d;
+  }
+
   function daysBetween(a, b) {
-    const d1 = new Date(a);
-    const d2 = new Date(b);
-    return Math.floor((d2 - d1) / 86400000);
+    return Math.floor((new Date(b) - new Date(a)) / 86400000);
   }
 
   function getCyclePhase(dateStr) {
     if (!firstPeriodDate) return "neutral";
     const diff = daysBetween(firstPeriodDate, dateStr);
-    const d = ((diff % 28) + 28) % 28;
-    if (d <= 4) return "menstrual";
-    if (d <= 12) return "follicular";
-    if (d <= 16) return "ovulation";
+    const day = ((diff % 28) + 28) % 28;
+
+    if (day <= 4) return "menstrual";
+    if (day <= 12) return "follicular";
+    if (day <= 16) return "ovulation";
     return "luteal";
   }
 
-  function generateCalendar() {
-    const days = [];
-    let restThisWeek = 0;
-
-    for (let i = 0; i < DAYS; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const dateStr = d.toISOString().slice(0, 10);
-
-      const phase = getCyclePhase(dateStr);
-
-      let type = "volume";
-      let title = "Volym";
-      let desc = "Fler set, kontrollerad vikt";
-
-      if ((phase === "menstrual" || bleedingToday) && i < 2) {
-        type = "recovery";
-        title = "Återhämtning";
-        desc = "Rörlighet & promenad";
-      }
-
-      if (energy <= 2) {
-        type = "technique";
-        title = "Teknik";
-        desc = "Tempo & kontroll";
-      }
-
-      if (energy >= 4 && strength >= 4 && psyche >= 3) {
-        type = "heavy";
-        title = "Tung dag";
-        desc = "Baslyft & progression";
-      }
-
-      if (energy === 5 && psyche >= 4) {
-        type = "power";
-        title = "Power";
-        desc = "Explosivt, få set";
-      }
-
-      if (type === "recovery") {
-        if (restThisWeek >= 2) {
-          type = "technique";
-          title = "Teknik";
-          desc = "Lätt belastning";
-        } else {
-          restThisWeek++;
-        }
-      }
-
-      if (i % 7 === 0) restThisWeek = 0;
-
-      days.push({ date: dateStr, type, title, desc });
+  function getDayType(phase) {
+    if (bleedingToday && phase === "menstrual") {
+      return { type: "recovery", title: "Återhämtning", desc: "Rörlighet & vila" };
     }
 
-    return days;
+    if (energy <= 2) {
+      return { type: "technique", title: "Teknik", desc: "Tempo & kontroll" };
+    }
+
+    if (energy >= 4 && strength >= 4 && psyche >= 3) {
+      return { type: "heavy", title: "Tung dag", desc: "Baslyft & progression" };
+    }
+
+    if (energy === 5 && psyche >= 4) {
+      return { type: "power", title: "Power", desc: "Explosivt & få set" };
+    }
+
+    return { type: "volume", title: "Volym", desc: "Fler set, kontrollerad vikt" };
   }
 
-  const calendar = generateCalendar();
+  const calendar = Array.from({ length: DAYS }).map((_, i) => {
+    const d = addDays(today, i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const phase = getCyclePhase(dateStr);
+    const rec = getDayType(phase);
+
+    return {
+      date: dateStr,
+      ...rec,
+    };
+  });
 
   return (
-    <div className="cycle-page">
-      <h2 className="cycle-header">🌙 Cykel & Träningscoach</h2>
+    <div className="cycle-wrapper">
+      <h2 className="cycle-title">🌙 Cykel & Träningscoach</h2>
 
-      {/* CONTROLS */}
-      <div className="cycle-controls">
-        <div className="control-card">
+      {/* INPUT PANEL */}
+      <div className="cycle-input-panel">
+        <div className="input-group">
           <label>Första mensdag</label>
           <input
             type="date"
@@ -343,59 +321,37 @@ function CycleView({ cycleConfig, setCycleConfig }) {
           />
         </div>
 
-        <div className="control-card">
-          <label>Styrka</label>
-          <input
-            type="range"
-            min="1"
-            max="5"
-            value={strength}
-            onChange={(e) => setStrength(+e.target.value)}
-          />
+        <div className="slider-group">
+          <label>💪 Styrka</label>
+          <input type="range" min="1" max="5" value={strength} onChange={(e) => setStrength(+e.target.value)} />
           <span>{strength}/5</span>
         </div>
 
-        <div className="control-card">
-          <label>Psyke</label>
-          <input
-            type="range"
-            min="1"
-            max="5"
-            value={psyche}
-            onChange={(e) => setPsyche(+e.target.value)}
-          />
+        <div className="slider-group">
+          <label>🧠 Psyke</label>
+          <input type="range" min="1" max="5" value={psyche} onChange={(e) => setPsyche(+e.target.value)} />
           <span>{psyche}/5</span>
         </div>
 
-        <div className="control-card">
-          <label>Energi</label>
-          <input
-            type="range"
-            min="1"
-            max="5"
-            value={energy}
-            onChange={(e) => setEnergy(+e.target.value)}
-          />
+        <div className="slider-group">
+          <label>⚡ Energi</label>
+          <input type="range" min="1" max="5" value={energy} onChange={(e) => setEnergy(+e.target.value)} />
           <span>{energy}/5</span>
         </div>
 
-        <label className="bleed-check">
-          <input
-            type="checkbox"
-            checked={bleedingToday}
-            onChange={(e) => setBleedingToday(e.target.checked)}
-          />
+        <label className="checkbox-row">
+          <input type="checkbox" checked={bleedingToday} onChange={(e) => setBleedingToday(e.target.checked)} />
           Blöder idag
         </label>
       </div>
 
       {/* CALENDAR GRID */}
-      <div className="cycle-grid">
-        {calendar.map((d) => (
-          <div key={d.date} className={`cycle-day ${d.type}`}>
-            <div className="cycle-date">{d.date}</div>
-            <div className="cycle-day-title">{d.title}</div>
-            <div className="cycle-day-desc">{d.desc}</div>
+      <div className="cycle-calendar-grid">
+        {calendar.map((day) => (
+          <div key={day.date} className={`cycle-day-card ${day.type}`}>
+            <div className="cycle-day-date">{day.date}</div>
+            <div className="cycle-day-title">{day.title}</div>
+            <div className="cycle-day-desc">{day.desc}</div>
           </div>
         ))}
       </div>
