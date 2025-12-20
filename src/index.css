@@ -1083,3 +1083,43 @@ body {
   font-size: 12px;
   opacity: 0.85;
 }
+/* === CYCLE INPUT PANEL === */
+
+.cycle-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.cycle-control {
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(148,163,184,0.25);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.cycle-control label {
+  font-size: 12px;
+  opacity: 0.8;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.cycle-control input,
+.cycle-control select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.cycle-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  opacity: 0.85;
+}
