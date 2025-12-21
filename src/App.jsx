@@ -320,9 +320,8 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 function getPassForDay(dateStr, index, restCount) {
   let score = readiness;
 
-  // 🔹 Daglig deterministisk variation (viktig!)
-  const dayWave = Math.sin(index * 1.3) * 0.25;
-  score += dayWave;
+  // 🔹 Daglig variation (stabil men levande)
+  score += Math.sin(index * 1.3) * 0.25;
 
   // 🔹 Cykelpåverkan
   if (startDate) {
@@ -335,7 +334,7 @@ function getPassForDay(dateStr, index, restCount) {
 
   score = clamp(score, 0, 5);
 
-  // 🔹 BLOCK-ROTATION (byter var 2–4 dag)
+  // 🔹 Block som byts var ~3 dag
   const block = Math.floor(index / 3) % 4;
 
   // 🔻 MYCKET LÅG
@@ -349,19 +348,17 @@ function getPassForDay(dateStr, index, restCount) {
     return block % 2 === 0 ? PASS.technique : PASS.volume;
   }
 
-  // 🟡 MEDEL
-  if (score < 3.4) {
+  // 🟡 MEDEL (majoriteten av dagar)
+  if (score < 3.5) {
     return block % 2 === 0 ? PASS.volume : PASS.technique;
   }
 
-  // 🟢 BRA
-  if (score < 4.1) {
-    return ROTATION[block] === "heavy"
-      ? PASS.heavy
-      : PASS.volume;
+  // 🟢 BRA → TUNG DAG STANDARD
+  if (score < 4.4) {
+    return PASS.heavy;
   }
 
-  // 🔥 TOPP
+  // 🔥 TOPP → POWER (sällsynt & speciell)
   return block % 2 === 0 ? PASS.power : PASS.heavy;
 }
 
