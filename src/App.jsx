@@ -328,8 +328,6 @@ let readiness =
       if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
       if (dayInCycle >= 25) score -= 1.0; // PMS
     }
-    
-score += (index % 3 - 1) * 0.15;
 
     score = clamp(score, 0, 5);
 
