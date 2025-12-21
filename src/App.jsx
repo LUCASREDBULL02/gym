@@ -271,7 +271,7 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   // Mer aggressiv påverkan
 let readiness =
-  energy * 0.6 +      // energi ska slå hårdast
+  energy * 0.6 +
   strength * 0.3 +
   psyche * 0.1;
 
