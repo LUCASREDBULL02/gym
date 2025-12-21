@@ -520,17 +520,7 @@ function getPassForDay(dateStr, index, restCount) {
       </div>
     </div>
   );
-}
-
-function LiftTools() {
-  return (
-    <div className="card">
-      <h3>🛠 Lift Tools</h3>
-      <p>LiftTools laddar korrekt.</p>
-    </div>
-  );
-}
-
+  
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
