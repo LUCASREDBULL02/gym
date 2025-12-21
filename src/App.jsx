@@ -270,10 +270,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   ========================= */
 
   // Mer aggressiv påverkan
-  let readiness =
-    energy * 0.45 +
-    strength * 0.35 +
-    psyche * 0.2;
+let readiness =
+  energy * 0.6 +      // energi ska slå hårdast
+  strength * 0.3 +
+  psyche * 0.1;
 
   if (bleedingToday) readiness -= 1.5;
 
@@ -328,27 +328,32 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
       if (dayInCycle >= 25) score -= 1.0; // PMS
     }
+    
+score += (index % 3 - 1) * 0.15;
 
     score = clamp(score, 0, 5);
 
     // Låg readiness → vila / teknik
-    if (score <= 1.8) {
-      if (restCount < 2) return PASS.recovery;
-      return PASS.technique;
-    }
+   if (score < 2.2) {
+  if (restCount < 2) return PASS.recovery;
+  return PASS.technique;
+}
 
     // Medel
-    if (score <= 3) {
-      return PASS[ROTATION[(index + 1) % ROTATION.length]];
-    }
+   if (score < 2.8) {
+  return PASS.technique;
+}
 
     // Hög readiness → tung / power
-    if (score >= 4.2) {
-      return PASS[ROTATION[index % 3]];
-    }
+   if (score < 3.4) {
+  return PASS.volume;
+}
+    
+if (score < 4.1) {
+  return PASS[ROTATION[index % ROTATION.length]];
+}
 
-    return PASS.volume;
-  }
+return PASS.power;
 
   /* =========================
      KALENDER
