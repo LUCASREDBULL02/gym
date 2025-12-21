@@ -271,9 +271,9 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   // Mer aggressiv påverkan
 let readiness =
-  energy * 0.6 +
-  strength * 0.3 +
-  psyche * 0.1;
+  energy * 0.45 +
+  strength * 0.35 +
+  psyche * 0.2;
 
   if (bleedingToday) readiness -= 1.5;
 
