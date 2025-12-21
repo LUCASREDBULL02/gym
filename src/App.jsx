@@ -521,6 +521,7 @@ function getPassForDay(dateStr, index, restCount) {
     </div>
   );
 }
+
 function LiftTools() {
   const [tool, setTool] = React.useState("1rm");
 
