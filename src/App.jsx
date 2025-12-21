@@ -330,7 +330,6 @@ let readiness =
     }
 
     score = clamp(score, 0, 5);
-    
   if (score < 2.2) {
   if (restCount < 2) return PASS.recovery;
   return PASS.technique;
