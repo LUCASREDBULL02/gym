@@ -317,38 +317,47 @@ function CycleView({ cycleConfig, setCycleConfig }) {
      LOGIK PER DAG
   ========================= */
 
-  function getPassForDay(dateStr, index, restCount) {
-    let score = readiness;
+ function getPassForDay(dateStr, index, restCount) {
+  let score = readiness;
 
-    // Mens-fas påverkar
-    if (startDate) {
-      const dayInCycle = daysBetween(startDate, dateStr) % 28;
+  // 🔹 Mikrovariation – gör att ±1 känns direkt
+  score += (index % 3 - 1) * 0.15;
 
-      if (dayInCycle >= 0 && dayInCycle <= 2) score -= 2.0; // mens
-      if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
-      if (dayInCycle >= 25) score -= 1.0; // PMS
-    }
+  // 🔹 Mens / cykelpåverkan
+  if (startDate) {
+    const dayInCycle = daysBetween(startDate, dateStr) % 28;
 
-    score = clamp(score, 0, 5);
+    if (dayInCycle >= 0 && dayInCycle <= 2) score -= 2.0;   // mens
+    if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
+    if (dayInCycle >= 25) score -= 1.0;                     // PMS
+  }
 
-    // Låg readiness → vila / teknik
-    if (score <= 1.8) {
-      if (restCount < 2) return PASS.recovery;
-      return PASS.technique;
-    }
+  score = clamp(score, 0, 5);
 
-    // Medel
-    if (score <= 3) {
-      return PASS[ROTATION[(index + 1) % ROTATION.length]];
-    }
+  // 🔻 MYCKET LÅG READINESS
+  if (score < 2.2) {
+    if (restCount < 2) return PASS.recovery;
+    return PASS.technique;
+  }
 
-    // Hög readiness → tung / power
-    if (score >= 4.2) {
-      return PASS[ROTATION[index % 3]];
-    }
+  // 🔻 LÅG
+  if (score < 2.8) {
+    return PASS.technique;
+  }
 
+  // 🟡 MEDEL
+  if (score < 3.4) {
     return PASS.volume;
   }
+
+  // 🟢 BRA
+  if (score < 4.1) {
+    return PASS[ROTATION[index % ROTATION.length]];
+  }
+
+  // 🔥 TOPP
+  return PASS.power;
+}
 
   /* =========================
      KALENDER
