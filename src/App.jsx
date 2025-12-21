@@ -642,6 +642,7 @@ function LiftTools() {
     </div>
   );
 }
+
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
