@@ -330,23 +330,20 @@ let readiness =
     }
 
     score = clamp(score, 0, 5);
-
-    // Låg readiness → vila / teknik
-   if (score < 2.2) {
+    
+  if (score < 2.2) {
   if (restCount < 2) return PASS.recovery;
   return PASS.technique;
 }
 
-    // Medel
-   if (score < 2.8) {
+if (score < 2.8) {
   return PASS.technique;
 }
 
-    // Hög readiness → tung / power
-   if (score < 3.4) {
+if (score < 3.4) {
   return PASS.volume;
 }
-    
+
 if (score < 4.1) {
   return PASS[ROTATION[index % ROTATION.length]];
 }
