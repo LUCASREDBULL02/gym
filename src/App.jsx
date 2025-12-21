@@ -1139,9 +1139,6 @@ export default function App() {
               </div>
             </div>
         <LiftTools />
-                );
-              }}
-            />
           </div>
         )}
 
