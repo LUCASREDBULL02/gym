@@ -520,7 +520,8 @@ function getPassForDay(dateStr, index, restCount) {
       </div>
     </div>
   );
-  
+  }
+
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
