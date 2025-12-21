@@ -1139,6 +1139,16 @@ export default function App() {
               </div>
             </div>
         <LiftTools />
+            logs={logs}
+  bodyStats={bodyStats}
+  onAddManual={(entry) => {
+    setLogs((prev) => [entry, ...prev]);
+    showToastMsg(
+      "Lyft tillagt ✨",
+      "Ditt tidigare lyft är nu sparat i historiken."
+    );
+  }}
+/>
           </div>
         )}
 
