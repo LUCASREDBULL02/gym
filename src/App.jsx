@@ -329,25 +329,22 @@ let readiness =
       if (dayInCycle >= 25) score -= 1.0; // PMS
     }
 
-    score = clamp(score, 0, 5);
-  if (score < 2.2) {
+score = clamp(score, 0, 5);
+    
+ if (score <= 1.8) {
   if (restCount < 2) return PASS.recovery;
   return PASS.technique;
 }
 
-if (score < 2.8) {
-  return PASS.technique;
+if (score <= 3) {
+  return PASS[ROTATION[(index + 1) % ROTATION.length]];
 }
 
-if (score < 3.4) {
-  return PASS.volume;
+if (score >= 4.2) {
+  return PASS[ROTATION[index % 3]];
 }
 
-if (score < 4.1) {
-  return PASS[ROTATION[index % ROTATION.length]];
-}
-
-return PASS.power;
+return PASS.volume;
 
   /* =========================
      KALENDER
