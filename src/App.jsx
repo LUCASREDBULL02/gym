@@ -1128,7 +1128,7 @@ export default function App() {
         )}
 
         {/* LIFT TOOLS */}
-        {view === "lift" && (
+        {view === "lift" && <LiftTools />}
           <div className="card" style={{ padding: 20 }}>
             <div className="main-header" style={{ marginBottom: 10 }}>
               <div>
