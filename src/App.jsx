@@ -317,13 +317,14 @@ function CycleView({ cycleConfig, setCycleConfig }) {
      LOGIK PER DAG
   ========================= */
 
- function getPassForDay(dateStr, index, restCount) {
+function getPassForDay(dateStr, index, restCount) {
   let score = readiness;
 
-  // 🔹 Mikrovariation – gör att ±1 känns direkt
-  score += (index % 3 - 1) * 0.15;
+  // 🔹 Daglig deterministisk variation (viktig!)
+  const dayWave = Math.sin(index * 1.3) * 0.25;
+  score += dayWave;
 
-  // 🔹 Mens / cykelpåverkan
+  // 🔹 Cykelpåverkan
   if (startDate) {
     const dayInCycle = daysBetween(startDate, dateStr) % 28;
 
@@ -334,7 +335,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   score = clamp(score, 0, 5);
 
-  // 🔻 MYCKET LÅG READINESS
+  // 🔹 BLOCK-ROTATION (byter var 2–4 dag)
+  const block = Math.floor(index / 3) % 4;
+
+  // 🔻 MYCKET LÅG
   if (score < 2.2) {
     if (restCount < 2) return PASS.recovery;
     return PASS.technique;
@@ -342,21 +346,23 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   // 🔻 LÅG
   if (score < 2.8) {
-    return PASS.technique;
+    return block % 2 === 0 ? PASS.technique : PASS.volume;
   }
 
   // 🟡 MEDEL
   if (score < 3.4) {
-    return PASS.volume;
+    return block % 2 === 0 ? PASS.volume : PASS.technique;
   }
 
   // 🟢 BRA
   if (score < 4.1) {
-    return PASS[ROTATION[index % ROTATION.length]];
+    return ROTATION[block] === "heavy"
+      ? PASS.heavy
+      : PASS.volume;
   }
 
   // 🔥 TOPP
-  return PASS.power;
+  return block % 2 === 0 ? PASS.power : PASS.heavy;
 }
 
   /* =========================
