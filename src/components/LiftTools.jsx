@@ -494,7 +494,15 @@ const trendArrow = useMemo(() => {
           }}
         >
           {/* 1RM-kalkylator */}
-          <div className="card" style={{ padding: 12 }}>
+         <div
+  className="card strength-analysis-card"
+  style={{
+    padding: 14,
+    border: "1px solid rgba(236,72,153,0.6)",
+    background:
+      "linear-gradient(135deg, rgba(236,72,153,0.12), rgba(15,23,42,0.6))",
+  }}
+>
             <div
               style={{
                 fontSize: 13,
@@ -672,24 +680,27 @@ const trendArrow = useMemo(() => {
 {/* === Strength level & self comparison === */}
 {true && (
   <div className="card" style={{ padding: 12 }}>
-    <div
-      style={{
-        fontSize: 13,
-        fontWeight: 600,
-        marginBottom: 6,
-      }}
-    >
-      Strength analysis
-    </div>
+   <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 14,
+    fontWeight: 700,
+    marginBottom: 8,
+  }}
+>
+  🧠 Strength analysis
+</div>
 
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 4,
-        fontSize: 12,
-      }}
-    >
+   <div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 6,
+    fontSize: 13,
+  }}
+>
       <div>
         <strong>Level:</strong> {strengthLevel}
       </div>
