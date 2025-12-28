@@ -23,6 +23,31 @@ Chart.register(
 );
 
 const ACCENT = "#ec4899"; // rosa
+// ---------------- STRENGTH LEVEL NORMS ----------------
+
+// Approximerade strengthlevel-normer (ratio = 1RM / kroppsvikt)
+// Matchar strengthlevel.com i praktiken (offline & säkert)
+
+const STRENGTH_LEVELS = {
+  "Bänkpress": [
+    { ratio: 0.75, level: "Novice", percentile: 25 },
+    { ratio: 1.0, level: "Intermediate", percentile: 50 },
+    { ratio: 1.25, level: "Advanced", percentile: 75 },
+    { ratio: 1.5, level: "Elite", percentile: 90 },
+  ],
+  "Knäböj": [
+    { ratio: 1.0, level: "Novice", percentile: 25 },
+    { ratio: 1.5, level: "Intermediate", percentile: 50 },
+    { ratio: 2.0, level: "Advanced", percentile: 75 },
+    { ratio: 2.5, level: "Elite", percentile: 90 },
+  ],
+  "Marklyft": [
+    { ratio: 1.25, level: "Novice", percentile: 25 },
+    { ratio: 2.0, level: "Intermediate", percentile: 50 },
+    { ratio: 2.5, level: "Advanced", percentile: 75 },
+    { ratio: 3.0, level: "Elite", percentile: 90 },
+  ],
+};
 
 // 1RM-formler
 function calcFormulas1RM(weight, reps) {
