@@ -182,7 +182,100 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
     () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
     [rmWeight, rmReps]
   );
+// =========================
+// Strength-level & self comparison (LOGIC)
+// =========================
 
+// Primärt 1RM (övningsspecifikt)
+const primary1RM = useMemo(() => {
+  if (!rmWeight || !rmReps) return null;
+  return calculateExercise1RM(
+    Number(rmWeight),
+    Number(rmReps),
+    rmExerciseId
+  );
+}, [rmWeight, rmReps, rmExerciseId]);
+
+// Senaste kroppsvikt (för percentiler)
+const latestBodyWeight =
+  bodyStats?.weight?.slice()?.reverse()?.[0]?.value ?? null;
+
+// Strengthlevel-percentil + nivå
+const strengthPercentile = useMemo(() => {
+  if (!primary1RM || !latestBodyWeight) return null;
+  return getStrengthPercentile(
+    primary1RM,
+    latestBodyWeight,
+    rmExerciseId
+  );
+}, [primary1RM, latestBodyWeight, rmExerciseId]);
+
+const strengthLevel =
+  strengthPercentile != null
+    ? getStrengthLevel(strengthPercentile)
+    : null;
+
+// Alla historiska 1RM för vald övning
+const all1RMsForExercise = useMemo(() => {
+  return (logs || [])
+    .filter(
+      (l) =>
+        l.exerciseId === rmExerciseId &&
+        l.weight &&
+        l.reps
+    )
+    .map((l) =>
+      calculateExercise1RM(
+        l.weight,
+        l.reps,
+        rmExerciseId
+      )
+    )
+    .filter(Boolean);
+}, [logs, rmExerciseId]);
+
+// Self-percentile (jämfört med dig själv)
+const selfPercentile = useMemo(() => {
+  return getSelfPercentile(
+    primary1RM,
+    all1RMsForExercise
+  );
+}, [primary1RM, all1RMsForExercise]);
+
+// Trend-pil (14 dagar vs föregående 14)
+const trendArrow = useMemo(() => {
+  const now = Date.now();
+  const dayMs = 1000 * 60 * 60 * 24;
+
+  const recent = [];
+  const previous = [];
+
+  (logs || []).forEach((l) => {
+    if (
+      l.exerciseId !== rmExerciseId ||
+      !l.weight ||
+      !l.reps
+    )
+      return;
+
+    const rm = calculateExercise1RM(
+      l.weight,
+      l.reps,
+      rmExerciseId
+    );
+    if (!rm) return;
+
+    const diff = now - new Date(l.date).getTime();
+
+    if (diff <= 14 * dayMs) recent.push(rm);
+    else if (diff <= 28 * dayMs) previous.push(rm);
+  });
+
+  return getTrendArrow(
+    average(recent),
+    average(previous)
+  );
+}, [logs, rmExerciseId]);
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
     const p = Number(rmPercent);
