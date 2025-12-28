@@ -77,7 +77,76 @@ function calc1RM(weight, reps) {
   if (!weight || !reps) return 0;
   return Math.round(weight * (1 + reps / 30));
 }
+// =========================
+// Strength-level & self comparison helpers
+// =========================
 
+// Övningsspecifik 1RM (strengthlevel-inspirerad)
+function calculateExercise1RM(weight, reps, exerciseId) {
+  if (!weight || !reps) return null;
+
+  const factors = {
+    bench: 0.033,
+    squat: 0.035,
+    deadlift: 0.036,
+    row: 0.042,
+    press: 0.03,
+    hipthrust: 0.045,
+  };
+
+  const factor = factors[exerciseId] ?? 0.033;
+  return Math.round(weight * (1 + reps * factor));
+}
+
+// Percentil baserat på kroppsvikt + övning
+function getStrengthPercentile(oneRM, bodyWeight, exerciseId) {
+  if (!oneRM || !bodyWeight) return null;
+
+  const norms = {
+    bench: 1.0,
+    squat: 1.5,
+    deadlift: 1.8,
+    row: 1.2,
+    press: 0.65,
+    hipthrust: 2.0,
+  };
+
+  const norm = norms[exerciseId];
+  if (!norm) return null;
+
+  const ratio = oneRM / bodyWeight;
+  const percentile = Math.round(50 + (ratio / norm - 1) * 40);
+
+  return Math.max(5, Math.min(95, percentile));
+}
+
+function getStrengthLevel(percentile) {
+  if (percentile < 35) return "Novice";
+  if (percentile < 55) return "Beginner";
+  if (percentile < 70) return "Intermediate";
+  if (percentile < 85) return "Advanced";
+  return "Elite";
+}
+
+// Jämförelse mot dig själv
+function getSelfPercentile(current, history) {
+  if (!current || history.length === 0) return null;
+  const lower = history.filter(v => v < current).length;
+  return Math.round((lower / history.length) * 100);
+}
+
+// Trend helpers
+function average(arr) {
+  if (!arr.length) return null;
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+function getTrendArrow(recentAvg, previousAvg) {
+  if (recentAvg == null || previousAvg == null) return "→";
+  if (recentAvg > previousAvg + 1) return "↗";
+  if (recentAvg < previousAvg - 1) return "↘";
+  return "→";
+}
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
