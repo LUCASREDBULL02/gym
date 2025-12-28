@@ -207,7 +207,10 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
     () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
     [rmWeight, rmReps]
   );
-  
+
+  // =========================
+// Strength-level & self comparison (LOGIC)
+// =========================
 // Primärt 1RM (övningsspecifikt)
   // ---------------- STRENGTH LEVEL ANALYSIS ----------------
 
@@ -270,8 +273,8 @@ const strengthPercentile = useMemo(() => {
   return getStrengthPercentile(
     primary1RM,
     latestBodyWeight,
-    rmExerciseId
-  );
+    rmExerciseId);
+  
 }, [primary1RM, latestBodyWeight, rmExerciseId]);
 
 const strengthLevel =
