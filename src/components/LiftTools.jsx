@@ -641,7 +641,47 @@ const trendArrow = useMemo(() => {
               </p>
             )}
           </div>
+{/* === Strength level & self comparison === */}
+{primary1RM && strengthPercentile && (
+  <div className="card" style={{ padding: 12 }}>
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 600,
+        marginBottom: 6,
+      }}
+    >
+      Strength analysis
+    </div>
 
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        fontSize: 12,
+      }}
+    >
+      <div>
+        <strong>Level:</strong> {strengthLevel}
+      </div>
+
+      <div className="small">
+        {strengthPercentile}-percentilen
+      </div>
+
+      {selfPercentile != null && (
+        <div className="small">
+          Du är starkare nu än{" "}
+          <strong>{selfPercentile}%</strong> av dig själv{" "}
+          <span style={{ marginLeft: 6 }}>
+            {trendArrow}
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+)}
           {/* 1RM% */}
           <div className="card" style={{ padding: 12 }}>
             <div
