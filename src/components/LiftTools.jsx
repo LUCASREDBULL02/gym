@@ -311,41 +311,7 @@ const selfPercentile = useMemo(() => {
     all1RMsForExercise
   );
 }, [primary1RM, all1RMsForExercise]);
-
-// Trend-pil (14 dagar vs föregående 14)
-const trendArrow = useMemo(() => {
-  const now = Date.now();
-  const dayMs = 1000 * 60 * 60 * 24;
-
-  const recent = [];
-  const previous = [];
-
-  (logs || []).forEach((l) => {
-    if (
-      l.exerciseId !== rmExerciseId ||
-      !l.weight ||
-      !l.reps
-    )
-      return;
-
-    const rm = calculateExercise1RM(
-      l.weight,
-      l.reps,
-      rmExerciseId
-    );
-    if (!rm) return;
-
-    const diff = now - new Date(l.date).getTime();
-
-    if (diff <= 14 * dayMs) recent.push(rm);
-    else if (diff <= 28 * dayMs) previous.push(rm);
-  });
-
-  return getTrendArrow(
-    average(recent),
-    average(previous)
-  );
-}, [logs, rmExerciseId]);
+  
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
     const p = Number(rmPercent);
