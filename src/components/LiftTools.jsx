@@ -212,6 +212,48 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
 // =========================
 
 // Primärt 1RM (övningsspecifikt)
+  // ---------------- STRENGTH LEVEL ANALYSIS ----------------
+
+// välj vilken 1RM som används (Epley som standard)
+const primary1RM = epley1RM;
+
+// kroppsvikt (fallback om inget finns)
+const bodyWeight = bodyStats?.weight || 68;
+
+// mappa exerciseId → namn som matchar norms
+const exerciseNameMap = {
+  bench: "Bänkpress",
+  squat: "Knäböj",
+  deadlift: "Marklyft",
+};
+
+const selectedExerciseName =
+  exerciseNameMap[rmExerciseId] || null;
+
+const norms =
+  selectedExerciseName && STRENGTH_LEVELS[selectedExerciseName]
+    ? STRENGTH_LEVELS[selectedExerciseName]
+    : null;
+
+let strengthLevel = null;
+let strengthPercentile = null;
+
+if (norms && primary1RM && bodyWeight) {
+  const ratio = primary1RM / bodyWeight;
+
+  for (let i = 0; i < norms.length; i++) {
+    if (ratio < norms[i].ratio) {
+      strengthLevel = norms[i].level;
+      strengthPercentile = norms[i].percentile;
+      break;
+    }
+  }
+
+  if (!strengthLevel) {
+    strengthLevel = "Elite+";
+    strengthPercentile = 95;
+  }
+}
 const primary1RM = useMemo(() => {
   if (!rmWeight || !rmReps) return null;
   return calculateExercise1RM(
