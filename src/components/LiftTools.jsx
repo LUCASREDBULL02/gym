@@ -172,6 +172,14 @@ function getTrendArrow(recentAvg, previousAvg) {
   if (recentAvg < previousAvg - 1) return "↘";
   return "→";
 }
+// Strength level baserat på self-percentile
+function getLevelFromPercentile(p) {
+  if (p == null) return null;
+  if (p < 25) return "Novice";
+  if (p < 50) return "Intermediate";
+  if (p < 75) return "Advanced";
+  return "Elite";
+}
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
