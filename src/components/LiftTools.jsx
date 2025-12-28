@@ -1,3 +1,4 @@
+// src/components/LiftTools.jsx
 import React, { useState, useMemo } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import {
@@ -23,31 +24,6 @@ Chart.register(
 );
 
 const ACCENT = "#ec4899"; // rosa
-// ---------------- STRENGTH LEVEL NORMS ----------------
-
-// Approximerade strengthlevel-normer (ratio = 1RM / kroppsvikt)
-// Matchar strengthlevel.com i praktiken (offline & säkert)
-
-const STRENGTH_LEVELS = {
-  "Bänkpress": [
-    { ratio: 0.75, level: "Novice", percentile: 25 },
-    { ratio: 1.0, level: "Intermediate", percentile: 50 },
-    { ratio: 1.25, level: "Advanced", percentile: 75 },
-    { ratio: 1.5, level: "Elite", percentile: 90 },
-  ],
-  "Knäböj": [
-    { ratio: 1.0, level: "Novice", percentile: 25 },
-    { ratio: 1.5, level: "Intermediate", percentile: 50 },
-    { ratio: 2.0, level: "Advanced", percentile: 75 },
-    { ratio: 2.5, level: "Elite", percentile: 90 },
-  ],
-  "Marklyft": [
-    { ratio: 1.25, level: "Novice", percentile: 25 },
-    { ratio: 2.0, level: "Intermediate", percentile: 50 },
-    { ratio: 2.5, level: "Advanced", percentile: 75 },
-    { ratio: 3.0, level: "Elite", percentile: 90 },
-  ],
-};
 
 // 1RM-formler
 function calcFormulas1RM(weight, reps) {
@@ -102,84 +78,7 @@ function calc1RM(weight, reps) {
   if (!weight || !reps) return 0;
   return Math.round(weight * (1 + reps / 30));
 }
-// =========================
-// Strength-level & self comparison helpers
-// =========================
 
-// Övningsspecifik 1RM (strengthlevel-inspirerad)
-function calculateExercise1RM(weight, reps, exerciseId) {
-  if (!weight || !reps) return null;
-
-  const factors = {
-    bench: 0.033,
-    squat: 0.035,
-    deadlift: 0.036,
-    row: 0.042,
-    press: 0.03,
-    hipthrust: 0.045,
-  };
-
-  const factor = factors[exerciseId] ?? 0.033;
-  return Math.round(weight * (1 + reps * factor));
-}
-
-// Percentil baserat på kroppsvikt + övning
-function getStrengthPercentile(oneRM, bodyWeight, exerciseId) {
-  if (!oneRM || !bodyWeight) return null;
-
-  const norms = {
-    bench: 1.0,
-    squat: 1.5,
-    deadlift: 1.8,
-    row: 1.2,
-    press: 0.65,
-    hipthrust: 2.0,
-  };
-
-  const norm = norms[exerciseId];
-  if (!norm) return null;
-
-  const ratio = oneRM / bodyWeight;
-  const percentile = Math.round(50 + (ratio / norm - 1) * 40);
-
-  return Math.max(5, Math.min(95, percentile));
-}
-
-function getStrengthLevel(percentile) {
-  if (percentile < 35) return "Novice";
-  if (percentile < 55) return "Beginner";
-  if (percentile < 70) return "Intermediate";
-  if (percentile < 85) return "Advanced";
-  return "Elite";
-}
-
-// Jämförelse mot dig själv
-function getSelfPercentile(current, history) {
-  if (!current || history.length === 0) return null;
-  const lower = history.filter(v => v < current).length;
-  return Math.round((lower / history.length) * 100);
-}
-
-// Trend helpers
-function average(arr) {
-  if (!arr.length) return null;
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
-}
-
-function getTrendArrow(recentAvg, previousAvg) {
-  if (recentAvg == null || previousAvg == null) return "→";
-  if (recentAvg > previousAvg + 1) return "↗";
-  if (recentAvg < previousAvg - 1) return "↘";
-  return "→";
-}
-// Strength level baserat på self-percentile
-function getLevelFromPercentile(p) {
-  if (p == null) return null;
-  if (p < 25) return "Novice";
-  if (p < 50) return "Intermediate";
-  if (p < 75) return "Advanced";
-  return "Elite";
-}
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
@@ -211,107 +110,11 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
   }, [logs]);
 
   // 1RM-formler
-const rmResults = useMemo(
-  () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
-  [rmWeight, rmReps]
-);
-
-// =========================
-// Strength-level & self comparison (LOGIC)
-// =========================
-
-// Primärt 1RM (övningsspecifikt)
-const primary1RM = useMemo(() => {
-  if (!rmWeight || !rmReps) return null;
-  return calculateExercise1RM(
-    Number(rmWeight),
-    Number(rmReps),
-    rmExerciseId
+  const rmResults = useMemo(
+    () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
+    [rmWeight, rmReps]
   );
-}, [rmWeight, rmReps, rmExerciseId]);
 
-// Senaste kroppsvikt
-const latestBodyWeight =
-  bodyStats?.weight?.slice()?.reverse()?.[0]?.value ?? null;
-
-// Strengthlevel-percentil
-const strengthPercentile = useMemo(() => {
-  if (!primary1RM || !latestBodyWeight) return null;
-  return getStrengthPercentile(
-    primary1RM,
-    latestBodyWeight,
-    rmExerciseId
-  );
-}, [primary1RM, latestBodyWeight, rmExerciseId]);
-
-// Level-namn (Novice / Intermediate / Advanced)
-const strengthLevel =
-  strengthPercentile != null
-    ? getStrengthLevel(strengthPercentile)
-    : null;
-
-// Alla historiska 1RM för övningen
-const all1RMsForExercise = useMemo(() => {
-  return (logs || [])
-    .filter(
-      (l) =>
-        l.exerciseId === rmExerciseId &&
-        l.weight &&
-        l.reps
-    )
-    .map((l) =>
-      calculateExercise1RM(
-        l.weight,
-        l.reps,
-        rmExerciseId
-      )
-    )
-    .filter(Boolean);
-}, [logs, rmExerciseId]);
-
-// Self-percentile (”starkare än X % av dig själv”)
-const selfPercentile = useMemo(() => {
-  return getSelfPercentile(
-    primary1RM,
-    all1RMsForExercise
-  );
-}, [primary1RM, all1RMsForExercise]);
-
-// Trend-pil (14 dagar vs föregående 14)
-const trendArrow = useMemo(() => {
-  const now = Date.now();
-  const dayMs = 1000 * 60 * 60 * 24;
-
-  const recent = [];
-  const previous = [];
-
-  (logs || []).forEach((l) => {
-    if (
-      l.exerciseId !== rmExerciseId ||
-      !l.weight ||
-      !l.reps
-    )
-      return;
-
-    const rm = calculateExercise1RM(
-      l.weight,
-      l.reps,
-      rmExerciseId
-    );
-    if (!rm) return;
-
-    const diff = now - new Date(l.date).getTime();
-
-    if (diff <= 14 * dayMs) recent.push(rm);
-    else if (diff <= 28 * dayMs) previous.push(rm);
-  });
-
-  return getTrendArrow(
-    average(recent),
-    average(previous)
-  );
-}, [logs, rmExerciseId]);
-  
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
     const p = Number(rmPercent);
@@ -502,15 +305,7 @@ const trendArrow = useMemo(() => {
           }}
         >
           {/* 1RM-kalkylator */}
-         <div
-  className="card strength-analysis-card"
-  style={{
-    padding: 14,
-    border: "1px solid rgba(236,72,153,0.6)",
-    background:
-      "linear-gradient(135deg, rgba(236,72,153,0.12), rgba(15,23,42,0.6))",
-  }}
->
+          <div className="card" style={{ padding: 12 }}>
             <div
               style={{
                 fontSize: 13,
@@ -685,49 +480,7 @@ const trendArrow = useMemo(() => {
               </p>
             )}
           </div>
-{/* === Strength level & self comparison === */}
-{true && (
-  <div className="card" style={{ padding: 12 }}>
-   <div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    fontSize: 14,
-    fontWeight: 700,
-    marginBottom: 8,
-  }}
->
-  🧠 Strength analysis
-</div>
 
-   <div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-    fontSize: 13,
-  }}
->
-      <div>
-        <strong>Level:</strong> {strengthLevel}
-      </div>
-
-      <div className="small">
-        {strengthPercentile}-percentilen
-      </div>
-
-      {selfPercentile != null && (
-        <div className="small">
-          Du är starkare nu än{" "}
-          <strong>{selfPercentile}%</strong> av dig själv{" "}
-          <span style={{ marginLeft: 6 }}>
-            {trendArrow}
-          </span>
-        </div>
-      )}
-    </div>
-    </div>
           {/* 1RM% */}
           <div className="card" style={{ padding: 12 }}>
             <div
