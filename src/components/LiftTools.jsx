@@ -727,6 +727,7 @@ const trendArrow = useMemo(() => {
         </div>
       )}
     </div>
+    </div>
           {/* 1RM% */}
           <div className="card" style={{ padding: 12 }}>
             <div
