@@ -642,7 +642,7 @@ const trendArrow = useMemo(() => {
             )}
           </div>
 {/* === Strength level & self comparison === */}
-{primary1RM && strengthPercentile && (
+{true && (
   <div className="card" style={{ padding: 12 }}>
     <div
       style={{
