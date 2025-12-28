@@ -303,14 +303,6 @@ const trendArrow = useMemo(() => {
     average(previous)
   );
 }, [logs, rmExerciseId]);
-
-// Self-percentile (jämfört med dig själv)
-const selfPercentile = useMemo(() => {
-  return getSelfPercentile(
-    primary1RM,
-    all1RMsForExercise
-  );
-}, [primary1RM, all1RMsForExercise]);
   
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
