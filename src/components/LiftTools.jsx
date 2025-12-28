@@ -729,6 +729,28 @@ const trendArrow = useMemo(() => {
     </div>
   </div>
 )}
+          {/* Strength analysis */}
+<div className="strength-analysis">
+  <div className="analysis-title">Strength analysis</div>
+
+  {selfPercentile != null ? (
+    <>
+      <div className="analysis-row">
+        <span>Level:</span>
+        <strong>{getLevelFromPercentile(selfPercentile)}</strong>
+      </div>
+
+      <div className="analysis-row">
+        <span>Du är starkare nu än</span>
+        <strong>{selfPercentile}% av dig själv</strong>
+      </div>
+    </>
+  ) : (
+    <div className="analysis-muted">
+      Logga minst ett set för att se analys
+    </div>
+  )}
+</div>
           {/* 1RM% */}
           <div className="card" style={{ padding: 12 }}>
             <div
