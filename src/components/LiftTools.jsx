@@ -203,57 +203,16 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
   }, [logs]);
 
   // 1RM-formler
-  const rmResults = useMemo(
-    () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
-    [rmWeight, rmReps]
-  );
+const rmResults = useMemo(
+  () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
+  [rmWeight, rmReps]
+);
 
-  // =========================
+// =========================
 // Strength-level & self comparison (LOGIC)
 // =========================
+
 // Primärt 1RM (övningsspecifikt)
-  // ---------------- STRENGTH LEVEL ANALYSIS ----------------
-
-// välj vilken 1RM som används (Epley som standard)
-const primary1RM = epley1RM;
-
-// kroppsvikt (fallback om inget finns)
-const bodyWeight = bodyStats?.weight || 68;
-
-// mappa exerciseId → namn som matchar norms
-const exerciseNameMap = {
-  bench: "Bänkpress",
-  squat: "Knäböj",
-  deadlift: "Marklyft",
-};
-
-const selectedExerciseName =
-  exerciseNameMap[rmExerciseId] || null;
-
-const norms =
-  selectedExerciseName && STRENGTH_LEVELS[selectedExerciseName]
-    ? STRENGTH_LEVELS[selectedExerciseName]
-    : null;
-
-let strengthLevel = null;
-let strengthPercentile = null;
-
-if (norms && primary1RM && bodyWeight) {
-  const ratio = primary1RM / bodyWeight;
-
-  for (let i = 0; i < norms.length; i++) {
-    if (ratio < norms[i].ratio) {
-      strengthLevel = norms[i].level;
-      strengthPercentile = norms[i].percentile;
-      break;
-    }
-  }
-
-  if (!strengthLevel) {
-    strengthLevel = "Elite+";
-    strengthPercentile = 95;
-  }
-}
 const primary1RM = useMemo(() => {
   if (!rmWeight || !rmReps) return null;
   return calculateExercise1RM(
@@ -263,26 +222,27 @@ const primary1RM = useMemo(() => {
   );
 }, [rmWeight, rmReps, rmExerciseId]);
 
-// Senaste kroppsvikt (för percentiler)
+// Senaste kroppsvikt
 const latestBodyWeight =
   bodyStats?.weight?.slice()?.reverse()?.[0]?.value ?? null;
 
-// Strengthlevel-percentil + nivå
+// Strengthlevel-percentil
 const strengthPercentile = useMemo(() => {
   if (!primary1RM || !latestBodyWeight) return null;
   return getStrengthPercentile(
     primary1RM,
     latestBodyWeight,
-    rmExerciseId);
-  
+    rmExerciseId
+  );
 }, [primary1RM, latestBodyWeight, rmExerciseId]);
 
+// Level-namn (Novice / Intermediate / Advanced)
 const strengthLevel =
   strengthPercentile != null
     ? getStrengthLevel(strengthPercentile)
     : null;
 
-// Alla historiska 1RM för vald övning
+// Alla historiska 1RM för övningen
 const all1RMsForExercise = useMemo(() => {
   return (logs || [])
     .filter(
@@ -299,6 +259,49 @@ const all1RMsForExercise = useMemo(() => {
       )
     )
     .filter(Boolean);
+}, [logs, rmExerciseId]);
+
+// Self-percentile (”starkare än X % av dig själv”)
+const selfPercentile = useMemo(() => {
+  return getSelfPercentile(
+    primary1RM,
+    all1RMsForExercise
+  );
+}, [primary1RM, all1RMsForExercise]);
+
+// Trend-pil (14 dagar vs föregående 14)
+const trendArrow = useMemo(() => {
+  const now = Date.now();
+  const dayMs = 1000 * 60 * 60 * 24;
+
+  const recent = [];
+  const previous = [];
+
+  (logs || []).forEach((l) => {
+    if (
+      l.exerciseId !== rmExerciseId ||
+      !l.weight ||
+      !l.reps
+    )
+      return;
+
+    const rm = calculateExercise1RM(
+      l.weight,
+      l.reps,
+      rmExerciseId
+    );
+    if (!rm) return;
+
+    const diff = now - new Date(l.date).getTime();
+
+    if (diff <= 14 * dayMs) recent.push(rm);
+    else if (diff <= 28 * dayMs) previous.push(rm);
+  });
+
+  return getTrendArrow(
+    average(recent),
+    average(previous)
+  );
 }, [logs, rmExerciseId]);
 
 // Self-percentile (jämfört med dig själv)
