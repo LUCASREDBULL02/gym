@@ -327,7 +327,7 @@ const strengthLevel = useMemo(() => {
             fontSize: 12,
             whiteSpace: "nowrap",
           }}
-
+          >
           🧠 1RM & %
         </button>
         <button
