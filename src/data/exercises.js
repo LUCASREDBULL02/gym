@@ -1,69 +1,170 @@
 export const EXERCISES = [
-  // ==== ORIGINALA (Låt dessa ligga kvar om du hade dem) ====
+  // ======================
+  // CHEST (BRÖST)
+  // ======================
   { id: "bench", name: "Bänkpress", muscleGroup: "chest" },
-  { id: "squat", name: "Knäböj", muscleGroup: "legs" },
+  { id: "inclinebench", name: "Lutande Bänkpress", muscleGroup: "chest" },
+  { id: "declinebench", name: "Decline Bench Press", muscleGroup: "chest" },
+  { id: "dumbbellpress", name: "Hantelpress", muscleGroup: "chest" },
+  { id: "dumbbellincline", name: "Incline Dumbbell Press", muscleGroup: "chest" },
+  { id: "chestpress", name: "Chest Press Machine", muscleGroup: "chest" },
+  { id: "cablefly", name: "Cable Flyes", muscleGroup: "chest" },
+  { id: "pecdeck", name: "Pec Deck", muscleGroup: "chest" },
+  { id: "pushups", name: "Push-Ups", muscleGroup: "chest" },
+  { id: "weightedpushups", name: "Weighted Push-Ups", muscleGroup: "chest" },
+  { id: "floorpress", name: "Floor Press", muscleGroup: "chest" },
+  { id: "guillotinepress", name: "Guillotine Press", muscleGroup: "chest" },
+  { id: "squeezepress", name: "Squeeze Press", muscleGroup: "chest" },
+  { id: "smithbench", name: "Smith Machine Bench Press", muscleGroup: "chest" },
+  { id: "lowcablefly", name: "Low Cable Fly", muscleGroup: "chest" },
+  { id: "highcablefly", name: "High Cable Fly", muscleGroup: "chest" },
+  { id: "ringpushups", name: "Ring Push-Ups", muscleGroup: "chest" },
+  { id: "dipchest", name: "Chest Dips", muscleGroup: "chest" },
+  { id: "pausedbench", name: "Paused Bench Press", muscleGroup: "chest" },
+  { id: "spoto", name: "Spoto Press", muscleGroup: "chest" },
+
+  // ======================
+  // BACK (RYGG)
+  // ======================
   { id: "deadlift", name: "Marklyft", muscleGroup: "back" },
   { id: "row", name: "Skivstångsrodd", muscleGroup: "back" },
-  { id: "hipthrust", name: "Hip Thrust", muscleGroup: "glutes" },
-  { id: "legpress", name: "Benpress", muscleGroup: "legs" },
-  { id: "latpulldown", name: "Lat Pulldown", muscleGroup: "back" },
-
-  // ==== NYA ÖVNINGAR (40 TOTALT) ====
-
-  // BACK
   { id: "kelsoshrug", name: "Kelso Shrugs", muscleGroup: "back" },
   { id: "tbarrow", name: "T-Bar Row", muscleGroup: "back" },
   { id: "sealrow", name: "Seal Row", muscleGroup: "back" },
-  { id: "meadowsrow", name: "Meadows Row", muscleGroup: "back" },
-  { id: "chest-supported-row", name: "Chest-Supported Row", muscleGroup: "back" },
   { id: "pendlayrow", name: "Pendlay Row", muscleGroup: "back" },
-  { id: "straightarm-pulldown", name: "Straight-Arm Pulldown", muscleGroup: "back" },
+  { id: "meadowsrow", name: "Meadows Row", muscleGroup: "back" },
+  { id: "latpulldown", name: "Lat Pulldown", muscleGroup: "back" },
+  { id: "pullups", name: "Pull-Ups", muscleGroup: "back" },
+  { id: "weightedpullups", name: "Weighted Pull-Ups", muscleGroup: "back" },
+  { id: "chins", name: "Chin-Ups", muscleGroup: "back" },
+  { id: "cablerow", name: "Seated Cable Row", muscleGroup: "back" },
+  { id: "straightarmpulldown", name: "Straight Arm Pulldown", muscleGroup: "back" },
+  { id: "krocrow", name: "Kroc Row", muscleGroup: "back" },
+  { id: "invertedrow", name: "Inverted Row", muscleGroup: "back" },
+  { id: "smithrow", name: "Smith Machine Row", muscleGroup: "back" },
+  { id: "rackpull", name: "Rack Pull", muscleGroup: "back" },
+  { id: "snatchgripdeadlift", name: "Snatch Grip Deadlift", muscleGroup: "back" },
+  { id: "goodmorning", name: "Good Morning", muscleGroup: "back" },
+  { id: "hyperextension", name: "Back Extension", muscleGroup: "back" },
+  { id: "reversehyper", name: "Reverse Hyper", muscleGroup: "back" },
 
-  // GLUTES
-  { id: "bulgarian", name: "Bulgarian Split Squat", muscleGroup: "glutes" },
+  // ======================
+  // LEGS (BEN)
+  // ======================
+  { id: "squat", name: "Knäböj", muscleGroup: "legs" },
+  { id: "frontsquat", name: "Front Squat", muscleGroup: "legs" },
+  { id: "hacklift", name: "Hack Squat", muscleGroup: "legs" },
+  { id: "legpress", name: "Leg Press", muscleGroup: "legs" },
+  { id: "bulgarian", name: "Bulgarian Split Squat", muscleGroup: "legs" },
+  { id: "lunges", name: "Walking Lunges", muscleGroup: "legs" },
+  { id: "stepups", name: "Step Ups", muscleGroup: "legs" },
+  { id: "sissysquat", name: "Sissy Squat", muscleGroup: "legs" },
+  { id: "pistolsquat", name: "Pistol Squat", muscleGroup: "legs" },
+  { id: "boxsquat", name: "Box Squat", muscleGroup: "legs" },
+  { id: "pausessquat", name: "Paused Squat", muscleGroup: "legs" },
+  { id: "legextension", name: "Leg Extension", muscleGroup: "legs" },
+  { id: "legcurl", name: "Leg Curl", muscleGroup: "legs" },
+  { id: "nordiccurl", name: "Nordic Hamstring Curl", muscleGroup: "legs" },
+  { id: "zerchersquat", name: "Zercher Squat", muscleGroup: "legs" },
+  { id: "belt squat", name: "Belt Squat", muscleGroup: "legs" },
+  { id: "smithsquat", name: "Smith Machine Squat", muscleGroup: "legs" },
+  { id: "heelliftedsquat", name: "Heel Elevated Squat", muscleGroup: "legs" },
+  { id: "cyclistsquat", name: "Cyclist Squat", muscleGroup: "legs" },
+  { id: "hatfieldsquat", name: "Hatfield Squat", muscleGroup: "legs" },
+
+  // ======================
+  // GLUTES (SÄTE)
+  // ======================
+  { id: "hipthrust", name: "Hip Thrust", muscleGroup: "glutes" },
+  { id: "smithhipthrust", name: "Smith Hip Thrust", muscleGroup: "glutes" },
+  { id: "glutebridge", name: "Glute Bridge", muscleGroup: "glutes" },
   { id: "sumosquat", name: "Sumo Squat", muscleGroup: "glutes" },
+  { id: "rdl", name: "Romanian Deadlift", muscleGroup: "glutes" },
+  { id: "singlelegrdl", name: "Single-Leg RDL", muscleGroup: "glutes" },
   { id: "cablekickback", name: "Cable Kickback", muscleGroup: "glutes" },
   { id: "abduction", name: "Hip Abduction Machine", muscleGroup: "glutes" },
   { id: "frogpump", name: "Frog Pumps", muscleGroup: "glutes" },
-  { id: "glutebridge", name: "Glute Bridge", muscleGroup: "glutes" },
-  { id: "smithhipthrust", name: "Smith Machine Hip Thrust", muscleGroup: "glutes" },
+  { id: "45degbackextension", name: "45° Back Extension (Glute)", muscleGroup: "glutes" },
+  { id: "reverse lunge", name: "Reverse Lunge", muscleGroup: "glutes" },
+  { id: "curtsylunge", name: "Curtsy Lunge", muscleGroup: "glutes" },
+  { id: "stepbacklunge", name: "Step Back Lunge", muscleGroup: "glutes" },
+  { id: "hipabductionband", name: "Band Hip Abduction", muscleGroup: "glutes" },
+  { id: "cablepullthrough", name: "Cable Pull Through", muscleGroup: "glutes" },
+  { id: "goodmorningglute", name: "Good Morning (Glutes)", muscleGroup: "glutes" },
+  { id: "kettlebellswing", name: "Kettlebell Swing", muscleGroup: "glutes" },
+  { id: "smithsquatglute", name: "Smith Squat (Glute Bias)", muscleGroup: "glutes" },
+  { id: "hiphinge", name: "Hip Hinge Drill", muscleGroup: "glutes" },
+  { id: "glutefocusedlegpress", name: "Leg Press (Glute Focus)", muscleGroup: "glutes" },
 
-  // LEGS
-  { id: "frontsquat", name: "Front Squat", muscleGroup: "legs" },
-  { id: "legcurl", name: "Leg Curl", muscleGroup: "legs" },
-  { id: "legextension", name: "Leg Extension", muscleGroup: "legs" },
-  { id: "lunges", name: "Walking Lunges", muscleGroup: "legs" },
-  { id: "hacklift", name: "Hack Squat", muscleGroup: "legs" },
-  { id: "sissysquat", name: "Sissy Squat", muscleGroup: "legs" },
-  { id: "stepup", name: "Step Ups", muscleGroup: "legs" },
-
-  // CHEST
-  { id: "inclinebench", name: "Lutande Bänkpress", muscleGroup: "chest" },
-  { id: "declinebench", name: "Decline Bench", muscleGroup: "chest" },
-  { id: "dumbbellpress", name: "Hantelpress", muscleGroup: "chest" },
-  { id: "cablefly", name: "Cable Flyes", muscleGroup: "chest" },
-  { id: "chestpress", name: "Chest Press Machine", muscleGroup: "chest" },
-  { id: "pushups", name: "Push-Ups", muscleGroup: "chest" },
-
-  // SHOULDERS
-  { id: "ohp", name: "Militärpress (OHP)", muscleGroup: "shoulders" },
-  { id: "laterals", name: "Dumbbell Laterals", muscleGroup: "shoulders" },
-  { id: "frontraise", name: "Front Raise", muscleGroup: "shoulders" },
-  { id: "rear-delt-fly", name: "Rear Delt Flyes", muscleGroup: "shoulders" },
+  // ======================
+  // SHOULDERS (AXLAR)
+  // ======================
+  { id: "ohp", name: "Militärpress", muscleGroup: "shoulders" },
   { id: "arnoldpress", name: "Arnold Press", muscleGroup: "shoulders" },
-  { id: "machine-shoulderpress", name: "Shoulder Press Machine", muscleGroup: "shoulders" },
+  { id: "machine-shoulderpress", name: "Machine Shoulder Press", muscleGroup: "shoulders" },
+  { id: "laterals", name: "Dumbbell Lateral Raise", muscleGroup: "shoulders" },
+  { id: "cablelaterals", name: "Cable Lateral Raise", muscleGroup: "shoulders" },
+  { id: "frontraise", name: "Front Raise", muscleGroup: "shoulders" },
+  { id: "rear-delt-fly", name: "Rear Delt Fly", muscleGroup: "shoulders" },
+  { id: "uprightrow", name: "Upright Row", muscleGroup: "shoulders" },
+  { id: "facepull", name: "Face Pull", muscleGroup: "shoulders" },
+  { id: "pushpress", name: "Push Press", muscleGroup: "shoulders" },
+  { id: "landminepress", name: "Landmine Press", muscleGroup: "shoulders" },
+  { id: "singlearmpress", name: "Single Arm Dumbbell Press", muscleGroup: "shoulders" },
+  { id: "platefrontraise", name: "Plate Front Raise", muscleGroup: "shoulders" },
+  { id: "cableuprightrow", name: "Cable Upright Row", muscleGroup: "shoulders" },
+  { id: "yraise", name: "Y-Raise", muscleGroup: "shoulders" },
+  { id: "lateralmachine", name: "Lateral Raise Machine", muscleGroup: "shoulders" },
+  { id: "smithohp", name: "Smith Machine OHP", muscleGroup: "shoulders" },
+  { id: "behindneckpress", name: "Behind the Neck Press", muscleGroup: "shoulders" },
+  { id: "leaninglaterals", name: "Leaning Lateral Raise", muscleGroup: "shoulders" },
+  { id: "cubanpress", name: "Cuban Press", muscleGroup: "shoulders" },
 
-  // ARMS
-  { id: "bicepcurl", name: "Bicepscurl", muscleGroup: "arms" },
-  { id: "hammercurl", name: "Hammer Curls", muscleGroup: "arms" },
-  { id: "triceppushdown", name: "Tricep Pushdown", muscleGroup: "arms" },
-  { id: "skullcrusher", name: "Skullcrushers", muscleGroup: "arms" },
+  // ======================
+  // ARMS (ARMAR)
+  // ======================
+  { id: "bicepcurl", name: "Biceps Curl", muscleGroup: "arms" },
+  { id: "hammercurl", name: "Hammer Curl", muscleGroup: "arms" },
+  { id: "preachercurl", name: "Preacher Curl", muscleGroup: "arms" },
+  { id: "inclinecurl", name: "Incline Curl", muscleGroup: "arms" },
   { id: "cablecurl", name: "Cable Curl", muscleGroup: "arms" },
+  { id: "concentrationcurl", name: "Concentration Curl", muscleGroup: "arms" },
+  { id: "reversecurl", name: "Reverse Curl", muscleGroup: "arms" },
+  { id: "triceppushdown", name: "Tricep Pushdown", muscleGroup: "arms" },
+  { id: "skullcrusher", name: "Skullcrusher", muscleGroup: "arms" },
   { id: "overheadtricep", name: "Overhead Tricep Extension", muscleGroup: "arms" },
+  { id: "closegripbench", name: "Close Grip Bench Press", muscleGroup: "arms" },
+  { id: "dips", name: "Tricep Dips", muscleGroup: "arms" },
+  { id: "kickbacks", name: "Tricep Kickbacks", muscleGroup: "arms" },
+  { id: "ezcurl", name: "EZ-Bar Curl", muscleGroup: "arms" },
+  { id: "spidercurl", name: "Spider Curl", muscleGroup: "arms" },
+  { id: "bayesiancurl", name: "Bayesian Curl", muscleGroup: "arms" },
+  { id: "ropepushdown", name: "Rope Pushdown", muscleGroup: "arms" },
+  { id: "jmpress", name: "JM Press", muscleGroup: "arms" },
+  { id: "benchdip", name: "Bench Dip", muscleGroup: "arms" },
+  { id: "crossbodycurl", name: "Cross Body Curl", muscleGroup: "arms" },
 
-  // ABS / CORE
-  { id: "plank", name: "Plankan", muscleGroup: "core" },
-  { id: "cablecrunch", name: "Cable Crunch", muscleGroup: "core" },
-  { id: "hanginglegraise", name: "Hanging Leg Raise", muscleGroup: "core" },
+  // ======================
+  // CORE (MAGEN)
+  // ======================
+  { id: "plank", name: "Plank", muscleGroup: "core" },
   { id: "abwheel", name: "Ab Wheel Rollout", muscleGroup: "core" },
-]
+  { id: "hanginglegraise", name: "Hanging Leg Raise", muscleGroup: "core" },
+  { id: "cablecrunch", name: "Cable Crunch", muscleGroup: "core" },
+  { id: "declinecrunch", name: "Decline Crunch", muscleGroup: "core" },
+  { id: "situps", name: "Sit-Ups", muscleGroup: "core" },
+  { id: "russiantwist", name: "Russian Twist", muscleGroup: "core" },
+  { id: "deadbug", name: "Dead Bug", muscleGroup: "core" },
+  { id: "paloffpress", name: "Pallof Press", muscleGroup: "core" },
+  { id: "cablewoodchop", name: "Cable Woodchopper", muscleGroup: "core" },
+  { id: "hollowhold", name: "Hollow Hold", muscleGroup: "core" },
+  { id: "toestobar", name: "Toes to Bar", muscleGroup: "core" },
+  { id: "vups", name: "V-Ups", muscleGroup: "core" },
+  { id: "weightedplank", name: "Weighted Plank", muscleGroup: "core" },
+  { id: "stirthepot", name: "Stir the Pot", muscleGroup: "core" },
+  { id: "sideplank", name: "Side Plank", muscleGroup: "core" },
+  { id: "dragonflag", name: "Dragon Flag", muscleGroup: "core" },
+  { id: "l-sit", name: "L-Sit", muscleGroup: "core" },
+  { id: "seatedlegraise", name: "Seated Leg Raise", muscleGroup: "core" },
+  { id: "cableobliquecrunch", name: "Cable Oblique Crunch", muscleGroup: "core" },
+];
