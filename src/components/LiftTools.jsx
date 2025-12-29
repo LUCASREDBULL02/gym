@@ -26,16 +26,25 @@ Chart.register(
 const ACCENT = "#ec4899"; // rosa
 
 // 1RM-formler
-const EXERCISE_1RM_MULTIPLIER = {
-  bench: 1.0,
-  squat: 1.25,
-  deadlift: 1.4,
-  row: 1.15,
-  overhead_press: 0.75,
-  hip_thrust: 1.35,
+const MUSCLE_GROUP_1RM_MULTIPLIER = {
+  chest: 1.0,
+  shoulders: 0.75,
+  back: 1.15,
+  legs: 1.25,
+  glutes: 1.35,
+  arms: 0.65,
+  core: 0.5,
 };
+
 function calcFormulas1RM(weight, reps, exerciseId) {
-  const multiplier = EXERCISE_1RM_MULTIPLIER[exerciseId] || 1;
+  if (!weight || !reps || reps <= 0) return null;
+
+  const exercise = EXERCISES.find(e => e.id === exerciseId);
+  const muscleGroup = exercise?.muscleGroup;
+
+  const multiplier =
+    MUSCLE_GROUP_1RM_MULTIPLIER[muscleGroup] ?? 1;
+
   if (!weight || !reps || reps <= 0) return null;
   const w = Number(weight);
   const r = Number(reps);
