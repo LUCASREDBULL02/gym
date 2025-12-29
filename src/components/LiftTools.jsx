@@ -88,7 +88,27 @@ function calc1RM(weight, reps) {
   if (!weight || !reps) return 0;
   return Math.round(weight * (1 + reps / 30));
 }
-
+// StrengthLevel-liknande referens (förenklad modell)
+const STRENGTHLEVEL_REFERENCE = {
+  bench: [
+    { pct: 20, level: "Novice", ratio: 0.6 },
+    { pct: 40, level: "Intermediate", ratio: 0.9 },
+    { pct: 70, level: "Advanced", ratio: 1.2 },
+    { pct: 90, level: "Elite", ratio: 1.6 },
+  ],
+  squat: [
+    { pct: 20, level: "Novice", ratio: 0.8 },
+    { pct: 40, level: "Intermediate", ratio: 1.3 },
+    { pct: 70, level: "Advanced", ratio: 1.7 },
+    { pct: 90, level: "Elite", ratio: 2.2 },
+  ],
+  deadlift: [
+    { pct: 20, level: "Novice", ratio: 1.0 },
+    { pct: 40, level: "Intermediate", ratio: 1.6 },
+    { pct: 70, level: "Advanced", ratio: 2.0 },
+    { pct: 90, level: "Elite", ratio: 2.5 },
+  ],
+};
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
@@ -124,7 +144,29 @@ const rmResults = useMemo(
     ),
   [rmWeight, rmReps, rmExerciseId]
 );
+const bodyweight = bodyStats?.weight || 68; // fallback
 
+const primary1RM = rmResults?.epley || null;
+
+const strengthLevel = useMemo(() => {
+  if (!primary1RM) return null;
+
+  const table = STRENGTHLEVEL_REFERENCE[rmExerciseId];
+  if (!table) return null;
+
+  const ratio = primary1RM / bodyweight;
+
+  let result = table[0];
+
+  for (const row of table) {
+    if (ratio >= row.ratio) {
+      result = row;
+    }
+  }
+
+  return result;
+}, [primary1RM, rmExerciseId, bodyweight]);
+  
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
     const p = Number(rmPercent);
@@ -284,6 +326,19 @@ const rmResults = useMemo(
             whiteSpace: "nowrap",
           }}
         >
+          {strengthLevel && (
+  <div className="card" style={{ padding: 12, marginTop: 12 }}>
+    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+      🧠 Strength level
+    </div>
+    <div style={{ fontSize: 13 }}>
+      Level: <b>{strengthLevel.level}</b>
+    </div>
+    <div style={{ fontSize: 12, opacity: 0.8 }}>
+      Starkare än cirka <b>{strengthLevel.pct}%</b>
+    </div>
+  </div>
+)}
           📊 Volym & styrka
         </button>
         <button
