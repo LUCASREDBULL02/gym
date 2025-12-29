@@ -309,6 +309,26 @@ const strengthLevel = useMemo(() => {
             whiteSpace: "nowrap",
           }}
         >
+          {strengthLevel && (
+  <div
+    className="card"
+    style={{
+      marginTop: 12,
+      padding: 12,
+      borderLeft: "4px solid #ec4899",
+    }}
+  >
+    <div style={{ fontWeight: 600, marginBottom: 4 }}>
+      🧠 Strength level
+    </div>
+    <div>
+      Level: <b>{strengthLevel.level}</b>
+    </div>
+    <div style={{ fontSize: 12, opacity: 0.85 }}>
+      Starkare än cirka <b>{strengthLevel.pct}%</b> av lyftare
+    </div>
+  </div>
+)}
           🧠 1RM & %
         </button>
         <button
@@ -326,19 +346,6 @@ const strengthLevel = useMemo(() => {
             whiteSpace: "nowrap",
           }}
         >
-          {strengthLevel && (
-  <div className="card" style={{ padding: 12, marginTop: 12 }}>
-    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
-      🧠 Strength level
-    </div>
-    <div style={{ fontSize: 13 }}>
-      Level: <b>{strengthLevel.level}</b>
-    </div>
-    <div style={{ fontSize: 12, opacity: 0.8 }}>
-      Starkare än cirka <b>{strengthLevel.pct}%</b>
-    </div>
-  </div>
-)}
           📊 Volym & styrka
         </button>
         <button
