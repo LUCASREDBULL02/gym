@@ -36,22 +36,14 @@ const MUSCLE_GROUP_1RM_MULTIPLIER = {
   core: 0.5,
 };
 
-function calcFormulas1RM(weight, reps, exerciseId) {
-  if (!weight || !reps || reps <= 0) return null;
-
-  const exercise = EXERCISES.find(e => e.id === exerciseId);
-  const muscleGroup = exercise?.muscleGroup;
-
-  const multiplier =
-    MUSCLE_GROUP_1RM_MULTIPLIER[muscleGroup] ?? 1;
-
+function calcFormulas1RM(weight, reps) {
   if (!weight || !reps || reps <= 0) return null;
   const w = Number(weight);
   const r = Number(reps);
 
   const safe = (fn) => {
     try {
-      const v = fn(w, r) * multiplier;
+      const v = fn(w, r);
       if (!isFinite(v)) return null;
       return Math.round(v);
     } catch {
