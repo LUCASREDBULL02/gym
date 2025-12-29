@@ -65,26 +65,6 @@ function calcFormulas1RM(weight, reps) {
     ),
   };
 }
-{strengthLevel && (
-  <div
-    style={{
-      marginTop: 10,
-      padding: "8px 12px",
-      borderRadius: 10,
-      background: "rgba(236, 72, 153, 0.08)",
-      border: "1px solid rgba(236, 72, 153, 0.25)",
-      display: "inline-block",
-    }}
-  >
-    <div style={{ fontSize: 12, fontWeight: 600 }}>
-      🧠 Strength level
-    </div>
-    <div style={{ fontSize: 12 }}>
-      <b>{strengthLevel.level}</b> · starkare än ca{" "}
-      <b>{strengthLevel.pct}%</b>
-    </div>
-  </div>
-)}
 // Hämta namn på övning
 function getExerciseName(id) {
   const ex = EXERCISES.find((e) => e.id === id);
@@ -551,6 +531,27 @@ const strengthLevel = useMemo(() => {
               </p>
             )}
           </div>
+{strengthLevel && (
+  <div
+    style={{
+      marginTop: 10,
+      padding: "6px 10px",
+      borderRadius: 8,
+      background: "rgba(236,72,153,0.06)",
+      border: "1px solid rgba(236,72,153,0.25)",
+      fontSize: 12,
+      maxWidth: 260,
+    }}
+  >
+    <div style={{ fontWeight: 600, marginBottom: 2 }}>
+      🧠 Strength level
+    </div>
+    <div>
+      {strengthLevel.level} · starkare än ca{" "}
+      <b>{strengthLevel.pct}%</b>
+    </div>
+  </div>
+)}
 
           {/* 1RM% */}
           <div className="card" style={{ padding: 12 }}>
