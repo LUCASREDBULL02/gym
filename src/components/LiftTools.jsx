@@ -26,14 +26,23 @@ Chart.register(
 const ACCENT = "#ec4899"; // rosa
 
 // 1RM-formler
-function calcFormulas1RM(weight, reps) {
+const EXERCISE_1RM_MULTIPLIER = {
+  bench: 1.0,
+  squat: 1.25,
+  deadlift: 1.4,
+  row: 1.15,
+  overhead_press: 0.75,
+  hip_thrust: 1.35,
+};
+function calcFormulas1RM(weight, reps, exerciseId) {
+  const multiplier = EXERCISE_1RM_MULTIPLIER[exerciseId] || 1;
   if (!weight || !reps || reps <= 0) return null;
   const w = Number(weight);
   const r = Number(reps);
 
   const safe = (fn) => {
     try {
-      const v = fn(w, r);
+      const v = fn(w, r) * multiplier;
       if (!isFinite(v)) return null;
       return Math.round(v);
     } catch {
@@ -99,21 +108,21 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  // Unika övningar i loggarna (fallback till EXERCISES om tomt)
-  const usedExerciseIds = useMemo(() => {
-    const set = new Set();
-    (logs || []).forEach((l) => l.exerciseId && set.add(l.exerciseId));
-    if (set.size === 0) {
-      EXERCISES.forEach((e) => set.add(e.id));
-    }
-    return Array.from(set);
-  }, [logs]);
+const usedExerciseIds = useMemo(
+  () => EXERCISES.map((e) => e.id),
+  []
+);
 
   // 1RM-formler
-  const rmResults = useMemo(
-    () => calcFormulas1RM(Number(rmWeight), Number(rmReps)),
-    [rmWeight, rmReps]
-  );
+const rmResults = useMemo(
+  () =>
+    calcFormulas1RM(
+      Number(rmWeight),
+      Number(rmReps),
+      rmExerciseId
+    ),
+  [rmWeight, rmReps, rmExerciseId]
+);
 
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
