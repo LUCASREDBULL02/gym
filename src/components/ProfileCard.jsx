@@ -19,7 +19,11 @@ export default function ProfileCard({ profile }) {
           {profile.name}
         </div>
         <div style={{ fontSize: 14, opacity: 0.8 }}>
-          {profile.height} cm • {profile.weight} kg • {profile.age} år
+          {profile.nick}
+• {profile.gender === "female" ? "Kvinna" : profile.gender === "male" ? "Man" : "Annat"}
+• {profile.height} cm
+• {profile.weight} kg
+• {profile.age} år
         </div>
         <div
           style={{
@@ -38,3 +42,4 @@ export default function ProfileCard({ profile }) {
     </div>
   );
 }
+
