@@ -109,39 +109,51 @@ export default function ProfileView({
       <h2 className="profile-header">👤 Din profil & kroppsmått</h2>
 
       {/* GRUNDINFO */}
-      <div className="profile-card">
-        <h3 className="section-title">🧸 Grundinfo</h3>
+     <div className="card">
+  <h3>Grundinfo</h3>
 
-       <div className="profile-grid">
+  {/* Namn */}
   <div className="profile-field">
-    <label>Ålder</label>
-    <input type="number" />
+    <label>Namn</label>
+    <input type="text" placeholder="Ditt namn" />
   </div>
 
+  {/* Smeknamn */}
   <div className="profile-field">
-    <label>Längd (cm)</label>
-    <input type="number" />
+    <label>Smeknamn</label>
+    <input type="text" placeholder="Valfritt smeknamn" />
   </div>
 
-  <div className="profile-field">
-    <label>Kön</label>
-    <select>
-      <option value="">Välj</option>
-      <option value="female">Kvinna</option>
-      <option value="male">Man</option>
-      <option value="other">Annat</option>
-    </select>
+  {/* Grid med övrig info */}
+  <div className="profile-grid">
+    <div className="profile-field">
+      <label>Ålder</label>
+      <input type="number" />
+    </div>
+
+    <div className="profile-field">
+      <label>Längd (cm)</label>
+      <input type="number" />
+    </div>
+
+    <div className="profile-field">
+      <label>Kön</label>
+      <select>
+        <option value="">Välj</option>
+        <option value="female">Kvinna</option>
+        <option value="male">Man</option>
+        <option value="other">Annat</option>
+      </select>
+    </div>
+
+    <div className="profile-field">
+      <label>Vikt (kg)</label>
+      <input type="number" />
+    </div>
   </div>
 
-  <div className="profile-field">
-    <label>Vikt (kg)</label>
-    <input type="number" />
-  </div>
+  <button className="save-btn">💾 Spara profil</button>
 </div>
-        <button className="btn-save" onClick={handleSaveProfile}>
-          💾 Spara profil
-        </button>
-      </div>
 
       {/* KROPPSMÅTT */}
       <div className="profile-card">
