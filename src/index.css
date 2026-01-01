@@ -1581,3 +1581,30 @@ select {
     0 0 0 1px rgba(168,85,247,0.35),
     0 0 12px rgba(168,85,247,0.35);
 }
+/* ===========================
+   MUSCLE CARD FIX (NO OVERLAP)
+   =========================== */
+
+.muscle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;                 /* 🔑 skapar luft mellan rader */
+  min-height: 96px;         /* 🔑 garanterar plats för World Class */
+  box-sizing: border-box;
+}
+
+/* Header-rad (namn + level) */
+.muscle-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Procent-text */
+.muscle-card-percent {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+  white-space: nowrap;
+}
