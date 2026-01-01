@@ -152,8 +152,7 @@ export default function ProfileView({
     </div>
   </div>
 
- <div className="profile-actions">
-  <button className="primary-btn">💾 Spara profil</button>
+ <button className="save-btn">💾 Spara profil</button>
 </div>
 
       {/* KROPPSMÅTT */}
