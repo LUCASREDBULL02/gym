@@ -860,7 +860,8 @@ export default function App() {
         </div>
 
         <div style={{ marginTop: "auto", fontSize: 11, color: "#9ca3af" }}>
-         <div>
+         <div>Bebi: {profile.name}</div>
+          <div>
   {profile.gender === "female"
     ? "Kvinna"
     : profile.gender === "male"
