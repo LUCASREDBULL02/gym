@@ -209,11 +209,12 @@ export default function ProfileView({
 
   {/* Actions */}
   <div className="profile-actions">
-    <button className="primary-btn" onClick={saveProfile}>
-      💾 Spara profil
-    </button>
-  </div>
-</div>
+  <button
+  className="save-profile-btn"
+  onClick={handleSave}
+>
+  💾 Spara profil
+</button>
 
       {/* KROPPSMÅTT */}
       <div className="profile-card">
