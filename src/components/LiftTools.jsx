@@ -186,6 +186,13 @@ export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [bodyKey, setBodyKey] = useState("waist");
 
   const todayStr = new Date().toISOString().slice(0, 10);
+// Hämta metadata för vald övning (för muskelgrupp-fallback)
+const exerciseMeta = useMemo(
+  () => EXERCISES.find((e) => e.id === rmExerciseId),
+  [rmExerciseId]
+);
+
+const muscleGroup = exerciseMeta?.muscleGroup || null;
 
 const usedExerciseIds = useMemo(
   () => EXERCISES.map((e) => e.id),
