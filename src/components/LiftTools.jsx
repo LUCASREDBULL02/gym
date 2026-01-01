@@ -601,7 +601,7 @@ const strengthLevel = useMemo(() => {
       🧠 Strength level
     </div>
    <div>
-  <b>{strengthLevel.level}</b> · Starkare än ca {strengthLevel.pct} %
+  <b>{strengthLevel.level}</b> · Starkare än ca {strengthLevel.percent} %
 </div>
   </div>
 )}
