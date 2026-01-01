@@ -22,7 +22,29 @@ Chart.register(
   Tooltip,
   Legend
 );
+import { STRENGTH_LEVELS } from "../data/strengthLevels";
 
+const EXERCISE_CATEGORY = {
+  benchpress: "bench",
+  inclinebench: "bench",
+  dumbbellpress: "bench",
+
+  squat: "squat",
+  frontsquat: "squat",
+  legpress: "squat",
+
+  deadlift: "deadlift",
+  sumodeadlift: "deadlift",
+
+  ohp: "overhead",
+  arnoldpress: "overhead",
+
+  row: "pull",
+  latpulldown: "pull",
+
+  hipthrust: "hinge",
+  glutebridge: "hinge",
+};
 const ACCENT = "#ec4899"; // rosa
 const STRENGTHLEVEL_REFERENCE = {
   bench: [
@@ -121,6 +143,26 @@ function calc1RM(weight, reps) {
   if (!weight || !reps) return 0;
   return Math.round(weight * (1 + reps / 30));
 }
+function getStrengthLevel({ oneRM, bodyWeight, gender, exerciseId }) {
+  if (!oneRM || !bodyWeight) return null;
+
+  const sex = gender || "female";
+  const category = EXERCISE_CATEGORY[exerciseId] || "bench";
+  const refs = STRENGTH_LEVELS[sex][category];
+
+  const ratio = oneRM / bodyWeight;
+
+  let result = refs[0];
+
+  for (const r of refs) {
+    if (ratio >= r.bw) result = r;
+  }
+
+  return {
+    level: result.level,
+    percent: result.pct,
+  };
+}
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
@@ -170,22 +212,13 @@ const primary1RM = rmResults?.epley || null;
 const strengthLevel = useMemo(() => {
   if (!primary1RM || !bodyweight) return null;
 
-  const ratio = primary1RM / bodyweight;
-
-  let table =
-    STRENGTHLEVEL_REFERENCE[rmExerciseId] ||
-    (muscleGroup && MUSCLEGROUP_STRENGTH_REFERENCE[muscleGroup]);
-
-  if (!table) return null;
-
-  let result = table[0];
-
-  for (const row of table) {
-    if (ratio >= row.ratio) result = row;
-  }
-
-  return result;
-}, [primary1RM, bodyweight, rmExerciseId, muscleGroup]);
+  return getStrengthLevel({
+    oneRM: primary1RM,
+    bodyWeight: bodyweight,
+    gender: bodyStats?.gender || "female",
+    exerciseId: rmExerciseId,
+  });
+}, [primary1RM, bodyweight, rmExerciseId, bodyStats?.gender]);
 
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
