@@ -22,29 +22,29 @@ export default function ProfileView({
   /* =========================
      SAVE PROFILE (ENDA)
   ========================= */
-  function handleSave() {
-    const updatedProfile = {
-      ...profile,
-      name: form.name,
-      nick: form.nick,
-      age: Number(form.age) || "",
-      height: Number(form.height) || "",
-      weight: Number(form.weight) || "",
-      gender: form.gender,
-    };
+const handleSave = () => {
+  const updatedProfile = {
+    ...profile,
+    name: form.name,
+    nick: form.nick,
+    age: Number(form.age),
+    height: Number(form.height),
+    weight: Number(form.weight),
+    gender: form.gender,
+  };
 
-    setProfile(updatedProfile);
+  setProfile(updatedProfile);
 
-    // håll form i sync (viktigt)
-    setForm({
-      name: updatedProfile.name,
-      nick: updatedProfile.nick,
-      age: updatedProfile.age,
-      height: updatedProfile.height,
-      weight: updatedProfile.weight,
-      gender: updatedProfile.gender,
-    });
-  }
+  // håll form korrekt synkad
+  setForm({
+    name: updatedProfile.name,
+    nick: updatedProfile.nick,
+    age: updatedProfile.age,
+    height: updatedProfile.height,
+    weight: updatedProfile.weight,
+    gender: updatedProfile.gender,
+  });
+};
 
   /* =========================
      BODY MEASUREMENTS
