@@ -170,24 +170,25 @@ function computeMuscleStatsFromLogs(logs, profile) {
     });
   });
 
-  // Score → nivå + %
-  Object.keys(stats).forEach((mId) => {
-    const val = stats[mId].score;
+ Object.keys(stats).forEach((mId) => {
+  const val = stats[mId].score;
 
-    let level = "Beginner";
-    if (val >= 0.55) level = "Novice";
-    if (val >= 0.75) level = "Intermediate";
-    if (val >= 1.0) level = "Advanced";
-    if (val >= 1.25) level = "Elite";
+  let level = "Beginner";
+  if (val >= 0.55) level = "Novice";
+  if (val >= 0.75) level = "Intermediate";
+  if (val >= 1.0) level = "Advanced";
+  if (val >= 1.25) level = "Elite";
+  if (val >= 1.5) level = "World Class"; // 🔥 NY
 
-    const pct = Math.min(150, Math.max(0, Math.round((val / 1.25) * 100)));
+  // 100% = World Class (cap)
+  const pct = Math.min(100, Math.max(0, Math.round((val / 1.5) * 100)));
 
-    stats[mId] = {
-      score: val,
-      levelKey: level,
-      percent: pct,
-    };
-  });
+  stats[mId] = {
+    score: val,
+    levelKey: level,
+    percent: pct,
+  };
+});
 
   return stats;
 }
