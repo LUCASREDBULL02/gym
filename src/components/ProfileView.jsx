@@ -160,12 +160,6 @@ export default function ProfileView({
             />
           </div>
         </div>
-    <option value="">Välj</option>
-    <option value="female">Kvinna</option>
-    <option value="male">Man</option>
-    <option value="other">Annat</option>
-  </select>
-</label>
         <button className="btn-save" onClick={handleSaveProfile}>
           💾 Spara profil
         </button>
