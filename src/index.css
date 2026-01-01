@@ -1424,3 +1424,13 @@ body {
   font-size: 12px;
   opacity: 0.6;
 }
+/* FIX: select / option text color (gender dropdown) */
+select option {
+  color: #0f172a; /* mörk text så den syns på vit bakgrund */
+  background: #ffffff;
+}
+
+/* För säkerhets skull – när select är öppnad */
+select {
+  color-scheme: dark;
+}
