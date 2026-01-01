@@ -15,6 +15,13 @@ export default function ProfileView({
     weight: profile.weight,
   });
 
+  const saveProfile = () => {
+    setProfile((prev) => ({
+      ...prev,
+      ...form,
+    }));
+  };
+
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const [newMeasurement, setNewMeasurement] = useState({
@@ -108,37 +115,72 @@ export default function ProfileView({
     <div className="profile-page">
       <h2 className="profile-header">👤 Din profil & kroppsmått</h2>
 
-      {/* GRUNDINFO */}
-     <div className="card">
-  <h3>Grundinfo</h3>
+     {/* ===== GRUNDINFO ===== */}
+<div className="card">
+  <div className="section-title">🏅 Grundinfo</div>
 
-  {/* Namn */}
-  <div className="profile-field">
-    <label>Namn</label>
-    <input type="text" placeholder="Ditt namn" />
-  </div>
-
-  {/* Smeknamn */}
-  <div className="profile-field">
-    <label>Smeknamn</label>
-    <input type="text" placeholder="Valfritt smeknamn" />
-  </div>
-
-  {/* Grid med övrig info */}
   <div className="profile-grid">
+    {/* Namn */}
+    <div className="profile-field full">
+      <label>Namn</label>
+      <input
+        type="text"
+        placeholder="Ditt namn"
+        value={profile.name || ""}
+        onChange={(e) =>
+          setProfile((p) => ({ ...p, name: e.target.value }))
+        }
+      />
+    </div>
+
+    {/* Smeknamn */}
+    <div className="profile-field full">
+      <label>Smeknamn</label>
+      <input
+        type="text"
+        placeholder="Valfritt smeknamn"
+        value={profile.nickname || ""}
+        onChange={(e) =>
+          setProfile((p) => ({ ...p, nickname: e.target.value }))
+        }
+      />
+    </div>
+
+    {/* Ålder */}
     <div className="profile-field">
       <label>Ålder</label>
-      <input type="number" />
+      <input
+        type="number"
+        placeholder="År"
+        value={profile.age || ""}
+        onChange={(e) =>
+          setProfile((p) => ({ ...p, age: e.target.value }))
+        }
+      />
     </div>
 
+    {/* Längd */}
     <div className="profile-field">
       <label>Längd (cm)</label>
-      <input type="number" />
+      <input
+        type="number"
+        placeholder="cm"
+        value={profile.height || ""}
+        onChange={(e) =>
+          setProfile((p) => ({ ...p, height: e.target.value }))
+        }
+      />
     </div>
 
+    {/* Kön */}
     <div className="profile-field">
       <label>Kön</label>
-      <select>
+      <select
+        value={profile.gender || ""}
+        onChange={(e) =>
+          setProfile((p) => ({ ...p, gender: e.target.value }))
+        }
+      >
         <option value="">Välj</option>
         <option value="female">Kvinna</option>
         <option value="male">Man</option>
@@ -146,19 +188,26 @@ export default function ProfileView({
       </select>
     </div>
 
+    {/* Vikt */}
     <div className="profile-field">
       <label>Vikt (kg)</label>
-      <input type="number" />
+      <input
+        type="number"
+        placeholder="kg"
+        value={profile.weight || ""}
+        onChange={(e) =>
+          setProfile((p) => ({ ...p, weight: e.target.value }))
+        }
+      />
     </div>
   </div>
-    
-<div className="profile-actions">
-  <button
-    className="primary-btn"
-    onClick={saveProfile}
-  >
-    💾 Spara profil
-  </button>
+
+  {/* Actions */}
+  <div className="profile-actions">
+    <button className="primary-btn" onClick={saveProfile}>
+      💾 Spara profil
+    </button>
+  </div>
 </div>
 
       {/* KROPPSMÅTT */}
