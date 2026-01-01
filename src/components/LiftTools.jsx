@@ -152,15 +152,38 @@ function getStrengthLevel({ oneRM, bodyWeight, gender, exerciseId }) {
 
   const ratio = oneRM / bodyWeight;
 
-  let result = refs[0];
-
-  for (const r of refs) {
-    if (ratio >= r.bw) result = r;
+  // Om svagare än första nivån
+  if (ratio < refs[0].bw) {
+    const pct = Math.round((ratio / refs[0].bw) * refs[0].pct);
+    return {
+      level: refs[0].level,
+      percent: Math.max(1, pct),
+    };
   }
 
+  // Mellan nivåer (INTERPOLERING)
+  for (let i = 0; i < refs.length - 1; i++) {
+    const a = refs[i];
+    const b = refs[i + 1];
+
+    if (ratio >= a.bw && ratio < b.bw) {
+      const progress = (ratio - a.bw) / (b.bw - a.bw);
+      const percent = a.pct + progress * (b.pct - a.pct);
+
+      return {
+        level: b.level,
+        percent: Math.round(percent * 10) / 10, // 1 decimal
+      };
+    }
+  }
+
+  // Över högsta nivån (World class+)
+  const last = refs[refs.length - 1];
+  const extra = Math.min((ratio - last.bw) / last.bw, 0.05);
+
   return {
-    level: result.level,
-    percent: result.pct,
+    level: last.level,
+    percent: Math.round((last.pct + extra * 100) * 10) / 10,
   };
 }
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
