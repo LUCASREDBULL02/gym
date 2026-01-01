@@ -24,6 +24,40 @@ Chart.register(
 );
 
 const ACCENT = "#ec4899"; // rosa
+const STRENGTHLEVEL_REFERENCE = {
+  bench: [
+    { pct: 20, level: "Novice", ratio: 0.6 },
+    { pct: 40, level: "Intermediate", ratio: 0.9 },
+    { pct: 70, level: "Advanced", ratio: 1.2 },
+    { pct: 90, level: "Elite", ratio: 1.6 },
+  ],
+  squat: [
+    { pct: 20, level: "Novice", ratio: 0.8 },
+    { pct: 40, level: "Intermediate", ratio: 1.3 },
+    { pct: 70, level: "Advanced", ratio: 1.7 },
+    { pct: 90, level: "Elite", ratio: 2.2 },
+  ],
+  deadlift: [
+    { pct: 20, level: "Novice", ratio: 1.0 },
+    { pct: 40, level: "Intermediate", ratio: 1.6 },
+    { pct: 70, level: "Advanced", ratio: 2.0 },
+    { pct: 90, level: "Elite", ratio: 2.5 },
+  ],
+};
+const MUSCLEGROUP_STRENGTH_REFERENCE = {
+  chest: [
+    { pct: 20, level: "Novice", ratio: 0.6 },
+    { pct: 40, level: "Intermediate", ratio: 0.9 },
+    { pct: 70, level: "Advanced", ratio: 1.2 },
+    { pct: 90, level: "Elite", ratio: 1.5 },
+  ],
+  back: [
+    { pct: 20, level: "Novice", ratio: 0.7 },
+    { pct: 40, level: "Intermediate", ratio: 1.1 },
+    { pct: 70, level: "Advanced", ratio: 1.5 },
+    { pct: 90, level: "Elite", ratio: 2.0 },
+  ],
+};
 
 // 1RM-formler
 const MUSCLE_GROUP_1RM_MULTIPLIER = {
@@ -50,103 +84,7 @@ function calcFormulas1RM(weight, reps) {
       return null;
     }
   };
-// StrengthLevel-liknande referenser (övning + fallback per muskelgrupp)
-const STRENGTHLEVEL_REFERENCE = {
-  bench: [
-    { pct: 20, level: "Novice", ratio: 0.6 },
-    { pct: 40, level: "Intermediate", ratio: 0.9 },
-    { pct: 70, level: "Advanced", ratio: 1.2 },
-    { pct: 90, level: "Elite", ratio: 1.6 },
-  ],
-  squat: [
-    { pct: 20, level: "Novice", ratio: 0.8 },
-    { pct: 40, level: "Intermediate", ratio: 1.3 },
-    { pct: 70, level: "Advanced", ratio: 1.7 },
-    { pct: 90, level: "Elite", ratio: 2.2 },
-  ],
-  deadlift: [
-    { pct: 20, level: "Novice", ratio: 1.0 },
-    { pct: 40, level: "Intermediate", ratio: 1.6 },
-    { pct: 70, level: "Advanced", ratio: 2.0 },
-    { pct: 90, level: "Elite", ratio: 2.5 },
-  ],
-};
-
-const MUSCLEGROUP_STRENGTH_REFERENCE = {
-  chest: [
-    { pct: 20, level: "Novice", ratio: 0.6 },
-    { pct: 40, level: "Intermediate", ratio: 0.9 },
-    { pct: 70, level: "Advanced", ratio: 1.2 },
-    { pct: 90, level: "Elite", ratio: 1.5 },
-  ],
-  back: [
-    { pct: 20, level: "Novice", ratio: 0.7 },
-    { pct: 40, level: "Intermediate", ratio: 1.1 },
-    { pct: 70, level: "Advanced", ratio: 1.5 },
-    { pct: 90, level: "Elite", ratio: 2.0 },
-  ],
-  legs: [
-    { pct: 20, level: "Novice", ratio: 0.9 },
-    { pct: 40, level: "Intermediate", ratio: 1.4 },
-    { pct: 70, level: "Advanced", ratio: 1.8 },
-    { pct: 90, level: "Elite", ratio: 2.3 },
-  ],
-  shoulders: [
-    { pct: 20, level: "Novice", ratio: 0.45 },
-    { pct: 40, level: "Intermediate", ratio: 0.7 },
-    { pct: 70, level: "Advanced", ratio: 1.0 },
-    { pct: 90, level: "Elite", ratio: 1.3 },
-  ],
-  arms: [
-    { pct: 20, level: "Novice", ratio: 0.35 },
-    { pct: 40, level: "Intermediate", ratio: 0.55 },
-    { pct: 70, level: "Advanced", ratio: 0.8 },
-    { pct: 90, level: "Elite", ratio: 1.1 },
-  ],
-  core: [
-    { pct: 20, level: "Novice", ratio: 0.25 },
-    { pct: 40, level: "Intermediate", ratio: 0.4 },
-    { pct: 70, level: "Advanced", ratio: 0.6 },
-    { pct: 90, level: "Elite", ratio: 0.8 },
-  ],
-};
-  // =========================
-// Strength level thresholds
-// =========================
-// värden = 1RM / kroppsvikt
-const STRENGTH_LEVELS = {
-  female: [
-    { label: "Novice", min: 0 },
-    { label: "Intermediate", min: 0.75 },
-    { label: "Advanced", min: 1.1 },
-    { label: "Elite", min: 1.5 },
-  ],
-  male: [
-    { label: "Novice", min: 0 },
-    { label: "Intermediate", min: 1.0 },
-    { label: "Advanced", min: 1.5 },
-    { label: "Elite", min: 2.0 },
-  ],
-};
-function getStrengthLevel({ oneRM, bodyWeight, gender }) {
-  if (!oneRM || !bodyWeight || !gender) return null;
-
-  const ratio = oneRM / bodyWeight;
-  const levels = STRENGTH_LEVELS[gender] || STRENGTH_LEVELS.female;
-
-  let current = levels[0].label;
-
-  for (const lvl of levels) {
-    if (ratio >= lvl.min) {
-      current = lvl.label;
-    }
-  }
-
-  return {
-    level: current,
-    ratio: Number(ratio.toFixed(2)),
-  };
-}
+  
   return {
     epley: safe((w, r) => w * (1 + r / 30)),
     brzycki: safe((w, r) => (w * 36) / (37 - r)),
@@ -183,27 +121,6 @@ function calc1RM(weight, reps) {
   if (!weight || !reps) return 0;
   return Math.round(weight * (1 + reps / 30));
 }
-// StrengthLevel-liknande referens (förenklad modell)
-const STRENGTHLEVEL_REFERENCE = {
-  bench: [
-    { pct: 20, level: "Novice", ratio: 0.6 },
-    { pct: 40, level: "Intermediate", ratio: 0.9 },
-    { pct: 70, level: "Advanced", ratio: 1.2 },
-    { pct: 90, level: "Elite", ratio: 1.6 },
-  ],
-  squat: [
-    { pct: 20, level: "Novice", ratio: 0.8 },
-    { pct: 40, level: "Intermediate", ratio: 1.3 },
-    { pct: 70, level: "Advanced", ratio: 1.7 },
-    { pct: 90, level: "Elite", ratio: 2.2 },
-  ],
-  deadlift: [
-    { pct: 20, level: "Novice", ratio: 1.0 },
-    { pct: 40, level: "Intermediate", ratio: 1.6 },
-    { pct: 70, level: "Advanced", ratio: 2.0 },
-    { pct: 90, level: "Elite", ratio: 2.5 },
-  ],
-};
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
@@ -255,27 +172,21 @@ const strengthLevel = useMemo(() => {
 
   const ratio = primary1RM / bodyweight;
 
-  // 1️⃣ Försök övningsspecifik StrengthLevel
-  let table = STRENGTHLEVEL_REFERENCE[rmExerciseId];
-
-  // 2️⃣ Fallback: muskelgrupp
-  if (!table && muscleGroup) {
-    table = MUSCLEGROUP_STRENGTH_REFERENCE[muscleGroup];
-  }
+  let table =
+    STRENGTHLEVEL_REFERENCE[rmExerciseId] ||
+    (muscleGroup && MUSCLEGROUP_STRENGTH_REFERENCE[muscleGroup]);
 
   if (!table) return null;
 
   let result = table[0];
 
   for (const row of table) {
-    if (ratio >= row.ratio) {
-      result = row;
-    }
+    if (ratio >= row.ratio) result = row;
   }
 
   return result;
 }, [primary1RM, bodyweight, rmExerciseId, muscleGroup]);
-  
+
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
     const p = Number(rmPercent);
@@ -658,7 +569,7 @@ const strengthLevel = useMemo(() => {
     </div>
     <div>
       {strengthLevel.level} · starkare än ca{" "}
-      <b>{strengthLevel.pct}%</b>
+     <b>{strengthLevel.level}</b> · ca {strengthLevel.pct}-percentilen
     </div>
   </div>
 )}
