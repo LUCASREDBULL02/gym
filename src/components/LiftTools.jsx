@@ -192,7 +192,7 @@ return {
   level: last.level,
   percent: Math.round(percent * 10) / 10,
 };
-  
+}
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
