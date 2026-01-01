@@ -7,20 +7,25 @@ export default function ProfileView({
   onAddMeasurement,
   onDeleteMeasurement,
 }) {
-  const [form, setForm] = useState({
-    name: profile.name,
-    nick: profile.nick,
-    age: profile.age,
-    height: profile.height,
-    weight: profile.weight,
-  });
-
-  const saveProfile = () => {
-    setProfile((prev) => ({
-      ...prev,
-      ...form,
-    }));
+ const [form, setForm] = useState({
+  name: profile.name,
+  nick: profile.nick,
+  age: profile.age,
+  height: profile.height,
+  weight: profile.weight,
+  gender: profile.gender || "female",
+});
+  const handleSave = () => {
+  const updatedProfile = {
+    ...profile,
+    ...form,
   };
+
+  setProfile(updatedProfile);
+
+  // VIKTIGT: håll formuläret synkat efter save
+  setForm(updatedProfile);
+};
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
