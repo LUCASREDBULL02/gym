@@ -177,15 +177,21 @@ function getStrengthLevel({ oneRM, bodyWeight, gender, exerciseId }) {
     }
   }
 
-  // Över högsta nivån (World class+)
-  const last = refs[refs.length - 1];
-  const extra = Math.min((ratio - last.bw) / last.bw, 0.05);
+ // Över högsta nivån (World class+)
+const last = refs[refs.length - 1];
 
-  return {
-    level: last.level,
-    percent: Math.round((last.pct + extra * 100) * 10) / 10,
-  };
-}
+// hur mycket över sista referensen (men väldigt dämpat)
+const overRatio = ratio / last.bw;
+
+// logaritmisk avtagande ökning (StrengthLevel-lik)
+const bonus = Math.log10(overRatio) * 2; // mycket långsam ökning
+
+const percent = Math.min(99.9, last.pct + bonus);
+
+return {
+  level: last.level,
+  percent: Math.round(percent * 10) / 10,
+};
 export default function LiftTools({ logs, bodyStats, onAddManual }) {
   const [tab, setTab] = useState("rm"); // "rm" | "volume" | "body"
   const [rmExerciseId, setRmExerciseId] = useState("bench");
