@@ -151,8 +151,16 @@ export default function ProfileView({
       <input type="number" />
     </div>
   </div>
+       
+</div> {/* stänger input-griden */}
 
- <button className="save-btn">💾 Spara profil</button>
+<div className="profile-actions">
+  <button
+    className="primary-btn"
+    onClick={saveProfile}
+  >
+    💾 Spara profil
+  </button>
 </div>
 
       {/* KROPPSMÅTT */}
