@@ -110,6 +110,43 @@ const MUSCLEGROUP_STRENGTH_REFERENCE = {
     { pct: 90, level: "Elite", ratio: 0.8 },
   ],
 };
+  // =========================
+// Strength level thresholds
+// =========================
+// värden = 1RM / kroppsvikt
+const STRENGTH_LEVELS = {
+  female: [
+    { label: "Novice", min: 0 },
+    { label: "Intermediate", min: 0.75 },
+    { label: "Advanced", min: 1.1 },
+    { label: "Elite", min: 1.5 },
+  ],
+  male: [
+    { label: "Novice", min: 0 },
+    { label: "Intermediate", min: 1.0 },
+    { label: "Advanced", min: 1.5 },
+    { label: "Elite", min: 2.0 },
+  ],
+};
+function getStrengthLevel({ oneRM, bodyWeight, gender }) {
+  if (!oneRM || !bodyWeight || !gender) return null;
+
+  const ratio = oneRM / bodyWeight;
+  const levels = STRENGTH_LEVELS[gender] || STRENGTH_LEVELS.female;
+
+  let current = levels[0].label;
+
+  for (const lvl of levels) {
+    if (ratio >= lvl.min) {
+      current = lvl.label;
+    }
+  }
+
+  return {
+    level: current,
+    ratio: Number(ratio.toFixed(2)),
+  };
+}
   return {
     epley: safe((w, r) => w * (1 + r / 30)),
     brzycki: safe((w, r) => (w * 36) / (37 - r)),
