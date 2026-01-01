@@ -7,6 +7,10 @@ export default function ProfileView({
   onAddMeasurement,
   onDeleteMeasurement,
 }) {
+  const saveProfile = () => {
+  // Tillfälligt – så knappen fungerar
+  console.log("Profil sparad");
+};
   const [form, setForm] = useState({
     name: profile.name,
     nick: profile.nick,
@@ -151,8 +155,7 @@ export default function ProfileView({
       <input type="number" />
     </div>
   </div>
-    </div> {/* stänger input-griden */}
-
+    
 <div className="profile-actions">
   <button
     className="primary-btn"
