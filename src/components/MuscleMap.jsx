@@ -2,11 +2,12 @@ import React from "react";
 import { MUSCLES } from "../data/muscles";
 
 const LEVEL_COLORS = {
-  Beginner: "#4b5563",       // grå
-  Novice: "#2563eb",         // blå
-  Intermediate: "#10b981",   // grön
-  Advanced: "#f59e0b",       // orange
-  Elite: "#e11d48",          // röd/violett
+  Beginner: "#4b5563",
+  Novice: "#2563eb",
+  Intermediate: "#10b981",
+  Advanced: "#f59e0b",
+  Elite: "#e11d48",
+  World Class: "#7c3aed",
 };
 
 export default function MuscleMap({ muscleStats = {} }) {
@@ -26,6 +27,7 @@ export default function MuscleMap({ muscleStats = {} }) {
       >
         {MUSCLES.map((m) => {
           const s = muscleStats[m.id] || { percent: 0, levelKey: "Beginner" };
+          const cappedPercent = Math.min(s.percent ?? 0, 100);
           const color = LEVEL_COLORS[s.levelKey] || LEVEL_COLORS.Beginner;
 
           return (
@@ -54,7 +56,7 @@ export default function MuscleMap({ muscleStats = {} }) {
                 <div
                   className="progress-fill"
                   style={{
-                    width: `${s.percent}%`,
+                    width: `${cappedPercent}%`,
                     background: color,
                     transition: "width 0.3s ease",
                   }}
@@ -69,7 +71,7 @@ export default function MuscleMap({ muscleStats = {} }) {
                   color: "#9ca3af",
                 }}
               >
-                {s.percent}% mot Elite
+                {cappedPercent}% av World Class
               </div>
             </div>
           );
