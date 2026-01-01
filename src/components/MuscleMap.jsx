@@ -7,9 +7,9 @@ const LEVEL_COLORS = {
   Intermediate: "#10b981",
   Advanced: "#f59e0b",
   Elite: "#e11d48",
-  World Class: "#7c3aed",
+  "World Class": "#7c3aed",
 };
-}
+
 export default function MuscleMap({ muscleStats = {} }) {
   return (
     <div className="card">
