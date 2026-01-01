@@ -193,335 +193,206 @@ function computeMuscleStatsFromLogs(logs, profile) {
   return stats;
 }
 
-// ---------- CYCLE TRACKER HJÄLPSFUNKTION ----------
+import React, { useMemo } from "react";
 
-function getCycleInfoForDay(date, config) {
-  const length = Number(config.length) || 28;
-  const start = config.startDate ? new Date(config.startDate) : null;
+/* =========================
+   FÄRGER FÖR ENERGI 1–5
+========================= */
 
-  if (!start || isNaN(start.getTime())) {
-    return {
-      dayInCycle: null,
-      phase: "Ingen start satt",
-      strengthNote: "Fyll i datum för senaste mens",
-      color: "rgba(148,163,184,0.25)",
-    };
-  }
+const ENERGY_COLORS = {
+  1: "#1f2933", // mycket låg – mörk grå
+  2: "#374151", // låg
+  3: "#2563eb", // ok – blå
+  4: "#16a34a", // bra – grön
+  5: "#7c3aed", // topp – lila
+};
 
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const diffDays = Math.floor((date - start) / msPerDay);
-  const dayInCycle = ((diffDays % length) + length) % length + 1;
+/* =========================
+   HJÄLP
+========================= */
 
-  let phase = "";
-  let strengthNote = "";
-  let color = "";
-
-  // Väldigt förenklad modell (du kan tweaka exakt gränser senare)
-  if (dayInCycle >= 1 && dayInCycle <= 4) {
-    phase = "Mens / Låg energi";
-    strengthNote = "Planera lättare pass, fokus teknik & rörlighet.";
-    color = "rgba(148,163,184,0.25)";
-  } else if (dayInCycle >= 5 && dayInCycle <= 11) {
-    phase = "Stigande styrka";
-    strengthNote = "Bra läge för tyngre sets & progression.";
-    color = "rgba(56,189,248,0.25)";
-  } else if (dayInCycle >= 12 && dayInCycle <= 17) {
-    phase = "Peak / Starkast";
-    strengthNote = "Bästa dagarna för PR, tunga hip thrust & böj.";
-    color = "rgba(244,114,182,0.25)";
-  } else if (dayInCycle >= 18 && dayInCycle <= 24) {
-    phase = "Stabil men lite svajig";
-    strengthNote = "Håll intensitet, men lyssna extra på kroppen.";
-    color = "rgba(129,140,248,0.25)";
-  } else {
-    phase = "PMS / Lugn fas";
-    strengthNote = "Perfekt för deload, pump-pass & feel-good-träning.";
-    color = "rgba(96,165,250,0.25)";
-  }
-
-  return { dayInCycle, phase, strengthNote, color };
+function getMonthLabel(date) {
+  return date.toLocaleDateString("sv-SE", {
+    month: "long",
+    year: "numeric",
+  });
 }
 
-// ---------- CYCLE VIEW KOMPONENT ----------
+function getCalendarDays(year, month) {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
 
-function CycleView({ cycleConfig, setCycleConfig }) {
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const startOffset = (firstDay.getDay() + 6) % 7; // måndag = 0
+  const totalDays = startOffset + lastDay.getDate();
+  const rows = Math.ceil(totalDays / 7) * 7;
 
-  /* =========================
-     HJÄLP
-  ========================= */
+  const days = [];
 
-  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-  const daysBetween = (a, b) =>
-    Math.floor((new Date(b) - new Date(a)) / 86400000);
-
-  /* =========================
-     STATE
-  ========================= */
-
-  const selectedDate = cycleConfig.selectedDate || todayStr;
-  const strength = cycleConfig.strength ?? 3;
-  const psyche = cycleConfig.psyche ?? 3;
-  const energy = cycleConfig.energy ?? 3;
-  const bleedingToday = cycleConfig.bleedingToday ?? false;
-  const startDate = cycleConfig.startDate || null;
-
-  /* =========================
-     TYDLIGARE READINESS
-  ========================= */
-
-  // Mer aggressiv påverkan
-  let readiness =
-    energy * 0.45 +
-    strength * 0.35 +
-    psyche * 0.2;
-
-  if (bleedingToday) readiness -= 1.5;
-
-  readiness = clamp(readiness, 0, 5);
-
-  /* =========================
-     PASS-TYPER
-  ========================= */
-
-  const PASS = {
-    power: {
-      title: "⚡ Power",
-      note: "Explosivt, få set",
-      color: "rgba(124,58,237,0.35)",
-    },
-    heavy: {
-      title: "🏋️ Tung dag",
-      note: "Baslyft / progression",
-      color: "rgba(22,163,74,0.35)",
-    },
-    volume: {
-      title: "📈 Volym",
-      note: "Fler set, kontrollerad vikt",
-      color: "rgba(14,165,233,0.35)",
-    },
-    technique: {
-      title: "🎯 Teknik",
-      note: "Tempo, kontroll, rörlighet",
-      color: "rgba(59,130,246,0.35)",
-    },
-    recovery: {
-      title: "🧘 Återhämtning",
-      note: "Vila, promenad, rörlighet",
-      color: "rgba(168,85,247,0.35)",
-    },
-  };
-
-  const ROTATION = ["heavy", "volume", "power", "technique"];
-
-  /* =========================
-     LOGIK PER DAG
-  ========================= */
-
-function getPassForDay(dateStr, index, restCount) {
-  let score = readiness;
-
-  // 🔹 Daglig variation (stabil men levande)
-  score += Math.sin(index * 1.3) * 0.25;
-
-  // 🔹 Cykelpåverkan
-  if (startDate) {
-    const dayInCycle = daysBetween(startDate, dateStr) % 28;
-
-    if (dayInCycle >= 0 && dayInCycle <= 2) score -= 2.0;   // mens
-    if (dayInCycle >= 12 && dayInCycle <= 16) score += 1.2; // peak
-    if (dayInCycle >= 25) score -= 1.0;                     // PMS
+  for (let i = 0; i < rows; i++) {
+    const d = new Date(year, month, i - startOffset + 1);
+    days.push(d);
   }
 
-  score = clamp(score, 0, 5);
-
-  // 🔹 Block som byts var ~3 dag
-  const block = Math.floor(index / 3) % 4;
-
-  // 🔻 MYCKET LÅG
-  if (score < 2.2) {
-    if (restCount < 2) return PASS.recovery;
-    return PASS.technique;
-  }
-
-  // 🔻 LÅG
-  if (score < 2.8) {
-    return block % 2 === 0 ? PASS.technique : PASS.volume;
-  }
-
-  // 🟡 MEDEL (majoriteten av dagar)
-  if (score < 3.5) {
-    return block % 2 === 0 ? PASS.volume : PASS.technique;
-  }
-
-  // 🟢 BRA → TUNG DAG STANDARD
-  if (score < 4.4) {
-    return PASS.heavy;
-  }
-
-  // 🔥 TOPP → POWER (sällsynt & speciell)
-  return block % 2 === 0 ? PASS.power : PASS.heavy;
+  return days;
 }
 
-  /* =========================
-     KALENDER
-  ========================= */
+/* =========================
+   KOMPONENT
+========================= */
 
-  const calendarDays = [];
-  const restPerWeek = {};
+export default function CycleView({ cycleConfig, setCycleConfig }) {
+  const today = new Date();
 
-  for (let i = 0; i < 28; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const weekKey = `${d.getFullYear()}-${d.getWeek?.() || d.getMonth()}`;
+  const year = cycleConfig.year ?? today.getFullYear();
+  const month = cycleConfig.month ?? today.getMonth();
 
-    restPerWeek[weekKey] = restPerWeek[weekKey] || 0;
+  const calendarDays = useMemo(
+    () => getCalendarDays(year, month),
+    [year, month]
+  );
 
-    let pass = getPassForDay(dateStr, i, restPerWeek[weekKey]);
+  const dayData = cycleConfig.days ?? {};
 
-    if (pass === PASS.recovery) {
-      restPerWeek[weekKey]++;
-      if (restPerWeek[weekKey] > 2) {
-        pass = PASS.technique;
-      }
-    }
-
-    calendarDays.push({
-      date: dateStr,
-      ...pass,
-    });
+  function updateDay(dateKey, updates) {
+    setCycleConfig((prev) => ({
+      ...prev,
+      days: {
+        ...(prev.days || {}),
+        [dateKey]: {
+          ...(prev.days?.[dateKey] || {}),
+          ...updates,
+        },
+      },
+    }));
   }
 
-  /* =========================
-     RENDER
-  ========================= */
-
- return (
-  <div className="card">
-    <h3 style={{ marginTop: 0 }}>🌙 Cykel & Träningscoach</h3>
-
-    {/* INPUTS */}
-    <div className="cycle-controls">
-      <div className="cycle-control">
-        <label>📅 Vald dag</label>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) =>
+  return (
+    <div className="card">
+      {/* ===== HEADER ===== */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <button
+          onClick={() =>
             setCycleConfig((p) => ({
               ...p,
-              selectedDate: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-      <div className="cycle-control">
-        <label>💪 Styrka</label>
-        <select
-          value={strength}
-          onChange={(e) =>
-            setCycleConfig((p) => ({
-              ...p,
-              strength: Number(e.target.value),
+              month: month - 1,
+              year: month === 0 ? year - 1 : year,
             }))
           }
         >
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v} value={v}>
-              {v}/5
-            </option>
-          ))}
-        </select>
-      </div>
+          ←
+        </button>
 
-      <div className="cycle-control">
-        <label>🧠 Psyke</label>
-        <select
-          value={psyche}
-          onChange={(e) =>
+        <h3 style={{ margin: 0, textTransform: "capitalize" }}>
+          {getMonthLabel(new Date(year, month))}
+        </h3>
+
+        <button
+          onClick={() =>
             setCycleConfig((p) => ({
               ...p,
-              psyche: Number(e.target.value),
+              month: month + 1,
+              year: month === 11 ? year + 1 : year,
             }))
           }
         >
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v} value={v}>
-              {v}/5
-            </option>
-          ))}
-        </select>
+          →
+        </button>
       </div>
 
-      <div className="cycle-control">
+      {/* ===== ENERGI INPUT ===== */}
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          marginBottom: 12,
+          flexWrap: "wrap",
+        }}
+      >
         <label>⚡ Energi</label>
-        <select
-          value={energy}
-          onChange={(e) =>
-            setCycleConfig((p) => ({
-              ...p,
-              energy: Number(e.target.value),
-            }))
-          }
-        >
-          {[1, 2, 3, 4, 5].map((v) => (
-            <option key={v} value={v}>
-              {v}/5
-            </option>
-          ))}
-        </select>
-      </div>
+        {[1, 2, 3, 4, 5].map((v) => (
+          <button
+            key={v}
+            onClick={() =>
+              updateDay(today.toISOString().slice(0, 10), { energy: v })
+            }
+            style={{
+              padding: "4px 8px",
+              borderRadius: 6,
+              background: ENERGY_COLORS[v],
+              color: "white",
+              border: "none",
+            }}
+          >
+            {v}
+          </button>
+        ))}
 
-      <div className="cycle-control">
-        <label className="cycle-checkbox">
+        <label style={{ marginLeft: 12 }}>
           <input
             type="checkbox"
-            checked={bleedingToday}
             onChange={(e) =>
-              setCycleConfig((p) => ({
-                ...p,
-                bleedingToday: e.target.checked,
-              }))
+              updateDay(today.toISOString().slice(0, 10), {
+                bleeding: e.target.checked,
+              })
             }
-          />
+          />{" "}
           🩸 Blöder idag
         </label>
       </div>
 
-      <div className="cycle-control">
-        <label>🌙 Första mensdag</label>
-        <input
-          type="date"
-          value={startDate ?? ""}
-          onChange={(e) =>
-            setCycleConfig((p) => ({
-              ...p,
-              startDate: e.target.value || null,
-            }))
-          }
-        />
-      </div>
-    </div>
+      {/* ===== KALENDER ===== */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7, 1fr)",
+          gap: 6,
+        }}
+      >
+        {calendarDays.map((d, i) => {
+          const dateKey = d.toISOString().slice(0, 10);
+          const data = dayData[dateKey] || {};
+          const energy = data.energy;
+          const bleeding = data.bleeding;
 
-    {/* KALENDER */}
-    <div className="cycle-calendar">
-      {calendarDays.map((d) => (
-        <div
-          key={d.date}
-          className="cycle-day"
-          style={{ background: d.color }}
-        >
-          <div className="cycle-date">{d.date}</div>
-          <div className="cycle-title">{d.title}</div>
-          <div className="cycle-note">{d.note}</div>
-        </div>
-      ))}
+          const isCurrentMonth = d.getMonth() === month;
+
+          return (
+            <div
+              key={i}
+              style={{
+                minHeight: 70,
+                borderRadius: 8,
+                padding: 6,
+                background: energy
+                  ? ENERGY_COLORS[energy]
+                  : "rgba(30,41,59,0.6)",
+                opacity: isCurrentMonth ? 1 : 0.35,
+                color: "white",
+                fontSize: 12,
+              }}
+            >
+              <div style={{ fontWeight: 600 }}>{d.getDate()}</div>
+
+              {energy && (
+                <div style={{ marginTop: 4 }}>⚡ {energy}</div>
+              )}
+
+              {bleeding && <div style={{ marginTop: 2 }}>🩸</div>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-  }
+}
 
 // ------------------ HUVUDKOMPONENT ------------------
 
