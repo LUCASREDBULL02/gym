@@ -112,56 +112,31 @@ export default function ProfileView({
       <div className="profile-card">
         <h3 className="section-title">🧸 Grundinfo</h3>
 
-        <div className="input-group">
-          <label>Namn</label>
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-        </div>
+       <div className="profile-grid">
+  <div className="profile-field">
+    <label>Ålder</label>
+    <input type="number" />
+  </div>
 
-        <div className="input-group">
-          <label>Smeknamn</label>
-          <input
-            value={form.nick}
-            onChange={(e) => setForm({ ...form, nick: e.target.value })}
-          />
-        </div>
+  <div className="profile-field">
+    <label>Längd (cm)</label>
+    <input type="number" />
+  </div>
 
-        <div className="profile-grid">
-          <div className="input-group">
-            <label>Ålder</label>
-            <input
-              type="number"
-              value={form.age}
-              onChange={(e) => setForm({ ...form, age: e.target.value })}
-            />
-          </div>
+  <div className="profile-field">
+    <label>Kön</label>
+    <select>
+      <option value="">Välj</option>
+      <option value="female">Kvinna</option>
+      <option value="male">Man</option>
+      <option value="other">Annat</option>
+    </select>
+  </div>
 
-          <div className="input-group">
-            <label>Längd (cm)</label>
-            <input
-              type="number"
-              value={form.height}
-              onChange={(e) =>
-                setForm({ ...form, height: e.target.value })
-              }
-            />
-          </div>
-          
-          <div className="profile-field">
-  <label>Kön</label>
-  <select
-    value={profile.gender || ""}
-    onChange={(e) =>
-      setProfile((p) => ({ ...p, gender: e.target.value }))
-    }
-  >
-    <option value="">Välj</option>
-    <option value="female">Kvinna</option>
-    <option value="male">Man</option>
-    <option value="other">Annat</option>
-  </select>
+  <div className="profile-field">
+    <label>Vikt (kg)</label>
+    <input type="number" />
+  </div>
 </div>
 
           <div className="input-group">
