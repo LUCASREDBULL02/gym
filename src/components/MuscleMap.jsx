@@ -49,7 +49,9 @@ export default function MuscleMap({ muscleStats = {} }) {
                 }}
               >
                 <span style={{ fontWeight: 600 }}>{m.name}</span>
-                <span style={{ color, fontWeight: 500 }}>{s.levelKey}</span>
+               <span className={`muscle-level ${s.levelKey.toLowerCase().replace(" ", "-")}`}>
+  {s.levelKey}
+</span>
               </div>
 
               <div className="progress-wrap">
