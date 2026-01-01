@@ -151,7 +151,6 @@ export default function ProfileView({
           
           <div className="input-group">
             <label>Kön (Kvinna)</label>
-            <label>Kön (Man)</label>
             <input
               type="text"
               value={form.gender}
