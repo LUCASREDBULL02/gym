@@ -1608,3 +1608,64 @@ select {
   text-align: right;
   white-space: nowrap;
 }
+.muscle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 96px;
+  box-sizing: border-box;
+}
+
+.muscle-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.muscle-card-percent {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Level badges */
+.level-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.level-beginner {
+  background: #4b556320;
+  color: #9ca3af;
+}
+
+.level-novice {
+  background: #2563eb20;
+  color: #60a5fa;
+}
+
+.level-intermediate {
+  background: #10b98120;
+  color: #34d399;
+}
+
+.level-advanced {
+  background: #f59e0b20;
+  color: #fbbf24;
+}
+
+.level-elite {
+  background: #e11d4820;
+  color: #fb7185;
+}
+
+.level-world-class {
+  background: #8b5cf620;
+  color: #c4b5fd;
+  box-shadow: 0 0 0 1px #8b5cf6;
+}
