@@ -214,12 +214,19 @@ const bodyweight = bodyStats?.weight || 68; // fallback
 const primary1RM = rmResults?.epley || null;
 
 const strengthLevel = useMemo(() => {
-  if (!primary1RM) return null;
-
-  const table = STRENGTHLEVEL_REFERENCE[rmExerciseId];
-  if (!table) return null;
+  if (!primary1RM || !bodyweight) return null;
 
   const ratio = primary1RM / bodyweight;
+
+  // 1️⃣ Försök övningsspecifik StrengthLevel
+  let table = STRENGTHLEVEL_REFERENCE[rmExerciseId];
+
+  // 2️⃣ Fallback: muskelgrupp
+  if (!table && muscleGroup) {
+    table = MUSCLEGROUP_STRENGTH_REFERENCE[muscleGroup];
+  }
+
+  if (!table) return null;
 
   let result = table[0];
 
@@ -230,7 +237,7 @@ const strengthLevel = useMemo(() => {
   }
 
   return result;
-}, [primary1RM, rmExerciseId, bodyweight]);
+}, [primary1RM, bodyweight, rmExerciseId, muscleGroup]);
   
   const rmPercentResult = useMemo(() => {
     const base = Number(rmPercentBase);
