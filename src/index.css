@@ -288,36 +288,38 @@ body {
   box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.35);
 }
 
+/* === PROFILE GRID === */
 .profile-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 14px;
+  margin-bottom: 14px;
 }
 
-.profile-grid .input-group {
-  flex: 1 1 100px;
+/* Gör inputs mer “tight” */
+.profile-grid input,
+.profile-grid select {
+  height: 38px;
+  padding: 6px 10px;
+  font-size: 14px;
 }
 
-/* Save button */
-
-.btn-save {
-  margin-top: 6px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  font-size: 13px;
-  padding: 7px 12px;
+/* === SAVE BUTTON === */
+.profile-save-btn {
+  height: 38px;
+  padding: 0 18px;
+  font-size: 14px;
   font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ec4899, #f97316);
+  border: none;
+  color: white;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  align-self: flex-start;
 }
 
-.btn-save:hover {
-  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.5);
+.profile-save-btn:hover {
+  opacity: 0.9;
 }
 
 /* Measurements */
