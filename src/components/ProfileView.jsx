@@ -7,9 +7,9 @@ export default function ProfileView({
   onAddMeasurement,
   onDeleteMeasurement,
 }) {
-  // =========================
-  // FORM STATE (profil)
-  // =========================
+  /* =========================
+     FORM STATE
+  ========================= */
   const [form, setForm] = useState({
     name: profile.name || "",
     nick: profile.nick || "",
@@ -19,29 +19,36 @@ export default function ProfileView({
     gender: profile.gender || "female",
   });
 
-  // =========================
-  // SAVE PROFILE (ENDA)
-  // =========================
-  const handleSave = () => {
+  /* =========================
+     SAVE PROFILE (ENDA)
+  ========================= */
+  function handleSave() {
     const updatedProfile = {
       ...profile,
       name: form.name,
       nick: form.nick,
-      age: Number(form.age),
-      height: Number(form.height),
-      weight: Number(form.weight),
+      age: Number(form.age) || "",
+      height: Number(form.height) || "",
+      weight: Number(form.weight) || "",
       gender: form.gender,
     };
 
     setProfile(updatedProfile);
 
-    // Håll formuläret synkat (så inget försvinner)
-    setForm(updatedProfile);
-  };
+    // håll form i sync (viktigt)
+    setForm({
+      name: updatedProfile.name,
+      nick: updatedProfile.nick,
+      age: updatedProfile.age,
+      height: updatedProfile.height,
+      weight: updatedProfile.weight,
+      gender: updatedProfile.gender,
+    });
+  }
 
-  // =========================
-  // BODY MEASUREMENTS
-  // =========================
+  /* =========================
+     BODY MEASUREMENTS
+  ========================= */
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const [newMeasurement, setNewMeasurement] = useState({
@@ -69,16 +76,12 @@ export default function ProfileView({
     };
 
     onAddMeasurement(newMeasurement.key, entry);
-
-    setNewMeasurement((prev) => ({
-      ...prev,
-      value: "",
-    }));
+    setNewMeasurement((p) => ({ ...p, value: "" }));
   }
 
-  // =========================
-  // SPARKLINE
-  // =========================
+  /* =========================
+     SPARKLINE
+  ========================= */
   function MeasurementSparkline({ list }) {
     if (!list || list.length < 2) return null;
 
@@ -92,11 +95,8 @@ export default function ProfileView({
     const height = 36;
 
     const points = sorted
-      .map((m, idx) => {
-        const x =
-          sorted.length === 1
-            ? width / 2
-            : (idx / (sorted.length - 1)) * width;
+      .map((m, i) => {
+        const x = (i / (sorted.length - 1)) * width;
         const y = height - ((m.value - min) / span) * height;
         return `${x},${y}`;
       })
@@ -114,58 +114,48 @@ export default function ProfileView({
     );
   }
 
-  // =========================
-  // RENDER
-  // =========================
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <div className="profile-page">
       <h2 className="page-title">👤 Din profil & kroppsmått</h2>
 
-      {/* ===================== */}
-      {/* GRUNDINFO */}
-      {/* ===================== */}
       <div className="card">
         <h3>🏅 Grundinfo</h3>
 
         <div className="profile-grid">
-          <div>
-            <label>Namn</label>
+          <Field label="Namn">
             <input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Ditt namn"
             />
-          </div>
+          </Field>
 
-          <div>
-            <label>Smeknamn</label>
+          <Field label="Smeknamn">
             <input
               value={form.nick}
               onChange={(e) => setForm({ ...form, nick: e.target.value })}
-              placeholder="Valfritt smeknamn"
             />
-          </div>
+          </Field>
 
-          <div>
-            <label>Ålder</label>
+          <Field label="Ålder">
             <input
               type="number"
               value={form.age}
               onChange={(e) => setForm({ ...form, age: e.target.value })}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label>Längd (cm)</label>
+          <Field label="Längd (cm)">
             <input
               type="number"
               value={form.height}
               onChange={(e) => setForm({ ...form, height: e.target.value })}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label>Kön</label>
+          <Field label="Kön">
             <select
               value={form.gender}
               onChange={(e) => setForm({ ...form, gender: e.target.value })}
@@ -173,26 +163,22 @@ export default function ProfileView({
               <option value="female">Kvinna</option>
               <option value="male">Man</option>
             </select>
-          </div>
+          </Field>
 
-          <div>
-            <label>Vikt (kg)</label>
+          <Field label="Vikt (kg)">
             <input
               type="number"
               value={form.weight}
               onChange={(e) => setForm({ ...form, weight: e.target.value })}
             />
-          </div>
+          </Field>
         </div>
 
-        <button className="save-profile-btn" onClick={handleSave}>
+        <button className="primary-btn" onClick={handleSave}>
           💾 Spara profil
         </button>
       </div>
 
-      {/* ===================== */}
-      {/* KROPPSMÅTT */}
-      {/* ===================== */}
       <div className="card">
         <h3>📏 Kroppsmått & utveckling</h3>
 
@@ -203,9 +189,9 @@ export default function ProfileView({
               setNewMeasurement({ ...newMeasurement, key: e.target.value })
             }
           >
-            {Object.entries(measurementLabels).map(([k, label]) => (
+            {Object.entries(measurementLabels).map(([k, l]) => (
               <option key={k} value={k}>
-                {label}
+                {l}
               </option>
             ))}
           </select>
@@ -232,7 +218,6 @@ export default function ProfileView({
 
         {Object.entries(measurementLabels).map(([key, label]) => {
           const list = bodyStats[key] || [];
-
           return (
             <div key={key} className="measurement-card">
               <div className="measurement-header">
@@ -240,26 +225,32 @@ export default function ProfileView({
                 <MeasurementSparkline list={list} />
               </div>
 
-              {list.length === 0 ? (
-                <div className="muted">
-                  Inga värden ännu – lägg till första måttet ✨
+              {list.map((m) => (
+                <div key={m.id} className="measurement-row">
+                  <span>
+                    {m.value} cm · {m.date}
+                  </span>
+                  <button onClick={() => onDeleteMeasurement(key, m.id)}>
+                    ✕
+                  </button>
                 </div>
-              ) : (
-                list.map((m) => (
-                  <div key={m.id} className="measurement-row">
-                    <span>
-                      {m.value} cm · {m.date}
-                    </span>
-                    <button onClick={() => onDeleteMeasurement(key, m.id)}>
-                      ✕
-                    </button>
-                  </div>
-                ))
-              )}
+              ))}
             </div>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* =========================
+   SMALL HELPER
+========================= */
+function Field({ label, children }) {
+  return (
+    <div>
+      <label>{label}</label>
+      {children}
     </div>
   );
 }
