@@ -40,14 +40,16 @@ export default function MuscleMap({ muscleStats = {} }) {
                 border: `1px solid ${color}88`,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 13,
-                  marginBottom: 4,
-                }}
-              >
+             <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 13,
+    marginBottom: 4,
+  }}
+>
                 <span style={{ fontWeight: 600 }}>{m.name}</span>
                <span className={`muscle-level ${s.levelKey.toLowerCase().replace(" ", "-")}`}>
   {s.levelKey}
