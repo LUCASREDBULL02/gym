@@ -240,7 +240,7 @@ function getCalendarDays(year, month) {
    KOMPONENT
 ========================= */
 
-export default function CycleView({ cycleConfig, setCycleConfig }) {
+function CycleView({ cycleConfig, setCycleConfig }) {
   const today = new Date();
 
   const year = cycleConfig.year ?? today.getFullYear();
