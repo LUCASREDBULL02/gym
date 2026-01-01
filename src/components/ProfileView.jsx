@@ -149,6 +149,21 @@ export default function ProfileView({
             />
           </div>
           
+          <div className="profile-field">
+  <label>Kön</label>
+  <select
+    value={profile.gender || ""}
+    onChange={(e) =>
+      setProfile((p) => ({ ...p, gender: e.target.value }))
+    }
+  >
+    <option value="">Välj</option>
+    <option value="female">Kvinna</option>
+    <option value="male">Man</option>
+    <option value="other">Annat</option>
+  </select>
+</div>
+
           <div className="input-group">
             <label>Vikt (kg)</label>
             <input
