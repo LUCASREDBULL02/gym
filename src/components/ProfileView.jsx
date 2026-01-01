@@ -150,17 +150,6 @@ export default function ProfileView({
           </div>
           
           <div className="input-group">
-            <label>Kön (Kvinna)</label>
-            <input
-              type="text"
-              value={form.gender}
-              onChange={(e) =>
-                setForm({ ...form, gender: e.target.value })
-              }
-            />
-          </div>
-          
-          <div className="input-group">
             <label>Vikt (kg)</label>
             <input
               type="number"
