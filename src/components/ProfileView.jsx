@@ -12,7 +12,6 @@ export default function ProfileView({
   ========================= */
   const [form, setForm] = useState({
     name: profile.name || "",
-    nick: profile.nick || "",
     age: profile.age || "",
     height: profile.height || "",
     weight: profile.weight || "",
@@ -26,7 +25,6 @@ const handleSave = () => {
   const updatedProfile = {
     ...profile,
     name: form.name,
-    nick: form.nick,
     age: Number(form.age),
     height: Number(form.height),
     weight: Number(form.weight),
@@ -38,7 +36,6 @@ const handleSave = () => {
   // håll form korrekt synkad
   setForm({
     name: updatedProfile.name,
-    nick: updatedProfile.nick,
     age: updatedProfile.age,
     height: updatedProfile.height,
     weight: updatedProfile.weight,
@@ -129,13 +126,6 @@ const handleSave = () => {
             <input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-          </Field>
-
-          <Field label="Smeknamn">
-            <input
-              value={form.nick}
-              onChange={(e) => setForm({ ...form, nick: e.target.value })}
             />
           </Field>
 
