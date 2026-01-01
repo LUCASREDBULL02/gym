@@ -1508,3 +1508,76 @@ select {
   letter-spacing: 0.3px;
   box-shadow: 0 0 0 rgba(168, 85, 247, 0);
 }
+/* ===========================
+   MUSCLE LEVEL BADGES
+   =========================== */
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 22px;
+  min-width: 92px;          /* 🔑 för World Class */
+  padding: 0 10px;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  border-radius: 999px;
+  white-space: nowrap;      /* 🔑 stoppar radbrytning */
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+/* ---------- Beginner ---------- */
+.level-beginner {
+  background: rgba(148,163,184,0.15);
+  color: #94a3b8;
+  border: 1px solid #475569;
+}
+
+/* ---------- Novice ---------- */
+.level-novice {
+  background: rgba(37,99,235,0.15);
+  color: #60a5fa;
+  border: 1px solid #2563eb;
+}
+
+/* ---------- Intermediate ---------- */
+.level-intermediate {
+  background: rgba(16,185,129,0.15);
+  color: #34d399;
+  border: 1px solid #10b981;
+}
+
+/* ---------- Advanced ---------- */
+.level-advanced {
+  background: rgba(245,158,11,0.18);
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+}
+
+/* ---------- Elite ---------- */
+.level-elite {
+  background: rgba(225,29,72,0.18);
+  color: #fb7185;
+  border: 1px solid #e11d48;
+}
+
+/* ---------- World Class ---------- */
+.level-world-class {
+  background: linear-gradient(
+    135deg,
+    rgba(168,85,247,0.25),
+    rgba(236,72,153,0.25)
+  );
+  color: #e9d5ff;
+  border: 1px solid #a855f7;
+
+  box-shadow:
+    0 0 0 1px rgba(168,85,247,0.35),
+    0 0 12px rgba(168,85,247,0.35);
+}
