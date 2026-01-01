@@ -160,7 +160,20 @@ export default function ProfileView({
             />
           </div>
         </div>
-
+<label>
+  Kön
+  <select
+    value={profile.gender || ""}
+    onChange={(e) =>
+      setProfile((p) => ({ ...p, gender: e.target.value }))
+    }
+  >
+    <option value="">Välj</option>
+    <option value="female">Kvinna</option>
+    <option value="male">Man</option>
+    <option value="other">Annat</option>
+  </select>
+</label>
         <button className="btn-save" onClick={handleSaveProfile}>
           💾 Spara profil
         </button>
