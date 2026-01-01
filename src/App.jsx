@@ -540,18 +540,17 @@ export default function App() {
 
   // Profil – persisteras
   const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem("bebi_profile");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          name: "Maria Kristina",
-          nick: "Bebi",
-          age: 21,
-          height: 170,
-          weight: 68,
-          avatar: "/avatar.png",
-        };
-  });
+  const saved = localStorage.getItem("profile");
+  return saved
+    ? JSON.parse(saved)
+    : {
+        name: "",
+        age: "",
+        height: "",
+        weight: "",
+        gender: "", // 👈 NYTT
+      };
+});
 
   useEffect(() => {
     localStorage.setItem("bebi_profile", JSON.stringify(profile));
