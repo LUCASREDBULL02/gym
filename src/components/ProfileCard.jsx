@@ -18,13 +18,21 @@ export default function ProfileCard({ profile }) {
         <div style={{ fontSize: 18, fontWeight: 700 }}>
           {profile.name}
         </div>
-        <div style={{ fontSize: 14, opacity: 0.8 }}>
-          {profile.nick}
-• {profile.gender === "female" ? "Kvinna" : profile.gender === "male" ? "Man" : "Annat"}
-• {profile.height} cm
-• {profile.weight} kg
-• {profile.age} år
-        </div>
+       <div style={{ fontSize: 14, opacity: 0.8, display: "flex", flexWrap: "wrap", gap: 6 }}>
+  {profile.nick && <span>✨ {profile.nick}</span>}
+  {profile.gender && (
+    <span>
+      {profile.gender === "female"
+        ? "♀ Kvinna"
+        : profile.gender === "male"
+        ? "♂ Man"
+        : "⚧ Annat"}
+    </span>
+  )}
+  {profile.height && <span>📏 {profile.height} cm</span>}
+  {profile.weight && <span>⚖️ {profile.weight} kg</span>}
+  {profile.age && <span>🎂 {profile.age} år</span>}
+</div>
         <div
           style={{
             marginTop: 6,
@@ -42,4 +50,5 @@ export default function ProfileCard({ profile }) {
     </div>
   );
 }
+
 
