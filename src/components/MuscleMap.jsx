@@ -12,71 +12,46 @@ const LEVEL_COLORS = {
 
 export default function MuscleMap({ muscleStats = {} }) {
   return (
-    <div className="card">
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Muskelkarta 💪</h3>
-      <div className="small" style={{ marginBottom: 10 }}>
-        Färger och procent baseras på dina bästa lyft jämfört med StrengthLevel-style standarder.
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-          gap: 10,
-        }}
-      >
-        {MUSCLES.map((m) => {
-          const s = muscleStats[m.id] || { percent: 0, levelKey: "Beginner" };
-          const cappedPercent = Math.min(s.percent ?? 0, 100);
-          const color = LEVEL_COLORS[s.levelKey] || LEVEL_COLORS.Beginner;
-
-          return (
-            <div
-              key={m.id}
-              style={{
-                padding: "8px 10px",
-                borderRadius: 12,
-                background: "rgba(15,23,42,0.9)",
-                border: `1px solid ${color}88`,
-              }}
-            >
-             <div
+   <div
+  key={m.id}
+  className="muscle-card"
   style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 8,
-    fontSize: 13,
-    marginBottom: 4,
+    padding: "10px 12px",
+    borderRadius: 12,
+    background: "rgba(15,23,42,0.9)",
+    border: `1px solid ${color}88`,
   }}
 >
-                <span style={{ fontWeight: 600 }}>{m.name}</span>
-               <span className={`muscle-level ${s.levelKey.toLowerCase().replace(" ", "-")}`}>
-  {s.levelKey}
-</span>
-              </div>
+  {/* RAD 1: NAMN + LEVEL */}
+  <div className="muscle-card-header">
+    <span style={{ fontWeight: 600 }}>{m.name}</span>
 
-              <div className="progress-wrap">
-                <div
-                  className="progress-fill"
-                  style={{
-                    width: `${cappedPercent}%`,
-                    background: color,
-                    transition: "width 0.3s ease",
-                  }}
-                />
-              </div>
+    <span
+      className={`level-badge level-${s.levelKey
+        .toLowerCase()
+        .replace(" ", "-")}`}
+    >
+      {s.levelKey}
+    </span>
+  </div>
 
-              <div
-                style={{
-                  fontSize: 11,
-                  marginTop: 4,
-                  textAlign: "right",
-                  color: "#9ca3af",
-                }}
-              >
-                {cappedPercent}% av World Class
-              </div>
+  {/* RAD 2: PROGRESS BAR */}
+  <div className="progress-wrap">
+    <div
+      className="progress-fill"
+      style={{
+        width: `${s.percent}%`,
+        background: color,
+        transition: "width 0.3s ease",
+      }}
+    />
+  </div>
+
+  {/* RAD 3: PROCENT */}
+  <div className="muscle-card-percent">
+    {s.percent}% av World Class
+  </div>
+</div>
             </div>
           );
         })}
