@@ -50,7 +50,66 @@ function calcFormulas1RM(weight, reps) {
       return null;
     }
   };
+// StrengthLevel-liknande referenser (övning + fallback per muskelgrupp)
+const STRENGTHLEVEL_REFERENCE = {
+  bench: [
+    { pct: 20, level: "Novice", ratio: 0.6 },
+    { pct: 40, level: "Intermediate", ratio: 0.9 },
+    { pct: 70, level: "Advanced", ratio: 1.2 },
+    { pct: 90, level: "Elite", ratio: 1.6 },
+  ],
+  squat: [
+    { pct: 20, level: "Novice", ratio: 0.8 },
+    { pct: 40, level: "Intermediate", ratio: 1.3 },
+    { pct: 70, level: "Advanced", ratio: 1.7 },
+    { pct: 90, level: "Elite", ratio: 2.2 },
+  ],
+  deadlift: [
+    { pct: 20, level: "Novice", ratio: 1.0 },
+    { pct: 40, level: "Intermediate", ratio: 1.6 },
+    { pct: 70, level: "Advanced", ratio: 2.0 },
+    { pct: 90, level: "Elite", ratio: 2.5 },
+  ],
+};
 
+const MUSCLEGROUP_STRENGTH_REFERENCE = {
+  chest: [
+    { pct: 20, level: "Novice", ratio: 0.6 },
+    { pct: 40, level: "Intermediate", ratio: 0.9 },
+    { pct: 70, level: "Advanced", ratio: 1.2 },
+    { pct: 90, level: "Elite", ratio: 1.5 },
+  ],
+  back: [
+    { pct: 20, level: "Novice", ratio: 0.7 },
+    { pct: 40, level: "Intermediate", ratio: 1.1 },
+    { pct: 70, level: "Advanced", ratio: 1.5 },
+    { pct: 90, level: "Elite", ratio: 2.0 },
+  ],
+  legs: [
+    { pct: 20, level: "Novice", ratio: 0.9 },
+    { pct: 40, level: "Intermediate", ratio: 1.4 },
+    { pct: 70, level: "Advanced", ratio: 1.8 },
+    { pct: 90, level: "Elite", ratio: 2.3 },
+  ],
+  shoulders: [
+    { pct: 20, level: "Novice", ratio: 0.45 },
+    { pct: 40, level: "Intermediate", ratio: 0.7 },
+    { pct: 70, level: "Advanced", ratio: 1.0 },
+    { pct: 90, level: "Elite", ratio: 1.3 },
+  ],
+  arms: [
+    { pct: 20, level: "Novice", ratio: 0.35 },
+    { pct: 40, level: "Intermediate", ratio: 0.55 },
+    { pct: 70, level: "Advanced", ratio: 0.8 },
+    { pct: 90, level: "Elite", ratio: 1.1 },
+  ],
+  core: [
+    { pct: 20, level: "Novice", ratio: 0.25 },
+    { pct: 40, level: "Intermediate", ratio: 0.4 },
+    { pct: 70, level: "Advanced", ratio: 0.6 },
+    { pct: 90, level: "Elite", ratio: 0.8 },
+  ],
+};
   return {
     epley: safe((w, r) => w * (1 + r / 30)),
     brzycki: safe((w, r) => (w * 36) / (37 - r)),
