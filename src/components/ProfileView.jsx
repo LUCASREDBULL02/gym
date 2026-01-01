@@ -150,9 +150,7 @@ export default function ProfileView({
       <label>Vikt (kg)</label>
       <input type="number" />
     </div>
-  </div>
-       
-</div> {/* stänger input-griden */}
+    </div> {/* stänger input-griden */}
 
 <div className="profile-actions">
   <button
