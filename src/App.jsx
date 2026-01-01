@@ -544,11 +544,10 @@ export default function App() {
   return saved
     ? JSON.parse(saved)
     : {
-        name: "",
-        nick: "",
-        age: "",
-        height: "",
-        weight: "",
+        name: "Maria Kristina", // default
+        age: "21", // default
+        height: "170", // default
+        weight: "68", // default
         gender: "female", // default
       };
 });
