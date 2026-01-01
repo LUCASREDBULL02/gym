@@ -138,18 +138,6 @@ export default function ProfileView({
     <input type="number" />
   </div>
 </div>
-
-          <div className="input-group">
-            <label>Vikt (kg)</label>
-            <input
-              type="number"
-              value={form.weight}
-              onChange={(e) =>
-                setForm({ ...form, weight: e.target.value })
-              }
-            />
-          </div>
-        </div>
         <button className="btn-save" onClick={handleSaveProfile}>
           💾 Spara profil
         </button>
