@@ -52,7 +52,7 @@ export default function MuscleMap({ muscleStats = {} }) {
     {s.percent}% av World Class
   </div>
 </div>
-            </div>
+    </div>
           );
         })}
       </div>
