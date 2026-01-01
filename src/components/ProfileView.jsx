@@ -7,26 +7,41 @@ export default function ProfileView({
   onAddMeasurement,
   onDeleteMeasurement,
 }) {
- const [form, setForm] = useState({
-  name: profile.name,
-  nick: profile.nick,
-  age: profile.age,
-  height: profile.height,
-  weight: profile.weight,
-  gender: profile.gender || "female",
-});
+  // =========================
+  // FORM STATE (profil)
+  // =========================
+  const [form, setForm] = useState({
+    name: profile.name || "",
+    nick: profile.nick || "",
+    age: profile.age || "",
+    height: profile.height || "",
+    weight: profile.weight || "",
+    gender: profile.gender || "female",
+  });
+
+  // =========================
+  // SAVE PROFILE (ENDA)
+  // =========================
   const handleSave = () => {
-  const updatedProfile = {
-    ...profile,
-    ...form,
+    const updatedProfile = {
+      ...profile,
+      name: form.name,
+      nick: form.nick,
+      age: Number(form.age),
+      height: Number(form.height),
+      weight: Number(form.weight),
+      gender: form.gender,
+    };
+
+    setProfile(updatedProfile);
+
+    // Håll formuläret synkat (så inget försvinner)
+    setForm(updatedProfile);
   };
 
-  setProfile(updatedProfile);
-
-  // VIKTIGT: håll formuläret synkat efter save
-  setForm(updatedProfile);
-};
-
+  // =========================
+  // BODY MEASUREMENTS
+  // =========================
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const [newMeasurement, setNewMeasurement] = useState({
@@ -43,17 +58,6 @@ export default function ProfileView({
     chest: "Bröst",
     arm: "Arm",
   };
-
-  function handleSaveProfile() {
-    setProfile({
-      ...profile,
-      name: form.name,
-      nick: form.nick,
-      age: Number(form.age),
-      height: Number(form.height),
-      weight: Number(form.weight),
-    });
-  }
 
   function handleAddMeasurement() {
     if (!newMeasurement.value) return;
@@ -72,6 +76,9 @@ export default function ProfileView({
     }));
   }
 
+  // =========================
+  // SPARKLINE
+  // =========================
   function MeasurementSparkline({ list }) {
     if (!list || list.length < 2) return null;
 
@@ -99,7 +106,7 @@ export default function ProfileView({
       <svg className="measure-sparkline" viewBox={`0 0 ${width} ${height}`}>
         <polyline
           fill="none"
-          stroke="currentColor"
+          stroke="#ec4899"
           strokeWidth="2"
           points={points}
         />
@@ -107,132 +114,97 @@ export default function ProfileView({
     );
   }
 
-  function getSummary(list) {
-    if (!list || list.length === 0) return null;
-    const sorted = [...list].sort((a, b) => a.date.localeCompare(b.date));
-    const first = sorted[0];
-    const last = sorted[sorted.length - 1];
-    const diff = last.value - first.value;
-    return { first, last, diff };
-  }
-
+  // =========================
+  // RENDER
+  // =========================
   return (
     <div className="profile-page">
-      <h2 className="profile-header">👤 Din profil & kroppsmått</h2>
+      <h2 className="page-title">👤 Din profil & kroppsmått</h2>
 
-     {/* ===== GRUNDINFO ===== */}
-<div className="card">
-  <div className="section-title">🏅 Grundinfo</div>
+      {/* ===================== */}
+      {/* GRUNDINFO */}
+      {/* ===================== */}
+      <div className="card">
+        <h3>🏅 Grundinfo</h3>
 
-  <div className="profile-grid">
-    {/* Namn */}
-    <div className="profile-field full">
-      <label>Namn</label>
-      <input
-        type="text"
-        placeholder="Ditt namn"
-        value={profile.name || ""}
-        onChange={(e) =>
-          setProfile((p) => ({ ...p, name: e.target.value }))
-        }
-      />
-    </div>
+        <div className="profile-grid">
+          <div>
+            <label>Namn</label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Ditt namn"
+            />
+          </div>
 
-    {/* Smeknamn */}
-    <div className="profile-field full">
-      <label>Smeknamn</label>
-      <input
-        type="text"
-        placeholder="Valfritt smeknamn"
-        value={profile.nickname || ""}
-        onChange={(e) =>
-          setProfile((p) => ({ ...p, nickname: e.target.value }))
-        }
-      />
-    </div>
+          <div>
+            <label>Smeknamn</label>
+            <input
+              value={form.nick}
+              onChange={(e) => setForm({ ...form, nick: e.target.value })}
+              placeholder="Valfritt smeknamn"
+            />
+          </div>
 
-    {/* Ålder */}
-    <div className="profile-field">
-      <label>Ålder</label>
-      <input
-        type="number"
-        placeholder="År"
-        value={profile.age || ""}
-        onChange={(e) =>
-          setProfile((p) => ({ ...p, age: e.target.value }))
-        }
-      />
-    </div>
+          <div>
+            <label>Ålder</label>
+            <input
+              type="number"
+              value={form.age}
+              onChange={(e) => setForm({ ...form, age: e.target.value })}
+            />
+          </div>
 
-    {/* Längd */}
-    <div className="profile-field">
-      <label>Längd (cm)</label>
-      <input
-        type="number"
-        placeholder="cm"
-        value={profile.height || ""}
-        onChange={(e) =>
-          setProfile((p) => ({ ...p, height: e.target.value }))
-        }
-      />
-    </div>
+          <div>
+            <label>Längd (cm)</label>
+            <input
+              type="number"
+              value={form.height}
+              onChange={(e) => setForm({ ...form, height: e.target.value })}
+            />
+          </div>
 
-    {/* Kön */}
-    <div className="profile-field">
-      <label>Kön</label>
-      <select
-        value={profile.gender || ""}
-        onChange={(e) =>
-          setProfile((p) => ({ ...p, gender: e.target.value }))
-        }
-      >
-        <option value="">Välj</option>
-        <option value="female">Kvinna</option>
-        <option value="male">Man</option>
-        <option value="other">Annat</option>
-      </select>
-    </div>
+          <div>
+            <label>Kön</label>
+            <select
+              value={form.gender}
+              onChange={(e) => setForm({ ...form, gender: e.target.value })}
+            >
+              <option value="female">Kvinna</option>
+              <option value="male">Man</option>
+            </select>
+          </div>
 
-    {/* Vikt */}
-    <div className="profile-field">
-      <label>Vikt (kg)</label>
-      <input
-        type="number"
-        placeholder="kg"
-        value={profile.weight || ""}
-        onChange={(e) =>
-          setProfile((p) => ({ ...p, weight: e.target.value }))
-        }
-      />
-    </div>
-  </div>
+          <div>
+            <label>Vikt (kg)</label>
+            <input
+              type="number"
+              value={form.weight}
+              onChange={(e) => setForm({ ...form, weight: e.target.value })}
+            />
+          </div>
+        </div>
 
-  {/* Actions */}
-  <div className="profile-actions">
-  <button
-  className="save-profile-btn"
-  onClick={handleSave}
->
-  💾 Spara profil
-</button>
+        <button className="save-profile-btn" onClick={handleSave}>
+          💾 Spara profil
+        </button>
+      </div>
 
+      {/* ===================== */}
       {/* KROPPSMÅTT */}
-      <div className="profile-card">
-        <h3 className="section-title">📏 Kroppsmått & utveckling</h3>
+      {/* ===================== */}
+      <div className="card">
+        <h3>📏 Kroppsmått & utveckling</h3>
 
-        {/* Lägg till nytt mått */}
-        <div className="measurement-add">
+        <div className="measure-input-row">
           <select
             value={newMeasurement.key}
             onChange={(e) =>
-              setNewMeasurement((prev) => ({
-                ...prev,
-                key: e.target.value,
-              }))
+              setNewMeasurement({ ...newMeasurement, key: e.target.value })
             }
           >
-            {Object.entries(measurementLabels).map(([key, label]) => (
-              <option key={key} value={key}>
+            {Object.entries(measurementLabels).map(([k, label]) => (
+              <option key={k} value={k}>
                 {label}
               </option>
             ))}
@@ -243,10 +215,7 @@ export default function ProfileView({
             placeholder="cm"
             value={newMeasurement.value}
             onChange={(e) =>
-              setNewMeasurement((prev) => ({
-                ...prev,
-                value: e.target.value,
-              }))
+              setNewMeasurement({ ...newMeasurement, value: e.target.value })
             }
           />
 
@@ -254,71 +223,38 @@ export default function ProfileView({
             type="date"
             value={newMeasurement.date}
             onChange={(e) =>
-              setNewMeasurement((prev) => ({
-                ...prev,
-                date: e.target.value,
-              }))
+              setNewMeasurement({ ...newMeasurement, date: e.target.value })
             }
           />
 
-          <button className="btn-add" onClick={handleAddMeasurement}>
-            ➕
-          </button>
+          <button onClick={handleAddMeasurement}>＋</button>
         </div>
 
-        {/* Lista + grafer */}
-        {Object.entries(bodyStats).map(([key, list]) => {
-          const summary = getSummary(list);
+        {Object.entries(measurementLabels).map(([key, label]) => {
+          const list = bodyStats[key] || [];
 
           return (
-            <div key={key} className="measure-block">
-              <div className="measure-header-row">
-                <div>
-                  <h4 className="measure-title">
-                    {measurementLabels[key]}
-                  </h4>
-                  {summary ? (
-                    <div className="measure-meta">
-                      Senast: <strong>{summary.last.value} cm</strong> (
-                      {summary.last.date}) • Förändring:{" "}
-                      <strong>
-                        {summary.diff > 0 ? "+" : ""}
-                        {summary.diff.toFixed(1)} cm
-                      </strong>
-                    </div>
-                  ) : (
-                    <div className="measure-meta">
-                      Inga värden ännu – lägg till första måttet ✨
-                    </div>
-                  )}
-                </div>
-
+            <div key={key} className="measurement-card">
+              <div className="measurement-header">
+                <strong>{label}</strong>
                 <MeasurementSparkline list={list} />
               </div>
 
-              {list.length === 0 && (
-                <p className="empty-text">Inga registrerade värden.</p>
-              )}
-
-              {list.length > 0 && (
-                <div className="measure-list">
-                  {list
-                    .slice()
-                    .sort((a, b) => b.date.localeCompare(a.date))
-                    .map((m) => (
-                      <div key={m.id} className="measure-item">
-                        <span>
-                          {m.date}: <strong>{m.value} cm</strong>
-                        </span>
-                        <button
-                          className="delete-btn"
-                          onClick={() => onDeleteMeasurement(key, m.id)}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    ))}
+              {list.length === 0 ? (
+                <div className="muted">
+                  Inga värden ännu – lägg till första måttet ✨
                 </div>
+              ) : (
+                list.map((m) => (
+                  <div key={m.id} className="measurement-row">
+                    <span>
+                      {m.value} cm · {m.date}
+                    </span>
+                    <button onClick={() => onDeleteMeasurement(key, m.id)}>
+                      ✕
+                    </button>
+                  </div>
+                ))
               )}
             </div>
           );
