@@ -193,8 +193,6 @@ function computeMuscleStatsFromLogs(logs, profile) {
   return stats;
 }
 
-import React, { useMemo } from "react";
-
 /* =========================
    FÄRGER FÖR ENERGI 1–5
 ========================= */
