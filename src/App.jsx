@@ -539,16 +539,17 @@ export default function App() {
   }, [logs]);
 
   // Profil – persisteras
-  const [profile, setProfile] = useState(() => {
-  const saved = localStorage.getItem("profile");
+ const [profile, setProfile] = useState(() => {
+  const saved = localStorage.getItem("bebi_profile");
   return saved
     ? JSON.parse(saved)
     : {
         name: "",
+        nick: "",
         age: "",
         height: "",
         weight: "",
-        gender: "", // 👈 NYTT
+        gender: "female", // default
       };
 });
 
@@ -859,10 +860,15 @@ export default function App() {
         </div>
 
         <div style={{ marginTop: "auto", fontSize: 11, color: "#9ca3af" }}>
-          <div>Bebi: {profile.name}</div>
-          <div>
-            {profile.height} cm • {profile.weight} kg • {profile.age} år
-          </div>
+         <div>
+  {profile.gender === "female"
+    ? "Kvinna"
+    : profile.gender === "male"
+    ? "Man"
+    : "Annat"}
+  {" • "}
+  {profile.height} cm • {profile.weight} kg • {profile.age} år
+</div>
         </div>
       </aside>
 
