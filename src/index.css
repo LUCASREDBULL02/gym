@@ -1669,3 +1669,94 @@ select {
   color: #c4b5fd;
   box-shadow: 0 0 0 1px #8b5cf6;
 }
+/* =========================
+   GOOGLE-KALENDER-STYLE
+========================= */
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+/* GRID */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* WEEKDAYS */
+.calendar-weekday {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.7;
+  padding-bottom: 4px;
+}
+
+/* CELLS */
+.calendar-cell {
+  position: relative;
+  min-height: 56px;
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.6);
+  transition: background 0.2s ease;
+}
+
+.calendar-cell:hover {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.calendar-cell.empty {
+  background: transparent;
+  cursor: default;
+}
+
+/* DATE NUMBER */
+.calendar-date {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ENERGY NUMBER */
+.calendar-energy {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* BLOOD DROP */
+.calendar-bleed {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 14px;
+}
+
+/* =========================
+   MOBILE FIRST
+========================= */
+
+@media (max-width: 640px) {
+  .calendar-cell {
+    min-height: 48px;
+  }
+
+  .calendar-header {
+    font-size: 15px;
+  }
+}
