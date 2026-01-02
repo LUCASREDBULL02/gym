@@ -618,7 +618,7 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div>
-            <div className="sidebar-title">Bebi Gym v17</div>
+            <div className="sidebar-title">Powered by dates🌴</div>
             <div className="sidebar-sub">För Maria Kristina 💗</div>
           </div>
         </div>
