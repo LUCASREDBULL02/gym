@@ -456,9 +456,6 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     </div>
   );
 }
-
-export default CycleView;
-
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
