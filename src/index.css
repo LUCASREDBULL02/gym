@@ -2539,3 +2539,160 @@ select {
   right: 6px;
   font-size: 14px;
 }
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendar-nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(15,23,42,0.6);
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav:hover {
+  background: rgba(30,41,59,0.9);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.calendar-nav:active {
+  transform: scale(0.95);
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendar-nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(15,23,42,0.6);
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav:hover {
+  background: rgba(30,41,59,0.9);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.calendar-nav:active {
+  transform: scale(0.95);
+}
+.cycle-energy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cycle-energy-bar button {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cycle-energy-bar button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+}
+.bleed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.bleed-toggle input {
+  display: none;
+}
+
+.bleed-icon {
+  font-size: 14px;
+}
+.cycle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.cycle-day {
+  min-height: 72px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(148,163,184,0.12);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cycle-day:hover {
+  background: rgba(30,41,59,0.85);
+  border-color: rgba(255,255,255,0.25);
+}
+
+.cycle-day.active {
+  border-color: white;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.4);
+}
+
+.cycle-day.muted {
+  opacity: 0.35;
+}
+
+.day-number {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.energy-dot {
+  margin-top: 6px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  display: inline-block;
+  color: white;
+}
+
+.bleed {
+  margin-top: 4px;
+  font-size: 14px;
+}
+.cycle-card {
+  background: linear-gradient(
+    180deg,
+    rgba(15,23,42,0.9),
+    rgba(2,6,23,0.9)
+  );
+  border: 1px solid rgba(148,163,184,0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
