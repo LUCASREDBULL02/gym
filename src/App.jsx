@@ -193,104 +193,206 @@ function computeMuscleStatsFromLogs(logs, profile) {
   return stats;
 }
 
-function CycleView({ cycleConfig, setCycleConfig }) {
-  const today = new Date();
+import React, { useMemo } from "react";
 
-  /* =========================
-     KONSTANTER
-  ========================= */
+/* =========================
+   FÄRGER FÖR ENERGI 1–5
+========================= */
 
-  const ENERGY_COLORS = {
-    1: "#7f1d1d",
-    2: "#b45309",
-    3: "#a16207",
-    4: "#15803d",
-    5: "#065f46",
-  };
+const ENERGY_COLORS = {
+  1: "#1f2933", // mycket låg – mörk grå
+  2: "#374151", // låg
+  3: "#2563eb", // ok – blå
+  4: "#16a34a", // bra – grön
+  5: "#7c3aed", // topp – lila
+};
 
-  /* =========================
-     AKTIV MÅNAD
-  ========================= */
+/* =========================
+   HJÄLP
+========================= */
 
-  const monthDate = new Date(
-    cycleConfig.year ?? today.getFullYear(),
-    cycleConfig.month ?? today.getMonth(),
-    1
-  );
-
-  const year = monthDate.getFullYear();
-  const month = monthDate.getMonth();
-
-  const monthLabel = monthDate.toLocaleDateString("sv-SE", {
+function getMonthLabel(date) {
+  return date.toLocaleDateString("sv-SE", {
     month: "long",
     year: "numeric",
   });
+}
 
-  /* =========================
-     DATUM-LOGIK
-  ========================= */
-
+function getCalendarDays(year, month) {
   const firstDay = new Date(year, month, 1);
-  const startOffset = (firstDay.getDay() + 6) % 7; // Måndag start
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const lastDay = new Date(year, month + 1, 0);
 
-  const calendarCells = useMemo(() => {
-    const cells = [];
+  const startOffset = (firstDay.getDay() + 6) % 7; // måndag = 0
+  const totalDays = startOffset + lastDay.getDate();
+  const rows = Math.ceil(totalDays / 7) * 7;
 
-    // Tomma rutor före månadens start
-    for (let i = 0; i < startOffset; i++) {
-      cells.push({ empty: true });
-    }
+  const days = [];
 
-    // Riktiga dagar
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(year, month, d);
-      const dateStr = date.toISOString().slice(0, 10);
-      const saved = cycleConfig.days?.[dateStr] || {};
+  for (let i = 0; i < rows; i++) {
+    const d = new Date(year, month, i - startOffset + 1);
+    days.push(d);
+  }
 
-      cells.push({
-        empty: false,
-        day: d,
-        date: dateStr,
-        energy: saved.energy ?? null,
-        bleeding: saved.bleeding ?? false,
-        color: saved.energy
-          ? ENERGY_COLORS[saved.energy]
-          : "rgba(15,23,42,0.6)",
-      });
-    }
+  return days;
+}
 
-    return cells;
-  }, [year, month, daysInMonth, startOffset, cycleConfig.days]);
+/* =========================
+   KOMPONENT
+========================= */
 
-  /* =========================
-     HANDLERS
-  ========================= */
+  function CycleView({ cycleConfig, setCycleConfig }) {
+  const today = new Date();
 
-  const changeMonth = (dir) => {
-    const newDate = new Date(year, month + dir, 1);
-    setCycleConfig((prev) => ({
-      ...prev,
-      month: newDate.getMonth(),
-      year: newDate.getFullYear(),
-    }));
-  };
+  const year = cycleConfig.year ?? today.getFullYear();
+  const month = cycleConfig.month ?? today.getMonth();
 
-  const openDay = (dateStr) => {
-    const energy = Number(prompt("Energi 1–5?"));
-    if (!energy || energy < 1 || energy > 5) return;
+  const calendarDays = useMemo(
+    () => getCalendarDays(year, month),
+    [year, month]
+  );
 
+  const dayData = cycleConfig.days ?? {};
+
+  function updateDay(dateKey, updates) {
     setCycleConfig((prev) => ({
       ...prev,
       days: {
         ...(prev.days || {}),
-        [dateStr]: {
-          ...(prev.days?.[dateStr] || {}),
-          energy,
+        [dateKey]: {
+          ...(prev.days?.[dateKey] || {}),
+          ...updates,
         },
       },
     }));
-  };
+  }
+
+  return (
+    <div className="card">
+      {/* ===== HEADER ===== */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <button
+          onClick={() =>
+            setCycleConfig((p) => ({
+              ...p,
+              month: month - 1,
+              year: month === 0 ? year - 1 : year,
+            }))
+          }
+        >
+          ←
+        </button>
+
+        <h3 style={{ margin: 0, textTransform: "capitalize" }}>
+          {getMonthLabel(new Date(year, month))}
+        </h3>
+
+        <button
+          onClick={() =>
+            setCycleConfig((p) => ({
+              ...p,
+              month: month + 1,
+              year: month === 11 ? year + 1 : year,
+            }))
+          }
+        >
+          →
+        </button>
+      </div>
+
+      {/* ===== ENERGI INPUT ===== */}
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          marginBottom: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <label>⚡ Energi</label>
+        {[1, 2, 3, 4, 5].map((v) => (
+          <button
+            key={v}
+            onClick={() =>
+              updateDay(today.toISOString().slice(0, 10), { energy: v })
+            }
+            style={{
+              padding: "4px 8px",
+              borderRadius: 6,
+              background: ENERGY_COLORS[v],
+              color: "white",
+              border: "none",
+            }}
+          >
+            {v}
+          </button>
+        ))}
+
+        <label style={{ marginLeft: 12 }}>
+          <input
+            type="checkbox"
+            onChange={(e) =>
+              updateDay(today.toISOString().slice(0, 10), {
+                bleeding: e.target.checked,
+              })
+            }
+          />{" "}
+          🩸 Blöder idag
+        </label>
+      </div>
+
+      {/* ===== KALENDER ===== */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7, 1fr)",
+          gap: 6,
+        }}
+      >
+        {calendarDays.map((d, i) => {
+          const dateKey = d.toISOString().slice(0, 10);
+          const data = dayData[dateKey] || {};
+          const energy = data.energy;
+          const bleeding = data.bleeding;
+
+          const isCurrentMonth = d.getMonth() === month;
+
+          return (
+            <div
+              key={i}
+              style={{
+                minHeight: 70,
+                borderRadius: 8,
+                padding: 6,
+                background: energy
+                  ? ENERGY_COLORS[energy]
+                  : "rgba(30,41,59,0.6)",
+                opacity: isCurrentMonth ? 1 : 0.35,
+                color: "white",
+                fontSize: 12,
+              }}
+            >
+              <div style={{ fontWeight: 600 }}>{d.getDate()}</div>
+
+              {energy && (
+                <div style={{ marginTop: 4 }}>⚡ {energy}</div>
+              )}
+
+              {bleeding && <div style={{ marginTop: 2 }}>🩸</div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
   /* =========================
      RENDER
