@@ -194,7 +194,7 @@ function computeMuscleStatsFromLogs(logs, profile) {
 }
 
 /* =========================
-   FÄRGER FÖR ENERGI 1–5
+   ENERGI-FÄRGER
 ========================= */
 
 const ENERGY_COLORS = {
@@ -216,90 +216,38 @@ function getMonthLabel(date) {
   });
 }
 
-function getWeekNumber(date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-}
-
 function getCalendarDays(year, month) {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
 
-  const startOffset = (firstDay.getDay() + 6) % 7;
-  const total = startOffset + lastDay.getDate();
-  const rows = Math.ceil(total / 7) * 7;
+  const startOffset = (firstDay.getDay() + 6) % 7; // Måndag = 0
+  const totalDays = startOffset + lastDay.getDate();
+  const rows = Math.ceil(totalDays / 7) * 7;
 
   const days = [];
   for (let i = 0; i < rows; i++) {
-    days.push(new Date(year, month, i - startOffset + 1));
+    const d = new Date(year, month, i - startOffset + 1);
+    days.push(d);
   }
   return days;
 }
 
-function groupWeeks(calendarDays, dayData) {
-  const weeks = [];
-
-  calendarDays.forEach((date, index) => {
-    const w = Math.floor(index / 7);
-    if (!weeks[w]) {
-      weeks[w] = {
-        days: [],
-        energySum: 0,
-        energyCount: 0,
-        weekNumber: getWeekNumber(date),
-      };
-    }
-
-    const key = date.toISOString().slice(0, 10);
-    const energy = dayData[key]?.energy;
-
-    if (energy) {
-      weeks[w].energySum += energy;
-      weeks[w].energyCount++;
-    }
-
-    weeks[w].days.push(date);
-  });
-
-  return weeks.map((w) => ({
-    ...w,
-    avg:
-      w.energyCount > 0
-        ? Math.round((w.energySum / w.energyCount) * 10) / 10
-        : null,
-  }));
-}
-
 /* =========================
-   KOMPONENT
+   COMPONENT
 ========================= */
 
-function CycleView({ cycleConfig, setCycleConfig }) {
+  function CycleView({ cycleConfig, setCycleConfig }) {
   const today = new Date();
+
   const year = cycleConfig.year ?? today.getFullYear();
   const month = cycleConfig.month ?? today.getMonth();
-  const dayData = cycleConfig.days ?? {};
 
   const calendarDays = useMemo(
     () => getCalendarDays(year, month),
     [year, month]
   );
 
-  const weeks = useMemo(
-    () => groupWeeks(calendarDays, dayData),
-    [calendarDays, dayData]
-  );
-
-  const bestWeek = useMemo(() => {
-    return weeks.filter(w => w.avg !== null).sort((a, b) => b.avg - a.avg)[0];
-  }, [weeks]);
-
-  const worstWeek = useMemo(() => {
-    return weeks.filter(w => w.avg !== null).sort((a, b) => a.avg - b.avg)[0];
-  }, [weeks]);
+  const dayData = cycleConfig.days ?? {};
 
   function updateDay(dateKey, updates) {
     setCycleConfig((prev) => ({
@@ -316,152 +264,97 @@ function CycleView({ cycleConfig, setCycleConfig }) {
 
   return (
     <div className="card">
-      {/* HEADER */}
-    <div className="calendar-header">
-  <button
-    className="calendar-nav"
-    onClick={() =>
-      setCycleConfig((p) => ({
-        ...p,
-        month: month - 1,
-        year: month === 0 ? year - 1 : year,
-      }))
-    }
-  >
-    ←
-  </button>
+      {/* ================= HEADER ================= */}
+      <div className="calendar-header">
+        <button
+          className="calendar-nav"
+          onClick={() =>
+            setCycleConfig((p) => ({
+              ...p,
+              month: month === 0 ? 11 : month - 1,
+              year: month === 0 ? year - 1 : year,
+            }))
+          }
+        >
+          ←
+        </button>
 
-  <div className="calendar-month">
-    {getMonthLabel(new Date(year, month))}
-  </div>
+        <div className="calendar-month">
+          {getMonthLabel(new Date(year, month))}
+        </div>
 
-  <button
-    className="calendar-nav"
-    onClick={() =>
-      setCycleConfig((p) => ({
-        ...p,
-        month: month + 1,
-        year: month === 11 ? year + 1 : year,
-      }))
-    }
-  >
-    →
-  </button>
-</div>
-      {/* INPUT */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+        <button
+          className="calendar-nav"
+          onClick={() =>
+            setCycleConfig((p) => ({
+              ...p,
+              month: month === 11 ? 0 : month + 1,
+              year: month === 11 ? year + 1 : year,
+            }))
+          }
+        >
+          →
+        </button>
+      </div>
+
+      {/* ================= ENERGI INPUT ================= */}
+      <div className="calendar-energy-bar">
         <span>⚡ Energi</span>
+
         {[1, 2, 3, 4, 5].map((v) => (
-  <button
-    key={v}
-    className={`energy-pill energy-${v}`}
-    onClick={() =>
-      updateDay(today.toISOString().slice(0, 10), { energy: v })
-    }
-  >
-    {v}
-  </button>
-))}
-            style={{
-              background: ENERGY_COLORS[v],
-              color: "white",
-              border: "none",
-              borderRadius: 6,
-              padding: "4px 8px",
-            }}
+          <button
+            key={v}
+            className={`energy-pill energy-${v}`}
+            onClick={() =>
+              updateDay(today.toISOString().slice(0, 10), { energy: v })
+            }
           >
             {v}
           </button>
         ))}
 
-        <label style={{ marginLeft: 10 }}>
+        <label className="calendar-bleed-toggle">
           <input
             type="checkbox"
-            onChange={e =>
-              updateDay(today.toISOString().slice(0,10), {
-                bleeding: e.target.checked
+            onChange={(e) =>
+              updateDay(today.toISOString().slice(0, 10), {
+                bleeding: e.target.checked,
               })
             }
-          /> 🩸
+          />
+          🩸 Blöder idag
         </label>
       </div>
 
-      {/* KALENDER */}
-     <div className="calendar-grid">
-  {calendarDays.map((d, i) => {
-    const dateKey = d.toISOString().slice(0, 10);
-    const data = dayData[dateKey] || {};
-    const energy = data.energy;
-    const bleeding = data.bleeding;
-    const isCurrentMonth = d.getMonth() === month;
+      {/* ================= KALENDER ================= */}
+      <div className="calendar-grid">
+        {calendarDays.map((d, i) => {
+          const dateKey = d.toISOString().slice(0, 10);
+          const data = dayData[dateKey] || {};
+          const energy = data.energy;
+          const bleeding = data.bleeding;
+          const isCurrentMonth = d.getMonth() === month;
 
-    return (
-      <div
-        key={i}
-        className={`calendar-day ${
-          isCurrentMonth ? "" : "calendar-day--muted"
-        }`}
-        style={{
-          background: energy
-            ? ENERGY_COLORS[energy]
-            : undefined,
-        }}
-      >
-        <div className="calendar-date">{d.getDate()}</div>
-
-        {energy && (
-          <div className="calendar-energy">⚡ {energy}</div>
-        )}
-
-        {bleeding && (
-          <div className="calendar-bleed">🩸</div>
-        )}
-      </div>
-    );
-  })}
-</div>
-
-            <div style={{
-              gridColumn: "span 7",
-              textAlign: "right",
-              fontSize: 12,
-              opacity: 0.6,
-              paddingRight: 4
-            }}>
-              {week.avg !== null && `v.${week.weekNumber} · snitt ${week.avg}`}
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
-
-      {/* GRAF */}
-      <div style={{ marginTop: 20 }}>
-        <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 6 }}>
-          📈 Energi per vecka
-        </div>
-
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 60 }}>
-          {weeks.map((w, i) => (
+          return (
             <div
               key={i}
+              className={`calendar-day ${
+                isCurrentMonth ? "" : "calendar-day--muted"
+              }`}
               style={{
-                flex: 1,
-                background: w.avg
-                  ? ENERGY_COLORS[Math.round(w.avg)]
-                  : "rgba(30,41,59,0.3)",
-                height: w.avg ? `${w.avg * 12}px` : 6,
-                borderRadius: 6,
+                background: energy ? ENERGY_COLORS[energy] : undefined,
               }}
-            />
-          ))}
-        </div>
+            >
+              <div className="calendar-date">{d.getDate()}</div>
 
-        {bestWeek && worstWeek && (
-          <div style={{ marginTop: 8, fontSize: 12 }}>
-            🔥 Bäst: v.{bestWeek.weekNumber} ({bestWeek.avg}) ·
-            🧊 Lägst: v.{worstWeek.weekNumber} ({worstWeek.avg})
-          </div>
-        )}
+              {energy && (
+                <div className="calendar-energy">⚡ {energy}</div>
+              )}
+
+              {bleeding && <div className="calendar-bleed">🩸</div>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
