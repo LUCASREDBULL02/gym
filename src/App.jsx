@@ -698,7 +698,7 @@ export default function App() {
         </div>
 
         <div style={{ marginTop: "auto", fontSize: 11, color: "#9ca3af" }}>
-         <div>Bebi: {profile.name}</div>
+         <div>Namn: {profile.name}</div>
           <div>
   {profile.gender === "female"
     ? "Kvinna"
@@ -810,7 +810,7 @@ export default function App() {
           </button>
 
           <div>
-            <div className="main-title">Hej {profile.nick}! 💖</div>
+            <div className="main-title">Hej {profile.name}! 💖</div>
             <div className="main-sub">
               Idag är en perfekt dag att bli starkare. Varje set du gör skadar
               bossar, ger XP och bygger din PR-historia.
