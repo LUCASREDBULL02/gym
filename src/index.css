@@ -3001,3 +3001,187 @@ select {
     right: 4px;
   }
 }
+/* =========================
+   CYCLE VIEW – GLOBAL
+========================= */
+
+.cycle-card {
+  background: linear-gradient(180deg, #0b1220, #020617);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* =========================
+   HEADER / PILAR
+========================= */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.calendar-nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.25);
+  background: rgba(15,23,42,0.9);
+  color: white;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.5);
+}
+
+/* =========================
+   ENERGI-BAR (KNAPPAR)
+========================= */
+
+.cycle-energy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.cycle-energy-bar button {
+  min-width: 36px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.cycle-energy-bar button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Blöder idag */
+.bleed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+/* =========================
+   KALENDER GRID
+========================= */
+
+.cycle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+/* =========================
+   DAG-RUTA
+========================= */
+
+.cycle-day {
+  position: relative;
+  min-height: 72px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(148,163,184,0.12);
+  color: white;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.cycle-day:hover {
+  border-color: rgba(99,102,241,0.5);
+}
+
+/* VALD DAG – VIT OUTLINE */
+.cycle-day.active {
+  border-color: white !important;
+}
+
+/* Andra månader */
+.cycle-day.muted {
+  opacity: 0.35;
+}
+
+/* =========================
+   DATUM
+========================= */
+
+.day-number {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================
+   ENERGI BADGE (I RUTA)
+========================= */
+
+.energy-dot {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: white;
+}
+
+/* =========================
+   BLOD – ALLTID UPPE TILL HÖGER
+========================= */
+
+.bleed {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 14px;
+}
+
+/* =========================
+   MOBIL
+========================= */
+
+@media (max-width: 640px) {
+  .cycle-grid {
+    gap: 6px;
+  }
+
+  .cycle-day {
+    min-height: 64px;
+    padding: 6px;
+  }
+
+  .energy-dot {
+    font-size: 10px;
+    padding: 3px 5px;
+  }
+
+  .bleed {
+    font-size: 13px;
+  }
+}
