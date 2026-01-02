@@ -2354,3 +2354,188 @@ select {
 .cycle-day.outside {
   opacity: 0.35;
 }
+/* =========================
+   CYCLE VIEW – OVERALL CARD
+========================= */
+
+.cycle-card {
+  background: radial-gradient(
+    1200px 400px at 50% -100px,
+    rgba(99, 102, 241, 0.08),
+    transparent 60%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+/* =========================
+   HEADER (MONTH + ARROWS)
+========================= */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.calendar-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: capitalize;
+  color: #e5e7eb;
+}
+
+.calendar-nav {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* =========================
+   ENERGY BAR
+========================= */
+
+.cycle-energy-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.cycle-energy-bar button {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cycle-energy-bar button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+/* =========================
+   BLEED TOGGLE
+========================= */
+
+.bleed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bleed-toggle input {
+  accent-color: #ef4444;
+  cursor: pointer;
+}
+
+.bleed-text {
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+/* =========================
+   CALENDAR GRID
+========================= */
+
+.cycle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+/* =========================
+   DAY CELL
+========================= */
+
+.cycle-day {
+  min-height: 72px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  color: #e5e7eb;
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s ease;
+}
+
+/* Hover */
+.cycle-day:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Selected day – WHITE outline */
+.cycle-day.active {
+  border-color: white !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Days outside month */
+.cycle-day.muted {
+  opacity: 0.35;
+}
+
+/* =========================
+   DATE NUMBER
+========================= */
+
+.day-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+/* =========================
+   ENERGY DOT / LABEL
+========================= */
+
+.energy-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f172a;
+  background: white;
+}
+
+/* =========================
+   BLEED ICON
+========================= */
+
+.bleed {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 14px;
+}
