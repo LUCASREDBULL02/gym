@@ -292,7 +292,7 @@ function calendarDays(year, month) {
     →
   </button>
 </div>
-        
+</div>   
       {/* ENERGY BAR */}
       <div className="cycle-energy-bar">
         <span>⚡ Energi</span>
@@ -307,12 +307,12 @@ function calendarDays(year, month) {
           </button>
         ))}
 
-        <label className="bleed-toggle">
+      <label className="bleed-toggle">
   <input
     type="checkbox"
-    checked={bleeding}
+    checked={days[activeDate]?.bleeding || false}
     onChange={(e) =>
-      updateDay(selectedDateKey, { bleeding: e.target.checked })
+      updateDay(activeDate, { bleeding: e.target.checked })
     }
   />
   <span className="bleed-icon">🩸</span>
