@@ -3222,3 +3222,60 @@ select {
   border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(6px);
 }
+/* =========================
+   PROFIL – MOBIL FIX
+========================= */
+
+.profile-page {
+  width: 100%;
+  padding: 12px;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+/* Inputs & selects */
+.profile-card input,
+.profile-card select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: 15px;
+}
+
+/* Grid för grundinfo */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Sparaknapp */
+.profile-save-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 14px;
+}
+
+/* =========================
+   KROPPSMÅTT – MOBIL
+========================= */
+
+.measure-row {
+  display: flex;
+  flex-direction: column;
+  
