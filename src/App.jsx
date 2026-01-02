@@ -194,42 +194,37 @@ function computeMuscleStatsFromLogs(logs, profile) {
 }
 
 /* =========================
-   ENERGI-FÄRGER
+   ENERGI – ACCENTFÄRGER
 ========================= */
 
-const ENERGY_COLORS = {
-  1: "#1f2933",
-  2: "#374151",
-  3: "#2563eb",
-  4: "#16a34a",
-  5: "#7c3aed",
+const ENERGY = {
+  1: { bg: "#0f172a", accent: "#334155" },
+  2: { bg: "#0f172a", accent: "#475569" },
+  3: { bg: "#0f172a", accent: "#2563eb" },
+  4: { bg: "#0f172a", accent: "#16a34a" },
+  5: { bg: "#0f172a", accent: "#7c3aed" },
 };
 
 /* =========================
-   HJÄLPFUNKTIONER
+   HJÄLP
 ========================= */
 
-function getMonthLabel(date) {
+function monthLabel(date) {
   return date.toLocaleDateString("sv-SE", {
     month: "long",
     year: "numeric",
   });
 }
 
-function getCalendarDays(year, month) {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
+function calendarDays(year, month) {
+  const first = new Date(year, month, 1);
+  const offset = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const total = Math.ceil((offset + daysInMonth) / 7) * 7;
 
-  const startOffset = (firstDay.getDay() + 6) % 7; // Måndag = 0
-  const totalDays = startOffset + lastDay.getDate();
-  const rows = Math.ceil(totalDays / 7) * 7;
-
-  const days = [];
-  for (let i = 0; i < rows; i++) {
-    const d = new Date(year, month, i - startOffset + 1);
-    days.push(d);
-  }
-  return days;
+  return Array.from({ length: total }, (_, i) => {
+    return new Date(year, month, i - offset + 1);
+  });
 }
 
 /* =========================
@@ -237,37 +232,36 @@ function getCalendarDays(year, month) {
 ========================= */
 
   function CycleView({ cycleConfig, setCycleConfig }) {
-  const today = new Date();
+  const now = new Date();
+  const year = cycleConfig.year ?? now.getFullYear();
+  const month = cycleConfig.month ?? now.getMonth();
 
-  const year = cycleConfig.year ?? today.getFullYear();
-  const month = cycleConfig.month ?? today.getMonth();
-
-  const calendarDays = useMemo(
-    () => getCalendarDays(year, month),
-    [year, month]
+  const [activeDate, setActiveDate] = useState(
+    new Date(year, month, now.getDate()).toISOString().slice(0, 10)
   );
 
-  const dayData = cycleConfig.days ?? {};
+  const days = cycleConfig.days ?? {};
 
-  function updateDay(dateKey, updates) {
+  const grid = useMemo(() => calendarDays(year, month), [year, month]);
+
+  function updateDay(dateKey, patch) {
     setCycleConfig((prev) => ({
       ...prev,
       days: {
         ...(prev.days || {}),
         [dateKey]: {
           ...(prev.days?.[dateKey] || {}),
-          ...updates,
+          ...patch,
         },
       },
     }));
   }
 
   return (
-    <div className="card">
-      {/* ================= HEADER ================= */}
-      <div className="calendar-header">
+    <div className="card cycle-card">
+      {/* HEADER */}
+      <div className="cycle-header">
         <button
-          className="calendar-nav"
           onClick={() =>
             setCycleConfig((p) => ({
               ...p,
@@ -279,12 +273,9 @@ function getCalendarDays(year, month) {
           ←
         </button>
 
-        <div className="calendar-month">
-          {getMonthLabel(new Date(year, month))}
-        </div>
+        <h3>{monthLabel(new Date(year, month))}</h3>
 
         <button
-          className="calendar-nav"
           onClick={() =>
             setCycleConfig((p) => ({
               ...p,
@@ -297,61 +288,65 @@ function getCalendarDays(year, month) {
         </button>
       </div>
 
-      {/* ================= ENERGI INPUT ================= */}
-      <div className="calendar-energy-bar">
+      {/* ENERGY BAR */}
+      <div className="cycle-energy-bar">
         <span>⚡ Energi</span>
 
-        {[1, 2, 3, 4, 5].map((v) => (
+        {[1, 2, 3, 4, 5].map((lvl) => (
           <button
-            key={v}
-            className={`energy-pill energy-${v}`}
-            onClick={() =>
-              updateDay(today.toISOString().slice(0, 10), { energy: v })
-            }
+            key={lvl}
+            style={{ background: ENERGY[lvl].accent }}
+            onClick={() => updateDay(activeDate, { energy: lvl })}
           >
-            {v}
+            {lvl}
           </button>
         ))}
 
-        <label className="calendar-bleed-toggle">
+        <label>
           <input
             type="checkbox"
+            checked={days[activeDate]?.bleeding || false}
             onChange={(e) =>
-              updateDay(today.toISOString().slice(0, 10), {
-                bleeding: e.target.checked,
-              })
+              updateDay(activeDate, { bleeding: e.target.checked })
             }
           />
-          🩸 Blöder idag
+          🩸
         </label>
       </div>
 
-      {/* ================= KALENDER ================= */}
-      <div className="calendar-grid">
-        {calendarDays.map((d, i) => {
-          const dateKey = d.toISOString().slice(0, 10);
-          const data = dayData[dateKey] || {};
-          const energy = data.energy;
-          const bleeding = data.bleeding;
-          const isCurrentMonth = d.getMonth() === month;
+      {/* CALENDAR */}
+      <div className="cycle-grid">
+        {grid.map((d, i) => {
+          const key = d.toISOString().slice(0, 10);
+          const data = days[key] || {};
+          const inMonth = d.getMonth() === month;
+          const selected = key === activeDate;
 
           return (
             <div
               key={i}
-              className={`calendar-day ${
-                isCurrentMonth ? "" : "calendar-day--muted"
+              className={`cycle-day ${selected ? "active" : ""} ${
+                !inMonth ? "muted" : ""
               }`}
               style={{
-                background: energy ? ENERGY_COLORS[energy] : undefined,
+                borderColor: data.energy
+                  ? ENERGY[data.energy].accent
+                  : "rgba(148,163,184,0.12)",
               }}
+              onClick={() => setActiveDate(key)}
             >
-              <div className="calendar-date">{d.getDate()}</div>
+              <div className="day-number">{d.getDate()}</div>
 
-              {energy && (
-                <div className="calendar-energy">⚡ {energy}</div>
+              {data.energy && (
+                <div
+                  className="energy-dot"
+                  style={{ background: ENERGY[data.energy].accent }}
+                >
+                  ⚡ {data.energy}
+                </div>
               )}
 
-              {bleeding && <div className="calendar-bleed">🩸</div>}
+              {data.bleeding && <div className="bleed">🩸</div>}
             </div>
           );
         })}
@@ -359,6 +354,7 @@ function getCalendarDays(year, month) {
     </div>
   );
 }
+
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
