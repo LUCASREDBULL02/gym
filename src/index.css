@@ -2065,3 +2065,84 @@ select {
 .calendar-bleed {
   margin-top: 2px;
 }
+.cycle-card {
+  background: radial-gradient(
+    circle at top,
+    rgba(30,41,59,0.9),
+    rgba(2,6,23,0.95)
+  );
+}
+
+.cycle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.cycle-header button {
+  background: rgba(15,23,42,0.8);
+  border: 1px solid rgba(148,163,184,0.15);
+  color: white;
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+.cycle-energy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cycle-energy-bar button {
+  border-radius: 999px;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  font-weight: 600;
+}
+
+.cycle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.cycle-day {
+  min-height: 88px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(15,23,42,0.85);
+  border: 1px solid rgba(148,163,184,0.12);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cycle-day:hover {
+  transform: translateY(-2px);
+}
+
+.cycle-day.active {
+  box-shadow: 0 0 0 2px rgba(124,58,237,0.7);
+}
+
+.cycle-day.muted {
+  opacity: 0.35;
+}
+
+.day-number {
+  font-weight: 700;
+}
+
+.energy-dot {
+  margin-top: 6px;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  width: fit-content;
+}
+
+.bleed {
+  margin-top: 4px;
+}
