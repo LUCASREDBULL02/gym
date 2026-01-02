@@ -250,51 +250,50 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   };
 
   return (
-    <div className="card">
-      <div className="calendar-header">
-        <button onClick={() => changeMonth(-1)}>‹</button>
-        <strong>
-          {monthDate.toLocaleString("sv-SE", { month: "long", year: "numeric" })}
-        </strong>
-        <button onClick={() => changeMonth(1)}>›</button>
+   {/* ===== KALENDER ===== */}
+<div className="calendar">
+
+  {/* HEADER */}
+  <div className="calendar-header">
+    <button onClick={goPrevMonth} className="calendar-nav">‹</button>
+    <div className="calendar-month">{monthLabel}</div>
+    <button onClick={goNextMonth} className="calendar-nav">›</button>
+  </div>
+
+  {/* WEEKDAYS */}
+  <div className="calendar-weekdays">
+    {["M", "T", "O", "T", "F", "L", "S"].map((d) => (
+      <div key={d} className="calendar-weekday">{d}</div>
+    ))}
+  </div>
+
+  {/* GRID */}
+  <div className="calendar-grid">
+    {calendarCells.map((cell, i) => (
+      <div
+        key={i}
+        className={`calendar-cell ${cell.empty ? "empty" : ""}`}
+        style={{ background: cell.color }}
+        onClick={() => !cell.empty && openDay(cell.date)}
+      >
+        {!cell.empty && (
+          <>
+            <div className="calendar-date">{cell.day}</div>
+
+            {cell.energy && (
+              <div className="calendar-energy">{cell.energy}</div>
+            )}
+
+            {cell.bleeding && (
+              <div className="calendar-bleed">🩸</div>
+            )}
+          </>
+        )}
       </div>
+    ))}
+  </div>
+</div>
 
-      <div className="calendar-grid">
-        {["M", "T", "O", "T", "F", "L", "S"].map((d) => (
-          <div key={d} className="calendar-weekday">
-            {d}
-          </div>
-        ))}
-
-        {days.map((date, i) => {
-          if (!date) return <div key={i} className="calendar-cell empty" />;
-
-          const dateStr = date.toISOString().slice(0, 10);
-          const entry = cycleConfig.days?.[dateStr] || {};
-          const energy = entry.energy;
-          const bleeding = entry.bleeding;
-
-          return (
-            <div
-              key={dateStr}
-              className="calendar-cell"
-              style={{
-                background: energy ? ENERGY_COLORS[energy] : "transparent",
-              }}
-              onClick={() =>
-                updateDay(dateStr, { energy: energy === 5 ? 1 : (energy || 0) + 1 })
-              }
-            >
-              <div className="calendar-date">{date.getDate()}</div>
-              {energy && <div className="calendar-energy">{energy}</div>}
-              {bleeding && <div className="calendar-bleed">🩸</div>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
