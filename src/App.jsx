@@ -353,13 +353,14 @@ function calendarDays(year, month) {
               )}
 
               {data.bleeding && <div className="bleed">🩸</div>}
-            </div>
+           </div>
           );
         })}
       </div>
     </div>
   );
 }
+
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
