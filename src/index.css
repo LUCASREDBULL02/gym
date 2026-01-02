@@ -1866,3 +1866,117 @@ select {
     font-size: 11px;
   }
 }
+/* =====================
+   KALENDER – HEADER
+===================== */
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.calendar-nav {
+  background: rgba(30,41,59,0.8);
+  border: 1px solid rgba(148,163,184,0.15);
+  color: #e5e7eb;
+  border-radius: 10px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.calendar-nav:hover {
+  background: rgba(51,65,85,0.9);
+}
+
+.calendar-month {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* =====================
+   ENERGI BAR
+===================== */
+
+.calendar-energy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.energy-pill {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.energy-1 { background: #1f2933; }
+.energy-2 { background: #374151; }
+.energy-3 { background: #2563eb; }
+.energy-4 { background: #16a34a; }
+.energy-5 { background: #7c3aed; }
+
+.calendar-bleed-toggle {
+  margin-left: 10px;
+  font-size: 13px;
+}
+
+/* =====================
+   KALENDER – GRID
+===================== */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+/* =====================
+   DAGAR
+===================== */
+
+.calendar-day {
+  min-height: 82px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(15,23,42,0.85);
+  border: 1px solid rgba(148,163,184,0.12);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 10px 25px rgba(0,0,0,0.35);
+  color: #e5e7eb;
+  font-size: 13px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.calendar-day:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(0,0,0,0.45);
+}
+
+.calendar-day--muted {
+  opacity: 0.35;
+}
+
+.calendar-date {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.calendar-energy {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.calendar-bleed {
+  margin-top: 2px;
+  font-size: 14px;
+}
