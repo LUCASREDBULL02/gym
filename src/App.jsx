@@ -317,45 +317,51 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   return (
     <div className="card">
       {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-        <button
-          onClick={() =>
-            setCycleConfig(p => ({
-              ...p,
-              month: month === 0 ? 11 : month - 1,
-              year: month === 0 ? year - 1 : year,
-            }))
-          }
-        >
-          ←
-        </button>
+    <div className="calendar-header">
+  <button
+    className="calendar-nav"
+    onClick={() =>
+      setCycleConfig((p) => ({
+        ...p,
+        month: month - 1,
+        year: month === 0 ? year - 1 : year,
+      }))
+    }
+  >
+    ←
+  </button>
 
-        <h3 style={{ margin: 0, textTransform: "capitalize" }}>
-          {getMonthLabel(new Date(year, month))}
-        </h3>
+  <div className="calendar-month">
+    {getMonthLabel(new Date(year, month))}
+  </div>
 
-        <button
-          onClick={() =>
-            setCycleConfig(p => ({
-              ...p,
-              month: month === 11 ? 0 : month + 1,
-              year: month === 11 ? year + 1 : year,
-            }))
-          }
-        >
-          →
-        </button>
-      </div>
-
+  <button
+    className="calendar-nav"
+    onClick={() =>
+      setCycleConfig((p) => ({
+        ...p,
+        month: month + 1,
+        year: month === 11 ? year + 1 : year,
+      }))
+    }
+  >
+    →
+  </button>
+</div>
       {/* INPUT */}
       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
         <span>⚡ Energi</span>
-        {[1,2,3,4,5].map(v => (
-          <button
-            key={v}
-            onClick={() =>
-              updateDay(today.toISOString().slice(0,10), { energy: v })
-            }
+        {[1, 2, 3, 4, 5].map((v) => (
+  <button
+    key={v}
+    className={`energy-pill energy-${v}`}
+    onClick={() =>
+      updateDay(today.toISOString().slice(0, 10), { energy: v })
+    }
+  >
+    {v}
+  </button>
+))}
             style={{
               background: ENERGY_COLORS[v],
               color: "white",
@@ -381,35 +387,39 @@ function CycleView({ cycleConfig, setCycleConfig }) {
       </div>
 
       {/* KALENDER */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
-        {weeks.map((week, wi) => (
-          <React.Fragment key={wi}>
-            {week.days.map(d => {
-              const key = d.toISOString().slice(0,10);
-              const data = dayData[key] || {};
-              const isCurrentMonth = d.getMonth() === month;
+     <div className="calendar-grid">
+  {calendarDays.map((d, i) => {
+    const dateKey = d.toISOString().slice(0, 10);
+    const data = dayData[dateKey] || {};
+    const energy = data.energy;
+    const bleeding = data.bleeding;
+    const isCurrentMonth = d.getMonth() === month;
 
-              return (
-                <div
-                  key={key}
-                  style={{
-                    minHeight: 70,
-                    borderRadius: 8,
-                    padding: 6,
-                    background: data.energy
-                      ? ENERGY_COLORS[data.energy]
-                      : "rgba(30,41,59,0.6)",
-                    opacity: isCurrentMonth ? 1 : 0.35,
-                    color: "white",
-                    fontSize: 12,
-                  }}
-                >
-                  <div style={{ fontWeight: 600 }}>{d.getDate()}</div>
-                  {data.energy && <div>⚡ {data.energy}</div>}
-                  {data.bleeding && <div>🩸</div>}
-                </div>
-              );
-            })}
+    return (
+      <div
+        key={i}
+        className={`calendar-day ${
+          isCurrentMonth ? "" : "calendar-day--muted"
+        }`}
+        style={{
+          background: energy
+            ? ENERGY_COLORS[energy]
+            : undefined,
+        }}
+      >
+        <div className="calendar-date">{d.getDate()}</div>
+
+        {energy && (
+          <div className="calendar-energy">⚡ {energy}</div>
+        )}
+
+        {bleeding && (
+          <div className="calendar-bleed">🩸</div>
+        )}
+      </div>
+    );
+  })}
+</div>
 
             <div style={{
               gridColumn: "span 7",
