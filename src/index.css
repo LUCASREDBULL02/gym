@@ -2696,3 +2696,206 @@ select {
   border-radius: 16px;
   padding: 16px;
 }
+/* =========================
+   CYCLE VIEW – POLISH
+========================= */
+
+/* ---------- HEADER ---------- */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.calendar-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: capitalize;
+  color: #e5e7eb;
+}
+
+/* ---------- PILAR ---------- */
+
+.calendar-nav {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.8);
+  color: #e5e7eb;
+  font-size: 18px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.15s ease;
+}
+
+.calendar-nav:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.calendar-nav:active {
+  transform: scale(0.95);
+}
+
+/* ---------- ENERGI BAR ---------- */
+
+.cycle-energy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.cycle-energy-bar span {
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+.cycle-energy-bar button {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cycle-energy-bar button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- BLOD TOGGLE ---------- */
+
+.bleed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  font-size: 13px;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.bleed-toggle input {
+  display: none;
+}
+
+.bleed-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ---------- KALENDER GRID ---------- */
+
+.cycle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* ---------- DAG ---------- */
+
+.cycle-day {
+  min-height: 68px;
+  border-radius: 10px;
+  padding: 6px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  color: #e5e7eb;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  transition: all 0.15s ease;
+}
+
+.cycle-day:hover {
+  background: rgba(30, 41, 59, 0.9);
+}
+
+/* AKTIV DAG – VIT OUTLINE (inte lila) */
+.cycle-day.active {
+  border-color: white;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+/* Dagar utanför månaden */
+.cycle-day.muted {
+  opacity: 0.35;
+}
+
+/* ---------- DATUM ---------- */
+
+.day-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5f5;
+}
+
+/* ---------- ENERGI I RUTA ---------- */
+
+.energy-dot {
+  align-self: flex-end;
+  margin-top: auto;
+
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: white;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- BLODDROPPE I RUTA ---------- */
+
+.bleed {
+  font-size: 14px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* ---------- MOBIL ---------- */
+
+@media (max-width: 640px) {
+  .calendar-title {
+    font-size: 14px;
+  }
+
+  .cycle-day {
+    min-height: 56px;
+    padding: 5px;
+  }
+
+  .energy-dot {
+    font-size: 11px;
+    padding: 2px 5px;
+  }
+
+  .bleed {
+    font-size: 13px;
+  }
+}
