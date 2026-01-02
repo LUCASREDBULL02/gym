@@ -2157,3 +2157,200 @@ select {
   border-color: rgba(255,255,255,0.9) !important;
   box-shadow: 0 0 0 2px rgba(255,255,255,0.9) !important;
 }
+/* =========================
+   CYCLE VIEW – BAS
+========================= */
+
+.cycle-card {
+  background: radial-gradient(
+    1200px 400px at 50% -200px,
+    rgba(124, 58, 237, 0.08),
+    rgba(15, 23, 42, 0.95)
+  );
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* =========================
+   HEADER + PILAR
+========================= */
+
+.cycle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cycle-header h3 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+}
+
+.cycle-nav {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cycle-nav:hover {
+  background: rgba(255,255,255,0.14);
+  transform: scale(1.05);
+}
+
+/* =========================
+   ENERGI-KNAPPRAD
+========================= */
+
+.energy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.energy-pill {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.energy-pill:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+/* =========================
+   BLEED TOGGLE
+========================= */
+
+.bleed-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  color: #e5e7eb;
+}
+
+.bleed-toggle:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.bleed-toggle input {
+  display: none;
+}
+
+.bleed-icon {
+  font-size: 16px;
+}
+
+.bleed-toggle input:checked + .bleed-icon {
+  filter: drop-shadow(0 0 4px #ef4444);
+}
+
+/* =========================
+   KALENDER GRID
+========================= */
+
+.cycle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+/* =========================
+   DAG-RUTOR
+========================= */
+
+.cycle-day {
+  min-height: 70px;
+  border-radius: 12px;
+  padding: 6px 8px;
+  background: rgba(30,41,59,0.55);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.cycle-day:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* 🔑 VIKTIGT: vit outline istället för lila */
+.cycle-day:focus,
+.cycle-day:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px white;
+}
+
+/* =========================
+   DAG-DETALJER
+========================= */
+
+.cycle-day-date {
+  font-weight: 600;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.cycle-day-energy {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-size: 12px;
+  opacity: 0.95;
+}
+
+.cycle-day-bleed {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 14px;
+}
+
+/* =========================
+   FÄRGER ENERGI 1–5
+========================= */
+
+.energy-1 { background: #ef4444 !important; } /* röd */
+.energy-2 { background: #f97316 !important; } /* orange */
+.energy-3 { background: #eab308 !important; } /* gul */
+.energy-4 { background: #22c55e !important; } /* grön */
+.energy-5 { background: #8b5cf6 !important; } /* lila */
+
+/* =========================
+   INAKTIV MÅNAD
+========================= */
+
+.cycle-day.outside {
+  opacity: 0.35;
+}
