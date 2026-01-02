@@ -3185,3 +3185,35 @@ select {
     font-size: 13px;
   }
 }
+/* Säkerställ att muskelkort aldrig kan overflowa */
+.muscle-card {
+  overflow: hidden;
+}
+
+/* Level badge – bas */
+.level-badge {
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: normal;      /* VIKTIGT */
+  text-align: center;
+  word-break: break-word;   /* VIKTIGT */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 480px) {
+  .level-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    max-width: 90%;
+  }
+
+  .muscle-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
