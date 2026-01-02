@@ -261,33 +261,38 @@ function calendarDays(year, month) {
     <div className="card cycle-card">
       {/* HEADER */}
       <div className="cycle-header">
-        <button
-          onClick={() =>
-            setCycleConfig((p) => ({
-              ...p,
-              month: month === 0 ? 11 : month - 1,
-              year: month === 0 ? year - 1 : year,
-            }))
-          }
-        >
-          ←
-        </button>
+       <div className="calendar-header">
+  <button
+    className="calendar-nav"
+    onClick={() =>
+      setCycleConfig((p) => ({
+        ...p,
+        month: month === 0 ? 11 : month - 1,
+        year: month === 0 ? year - 1 : year,
+      }))
+    }
+  >
+    ←
+  </button>
 
-        <h3>{monthLabel(new Date(year, month))}</h3>
+  <h3 className="calendar-title">
+    {monthLabel(new Date(year, month))}
+  </h3>
 
-        <button
-          onClick={() =>
-            setCycleConfig((p) => ({
-              ...p,
-              month: month === 11 ? 0 : month + 1,
-              year: month === 11 ? year + 1 : year,
-            }))
-          }
-        >
-          →
-        </button>
-      </div>
-
+  <button
+    className="calendar-nav"
+    onClick={() =>
+      setCycleConfig((p) => ({
+        ...p,
+        month: month === 11 ? 0 : month + 1,
+        year: month === 11 ? year + 1 : year,
+      }))
+    }
+  >
+    →
+  </button>
+</div>
+        
       {/* ENERGY BAR */}
       <div className="cycle-energy-bar">
         <span>⚡ Energi</span>
@@ -302,16 +307,17 @@ function calendarDays(year, month) {
           </button>
         ))}
 
-        <label>
-          <input
-            type="checkbox"
-            checked={days[activeDate]?.bleeding || false}
-            onChange={(e) =>
-              updateDay(activeDate, { bleeding: e.target.checked })
-            }
-          />
-          🩸
-        </label>
+        <label className="bleed-toggle">
+  <input
+    type="checkbox"
+    checked={bleeding}
+    onChange={(e) =>
+      updateDay(selectedDateKey, { bleeding: e.target.checked })
+    }
+  />
+  <span className="bleed-icon">🩸</span>
+  <span className="bleed-text">Blöder idag</span>
+</label>
       </div>
 
       {/* CALENDAR */}
