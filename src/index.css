@@ -2149,3 +2149,11 @@ select {
 .cycle-day.active .energy-dot {
   box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
 }
+/* ===== AKTIV / KLICKAD DAG – VIT, INTE LILA ===== */
+.cycle-day.active,
+.cycle-day:focus,
+.cycle-day:active {
+  outline: none !important;
+  border-color: rgba(255,255,255,0.9) !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.9) !important;
+}
