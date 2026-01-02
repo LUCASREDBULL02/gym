@@ -196,6 +196,10 @@ function computeMuscleStatsFromLogs(logs, profile) {
 function CycleView({ cycleConfig, setCycleConfig }) {
   const today = new Date();
 
+  /* =========================
+     KONSTANTER
+  ========================= */
+
   const ENERGY_COLORS = {
     1: "#7f1d1d",
     2: "#b45309",
@@ -203,6 +207,10 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     4: "#15803d",
     5: "#065f46",
   };
+
+  /* =========================
+     AKTIV MÅNAD
+  ========================= */
 
   const monthDate = new Date(
     cycleConfig.year ?? today.getFullYear(),
@@ -213,32 +221,51 @@ function CycleView({ cycleConfig, setCycleConfig }) {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
 
-  const firstDay = new Date(year, month, 1);
-  const startOffset = (firstDay.getDay() + 6) % 7;
+  const monthLabel = monthDate.toLocaleDateString("sv-SE", {
+    month: "long",
+    year: "numeric",
+  });
 
+  /* =========================
+     DATUM-LOGIK
+  ========================= */
+
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // Måndag start
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const days = useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < startOffset; i++) arr.push(null);
-    for (let d = 1; d <= daysInMonth; d++) {
-      arr.push(new Date(year, month, d));
-    }
-    return arr;
-  }, [year, month, startOffset, daysInMonth]);
+  const calendarCells = useMemo(() => {
+    const cells = [];
 
-  const updateDay = (dateStr, data) => {
-    setCycleConfig((prev) => ({
-      ...prev,
-      days: {
-        ...(prev.days || {}),
-        [dateStr]: {
-          ...(prev.days?.[dateStr] || {}),
-          ...data,
-        },
-      },
-    }));
-  };
+    // Tomma rutor före månadens start
+    for (let i = 0; i < startOffset; i++) {
+      cells.push({ empty: true });
+    }
+
+    // Riktiga dagar
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dateStr = date.toISOString().slice(0, 10);
+      const saved = cycleConfig.days?.[dateStr] || {};
+
+      cells.push({
+        empty: false,
+        day: d,
+        date: dateStr,
+        energy: saved.energy ?? null,
+        bleeding: saved.bleeding ?? false,
+        color: saved.energy
+          ? ENERGY_COLORS[saved.energy]
+          : "rgba(15,23,42,0.6)",
+      });
+    }
+
+    return cells;
+  }, [year, month, daysInMonth, startOffset, cycleConfig.days]);
+
+  /* =========================
+     HANDLERS
+  ========================= */
 
   const changeMonth = (dir) => {
     const newDate = new Date(year, month + dir, 1);
@@ -249,50 +276,90 @@ function CycleView({ cycleConfig, setCycleConfig }) {
     }));
   };
 
+  const openDay = (dateStr) => {
+    const energy = Number(prompt("Energi 1–5?"));
+    if (!energy || energy < 1 || energy > 5) return;
+
+    setCycleConfig((prev) => ({
+      ...prev,
+      days: {
+        ...(prev.days || {}),
+        [dateStr]: {
+          ...(prev.days?.[dateStr] || {}),
+          energy,
+        },
+      },
+    }));
+  };
+
+  /* =========================
+     RENDER
+  ========================= */
+
   return (
-   {/* ===== KALENDER ===== */}
-<div className="calendar">
+    <div className="card">
+      <div className="calendar">
 
-  {/* HEADER */}
-  <div className="calendar-header">
-    <button onClick={goPrevMonth} className="calendar-nav">‹</button>
-    <div className="calendar-month">{monthLabel}</div>
-    <button onClick={goNextMonth} className="calendar-nav">›</button>
-  </div>
+        {/* HEADER */}
+        <div className="calendar-header">
+          <button
+            className="calendar-nav"
+            onClick={() => changeMonth(-1)}
+          >
+            ‹
+          </button>
 
-  {/* WEEKDAYS */}
-  <div className="calendar-weekdays">
-    {["M", "T", "O", "T", "F", "L", "S"].map((d) => (
-      <div key={d} className="calendar-weekday">{d}</div>
-    ))}
-  </div>
+          <div className="calendar-month">{monthLabel}</div>
 
-  {/* GRID */}
-  <div className="calendar-grid">
-    {calendarCells.map((cell, i) => (
-      <div
-        key={i}
-        className={`calendar-cell ${cell.empty ? "empty" : ""}`}
-        style={{ background: cell.color }}
-        onClick={() => !cell.empty && openDay(cell.date)}
-      >
-        {!cell.empty && (
-          <>
-            <div className="calendar-date">{cell.day}</div>
+          <button
+            className="calendar-nav"
+            onClick={() => changeMonth(1)}
+          >
+            ›
+          </button>
+        </div>
 
-            {cell.energy && (
-              <div className="calendar-energy">{cell.energy}</div>
-            )}
+        {/* WEEKDAYS */}
+        <div className="calendar-weekdays">
+          {["M", "T", "O", "T", "F", "L", "S"].map((d) => (
+            <div key={d} className="calendar-weekday">
+              {d}
+            </div>
+          ))}
+        </div>
 
-            {cell.bleeding && (
-              <div className="calendar-bleed">🩸</div>
-            )}
-          </>
-        )}
+        {/* GRID */}
+        <div className="calendar-grid">
+          {calendarCells.map((cell, i) => (
+            <div
+              key={i}
+              className={`calendar-cell ${cell.empty ? "empty" : ""}`}
+              style={{ background: cell.color }}
+              onClick={() => !cell.empty && openDay(cell.date)}
+            >
+              {!cell.empty && (
+                <>
+                  <div className="calendar-date">{cell.day}</div>
+
+                  {cell.energy && (
+                    <div className="calendar-energy">
+                      {cell.energy}
+                    </div>
+                  )}
+
+                  {cell.bleeding && (
+                    <div className="calendar-bleed">🩸</div>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
       </div>
-    ))}
-  </div>
-</div>
+    </div>
+  );
+}
 
 // ------------------ HUVUDKOMPONENT ------------------
 
