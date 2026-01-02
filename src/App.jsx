@@ -360,7 +360,6 @@ function calendarDays(year, month) {
     </div>
   );
 }
-
 // ------------------ HUVUDKOMPONENT ------------------
 
 export default function App() {
