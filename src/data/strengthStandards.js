@@ -1,67 +1,174 @@
 // StrengthLevel-style standards
-// 100% = World Class (1.5 ratio)
+// 100% = World Class (1.5 ratio cap)
+// coeff ≈ hur tung övningen är relativt kroppsvikt
 
 export const STRENGTH_STANDARDS = {
-  /* ================= CHEST ================= */
+  /* ======================
+     CHEST
+  ====================== */
   bench: { coeff: 0.8, muscles: ["chest", "shoulders", "arms"] },
   inclinebench: { coeff: 0.75, muscles: ["chest", "shoulders", "arms"] },
-  declinebench: { coeff: 0.85, muscles: ["chest", "shoulders", "arms"] },
+  declinebench: { coeff: 0.85, muscles: ["chest", "arms"] },
   dumbbellpress: { coeff: 0.55, muscles: ["chest", "shoulders"] },
+  dumbbellincline: { coeff: 0.5, muscles: ["chest", "shoulders"] },
   chestpress: { coeff: 0.6, muscles: ["chest", "shoulders"] },
   cablefly: { coeff: 0.35, muscles: ["chest"] },
+  pecdeck: { coeff: 0.35, muscles: ["chest"] },
   pushups: { coeff: 0.3, muscles: ["chest", "shoulders", "arms"] },
+  weightedpushups: { coeff: 0.5, muscles: ["chest", "arms"] },
+  floorpress: { coeff: 0.75, muscles: ["chest", "arms"] },
+  guillotinepress: { coeff: 0.65, muscles: ["chest"] },
+  squeezepress: { coeff: 0.4, muscles: ["chest"] },
+  smithbench: { coeff: 0.7, muscles: ["chest", "arms"] },
+  lowcablefly: { coeff: 0.3, muscles: ["chest"] },
+  highcablefly: { coeff: 0.3, muscles: ["chest"] },
+  ringpushups: { coeff: 0.45, muscles: ["chest", "arms"] },
+  dipchest: { coeff: 0.7, muscles: ["chest", "arms"] },
+  pausedbench: { coeff: 0.85, muscles: ["chest", "arms"] },
+  spoto: { coeff: 0.8, muscles: ["chest", "arms"] },
 
-  /* ================= BACK ================= */
+  /* ======================
+     BACK
+  ====================== */
+  deadlift: { coeff: 1.5, muscles: ["back", "glutes", "legs"] },
   row: { coeff: 0.9, muscles: ["back"] },
+  kelsoshrug: { coeff: 0.6, muscles: ["back"] },
   tbarrow: { coeff: 1.0, muscles: ["back"] },
   sealrow: { coeff: 0.95, muscles: ["back"] },
-  meadowsrow: { coeff: 0.9, muscles: ["back"] },
   pendlayrow: { coeff: 1.1, muscles: ["back"] },
+  meadowsrow: { coeff: 0.9, muscles: ["back"] },
   latpulldown: { coeff: 0.9, muscles: ["back", "arms"] },
-  straightarm-pulldown: { coeff: 0.4, muscles: ["back"] },
-  kelsoshrug: { coeff: 0.8, muscles: ["back"] },
-  deadlift: { coeff: 1.5, muscles: ["back", "glutes", "legs"] },
+  pullups: { coeff: 1.0, muscles: ["back", "arms"] },
+  weightedpullups: { coeff: 1.3, muscles: ["back", "arms"] },
+  chins: { coeff: 0.95, muscles: ["back", "arms"] },
+  cablerow: { coeff: 0.8, muscles: ["back"] },
+  straightarmpulldown: { coeff: 0.4, muscles: ["back"] },
+  krocrow: { coeff: 1.05, muscles: ["back"] },
+  invertedrow: { coeff: 0.6, muscles: ["back"] },
+  smithrow: { coeff: 0.85, muscles: ["back"] },
+  rackpull: { coeff: 1.6, muscles: ["back", "glutes"] },
+  snatchgripdeadlift: { coeff: 1.6, muscles: ["back", "glutes"] },
+  goodmorning: { coeff: 1.0, muscles: ["back", "glutes"] },
+  hyperextension: { coeff: 0.5, muscles: ["back"] },
+  reversehyper: { coeff: 0.8, muscles: ["back", "glutes"] },
 
-  /* ================= GLUTES ================= */
-  hipthrust: { coeff: 1.8, muscles: ["glutes"] },
-  smithhipthrust: { coeff: 1.6, muscles: ["glutes"] },
-  glutebridge: { coeff: 1.4, muscles: ["glutes"] },
-  frogpump: { coeff: 0.7, muscles: ["glutes"] },
-  cablekickback: { coeff: 0.4, muscles: ["glutes"] },
-  abduction: { coeff: 0.3, muscles: ["glutes"] },
-  bulgarian: { coeff: 0.9, muscles: ["glutes", "legs"] },
-  sumosquat: { coeff: 1.2, muscles: ["glutes", "legs"] },
-
-  /* ================= LEGS ================= */
+  /* ======================
+     LEGS
+  ====================== */
   squat: { coeff: 1.25, muscles: ["legs", "glutes"] },
   frontsquat: { coeff: 1.0, muscles: ["legs", "glutes"] },
   hacklift: { coeff: 1.5, muscles: ["legs", "glutes"] },
   legpress: { coeff: 3.0, muscles: ["legs", "glutes"] },
+  bulgarian: { coeff: 0.9, muscles: ["legs", "glutes"] },
   lunges: { coeff: 0.7, muscles: ["legs", "glutes"] },
-  stepup: { coeff: 0.5, muscles: ["legs", "glutes"] },
+  stepups: { coeff: 0.6, muscles: ["legs", "glutes"] },
   sissysquat: { coeff: 0.3, muscles: ["legs"] },
-  legcurl: { coeff: 0.6, muscles: ["legs"] },
+  pistolsquat: { coeff: 0.6, muscles: ["legs", "glutes"] },
+  boxsquat: { coeff: 1.1, muscles: ["legs", "glutes"] },
+  pausessquat: { coeff: 1.15, muscles: ["legs", "glutes"] },
   legextension: { coeff: 0.35, muscles: ["legs"] },
+  legcurl: { coeff: 0.6, muscles: ["legs"] },
+  nordiccurl: { coeff: 0.8, muscles: ["legs"] },
+  zerchersquat: { coeff: 1.2, muscles: ["legs", "glutes"] },
+  "belt squat": { coeff: 2.5, muscles: ["legs"] },
+  smithsquat: { coeff: 1.1, muscles: ["legs", "glutes"] },
+  heelliftedsquat: { coeff: 1.0, muscles: ["legs"] },
+  cyclistsquat: { coeff: 0.9, muscles: ["legs"] },
+  hatfieldsquat: { coeff: 1.4, muscles: ["legs", "glutes"] },
 
-  /* ================= SHOULDERS ================= */
+  /* ======================
+     GLUTES
+  ====================== */
+  hipthrust: { coeff: 1.8, muscles: ["glutes"] },
+  smithhipthrust: { coeff: 1.6, muscles: ["glutes"] },
+  glutebridge: { coeff: 1.4, muscles: ["glutes"] },
+  sumosquat: { coeff: 1.2, muscles: ["glutes", "legs"] },
+  rdl: { coeff: 1.4, muscles: ["glutes"] },
+  singlelegrdl: { coeff: 0.8, muscles: ["glutes"] },
+  cablekickback: { coeff: 0.4, muscles: ["glutes"] },
+  abduction: { coeff: 0.4, muscles: ["glutes"] },
+  frogpump: { coeff: 0.7, muscles: ["glutes"] },
+  "45degbackextension": { coeff: 0.9, muscles: ["glutes"] },
+  "reverse lunge": { coeff: 0.8, muscles: ["glutes", "legs"] },
+  curtsylunge: { coeff: 0.7, muscles: ["glutes"] },
+  stepbacklunge: { coeff: 0.75, muscles: ["glutes"] },
+  hipabductionband: { coeff: 0.2, muscles: ["glutes"] },
+  cablepullthrough: { coeff: 1.0, muscles: ["glutes"] },
+  goodmorningglute: { coeff: 1.1, muscles: ["glutes"] },
+  kettlebellswing: { coeff: 1.2, muscles: ["glutes"] },
+  smithsquatglute: { coeff: 1.3, muscles: ["glutes"] },
+  hiphinge: { coeff: 0.6, muscles: ["glutes"] },
+  glutefocusedlegpress: { coeff: 3.2, muscles: ["glutes"] },
+
+  /* ======================
+     SHOULDERS
+  ====================== */
   ohp: { coeff: 0.6, muscles: ["shoulders", "arms"] },
   arnoldpress: { coeff: 0.5, muscles: ["shoulders", "arms"] },
-  machine-shoulderpress: { coeff: 0.55, muscles: ["shoulders", "arms"] },
+  "machine-shoulderpress": { coeff: 0.7, muscles: ["shoulders"] },
   laterals: { coeff: 0.25, muscles: ["shoulders"] },
+  cablelaterals: { coeff: 0.25, muscles: ["shoulders"] },
   frontraise: { coeff: 0.15, muscles: ["shoulders"] },
   "rear-delt-fly": { coeff: 0.15, muscles: ["shoulders"] },
+  uprightrow: { coeff: 0.45, muscles: ["shoulders"] },
+  facepull: { coeff: 0.2, muscles: ["shoulders"] },
+  pushpress: { coeff: 0.85, muscles: ["shoulders", "arms"] },
+  landminepress: { coeff: 0.55, muscles: ["shoulders"] },
+  singlearmpress: { coeff: 0.45, muscles: ["shoulders"] },
+  platefrontraise: { coeff: 0.2, muscles: ["shoulders"] },
+  cableuprightrow: { coeff: 0.4, muscles: ["shoulders"] },
+  yraise: { coeff: 0.15, muscles: ["shoulders"] },
+  lateralmachine: { coeff: 0.3, muscles: ["shoulders"] },
+  smithohp: { coeff: 0.75, muscles: ["shoulders"] },
+  behindneckpress: { coeff: 0.65, muscles: ["shoulders"] },
+  leaninglaterals: { coeff: 0.25, muscles: ["shoulders"] },
+  cubanpress: { coeff: 0.2, muscles: ["shoulders"] },
 
-  /* ================= ARMS ================= */
+  /* ======================
+     ARMS
+  ====================== */
   bicepcurl: { coeff: 0.25, muscles: ["arms"] },
   hammercurl: { coeff: 0.3, muscles: ["arms"] },
+  preachercurl: { coeff: 0.35, muscles: ["arms"] },
+  inclinecurl: { coeff: 0.3, muscles: ["arms"] },
   cablecurl: { coeff: 0.25, muscles: ["arms"] },
+  concentrationcurl: { coeff: 0.25, muscles: ["arms"] },
+  reversecurl: { coeff: 0.2, muscles: ["arms"] },
   triceppushdown: { coeff: 0.3, muscles: ["arms"] },
   skullcrusher: { coeff: 0.35, muscles: ["arms"] },
   overheadtricep: { coeff: 0.35, muscles: ["arms"] },
+  closegripbench: { coeff: 0.6, muscles: ["arms", "chest"] },
+  dips: { coeff: 0.7, muscles: ["arms", "chest"] },
+  kickbacks: { coeff: 0.2, muscles: ["arms"] },
+  ezcurl: { coeff: 0.3, muscles: ["arms"] },
+  spidercurl: { coeff: 0.3, muscles: ["arms"] },
+  bayesiancurl: { coeff: 0.3, muscles: ["arms"] },
+  ropepushdown: { coeff: 0.3, muscles: ["arms"] },
+  jmpress: { coeff: 0.55, muscles: ["arms"] },
+  benchdip: { coeff: 0.5, muscles: ["arms"] },
+  crossbodycurl: { coeff: 0.3, muscles: ["arms"] },
 
-  /* ================= CORE ================= */
+  /* ======================
+     CORE
+  ====================== */
   plank: { coeff: 0.1, muscles: ["core"] },
-  cablecrunch: { coeff: 0.3, muscles: ["core"] },
   abwheel: { coeff: 0.2, muscles: ["core"] },
   hanginglegraise: { coeff: 0.25, muscles: ["core"] },
+  cablecrunch: { coeff: 0.3, muscles: ["core"] },
+  declinecrunch: { coeff: 0.25, muscles: ["core"] },
+  situps: { coeff: 0.25, muscles: ["core"] },
+  russiantwist: { coeff: 0.2, muscles: ["core"] },
+  deadbug: { coeff: 0.15, muscles: ["core"] },
+  paloffpress: { coeff: 0.2, muscles: ["core"] },
+  cablewoodchop: { coeff: 0.25, muscles: ["core"] },
+  hollowhold: { coeff: 0.15, muscles: ["core"] },
+  toestobar: { coeff: 0.35, muscles: ["core"] },
+  vups: { coeff: 0.3, muscles: ["core"] },
+  weightedplank: { coeff: 0.25, muscles: ["core"] },
+  stirthepot: { coeff: 0.25, muscles: ["core"] },
+  sideplank: { coeff: 0.2, muscles: ["core"] },
+  dragonflag: { coeff: 0.5, muscles: ["core"] },
+  "l-sit": { coeff: 0.4, muscles: ["core"] },
+  seatedlegraise: { coeff: 0.25, muscles: ["core"] },
+  cableobliquecrunch: { coeff: 0.3, muscles: ["core"] },
 };
