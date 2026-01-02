@@ -198,11 +198,11 @@ function computeMuscleStatsFromLogs(logs, profile) {
 ========================= */
 
 const ENERGY = {
-  1: { bg: "#0f172a", accent: "#334155" },
-  2: { bg: "#0f172a", accent: "#475569" },
-  3: { bg: "#0f172a", accent: "#2563eb" },
-  4: { bg: "#0f172a", accent: "#16a34a" },
-  5: { bg: "#0f172a", accent: "#7c3aed" },
+  1: { bg: "#0f172a", accent: "#dc2626" }, // röd
+  2: { bg: "#0f172a", accent: "#f97316" }, // orange
+  3: { bg: "#0f172a", accent: "#eab308" }, // gul
+  4: { bg: "#0f172a", accent: "#22c55e" }, // grön
+  5: { bg: "#0f172a", accent: "#8b5cf6" }, // lila
 };
 
 /* =========================
