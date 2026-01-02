@@ -2146,3 +2146,6 @@ select {
 .bleed {
   margin-top: 4px;
 }
+.cycle-day.active .energy-dot {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+}
