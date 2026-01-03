@@ -714,7 +714,7 @@ export default function App() {
       {/* MOBILE DRAWER */}
       <div className={`mobile-drawer ${mobileMenuOpen ? "open" : ""}`}>
         <div className="drawer-header">
-          <span style={{ fontWeight: 600 }}>Bebi Gym 💗</span>
+          <span style={{ fontWeight: 600 }}>Powered by dates🌴</span>
           <button
             className="close-btn"
             onClick={() => setMobileMenuOpen(false)}
