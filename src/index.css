@@ -3295,13 +3295,14 @@ select {
   transition: all 0.15s ease;
 }
 
-/* MOBIL */
 @media (max-width: 768px) {
-  .log-set-btn {
+  .btn-pink {
+    border-radius: 14px;   /* 🔥 detta gör den RAKARE */
     padding: 10px 16px;
     font-size: 13px;
-    box-shadow: 0 6px 18px rgba(255, 95, 162, 0.25);
   }
+}
+
 }
 /* === LOGGA SET KNAPP === */
 .btn-pink {
