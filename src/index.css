@@ -3303,3 +3303,33 @@ select {
     box-shadow: 0 6px 18px rgba(255, 95, 162, 0.25);
   }
 }
+/* === LOGGA SET KNAPP === */
+.btn-pink {
+  background: linear-gradient(135deg, #ff5fa2, #ff8c42);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(255, 95, 162, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-pink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(255, 95, 162, 0.45);
+}
+
+/* === MOBIL === */
+@media (max-width: 768px) {
+  .btn-pink {
+    padding: 10px 16px;
+    font-size: 13px;
+    box-shadow: 0 6px 18px rgba(255, 95, 162, 0.25);
+  }
+}
