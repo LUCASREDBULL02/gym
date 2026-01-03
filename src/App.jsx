@@ -817,7 +817,7 @@ export default function App() {
             </div>
           </div>
       <button className="btn-pink" onClick={() => setShowModal(true)}>
-            + Logga set
+            Logga set
           </button>
         </div>
 
