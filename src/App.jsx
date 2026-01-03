@@ -712,19 +712,7 @@ export default function App() {
       </aside>
 
       {/* MOBILE DRAWER */}
-      <div className="drawer-footer">
-  <div className="drawer-profile">
-    <div className="drawer-name">
-      Namn: {profile.name}
-    </div>
-    <div className="drawer-meta">
-      {profile.gender === "female" ? "Kvinna" : "Man"} •{" "}
-      {profile.height} cm • {profile.weight} kg • {profile.age} år
-    </div>
-  </div>
-</div>
-
-      <div className={`mobile-drawer ${mobileMenuOpen ? "open" : ""}`}>
+        <div className={`mobile-drawer ${mobileMenuOpen ? "open" : ""}`}>
         <div className="drawer-header">
           <span style={{ fontWeight: 600 }}>Powered by dates🌴</span>
           <button
@@ -809,7 +797,18 @@ export default function App() {
           </button>
         </div>
       </div>
-      
+      <div className="drawer-footer">
+  <div className="drawer-profile">
+    <div className="drawer-name">
+      Namn: {profile.name}
+    </div>
+    <div className="drawer-meta">
+      {profile.gender === "female" ? "Kvinna" : "Man"} •{" "}
+      {profile.height} cm • {profile.weight} kg • {profile.age} år
+    </div>
+  </div>
+</div>
+
       {/* MAIN */}
       <main className="main">
         <div className="main-header">
