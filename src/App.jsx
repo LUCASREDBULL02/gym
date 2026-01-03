@@ -798,16 +798,20 @@ export default function App() {
         </div>
       </div>
       
-<div className="sidebar-footer">
-  <div className="sidebar-profile">
-    <div className="sidebar-name">Namn: {profile.name}</div>
-    <div className="sidebar-meta">
-      {profile.gender === "female" ? "Kvinna" : "Man"} •{" "}
-      {profile.height} cm • {profile.weight} kg • {profile.age} år
-    </div>
-  </div>
+        <div style={{ marginTop: "auto", fontSize: 11, color: "#9ca3af" }}>
+         <div>Namn: {profile.name}</div>
+          <div>
+  {profile.gender === "female"
+    ? "Kvinna"
+    : profile.gender === "male"
+    ? "Man"
+    : "Annat"}
+  {" • "}
+  {profile.height} cm • {profile.weight} kg • {profile.age} år
 </div>
-
+        </div>
+      </aside>
+    
       {/* MAIN */}
       <main className="main">
         <div className="main-header">
