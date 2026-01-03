@@ -797,7 +797,18 @@ export default function App() {
           </button>
         </div>
       </div>
-    
+      
+    <div className="drawer-footer">
+  <div className="drawer-profile">
+    <div className="drawer-name">
+      Namn: {profile.name}
+    </div>
+    <div className="drawer-meta">
+      {profile.gender === "female" ? "Kvinna" : "Man"} •{" "}
+      {profile.height} cm • {profile.weight} kg • {profile.age} år
+    </div>
+  </div>
+</div>
       {/* MAIN */}
       <main className="main">
         <div className="main-header">
