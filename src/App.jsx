@@ -816,9 +816,9 @@ export default function App() {
               bossar, ger XP och bygger din PR-historia.
             </div>
           </div>
-        <button className="log-set-btn">
-  + Logga set
-</button>
+      <button className="btn-pink" onClick={() => setShowModal(true)}>
+            + Logga set
+          </button>
         </div>
 
         {/* DASHBOARD */}
