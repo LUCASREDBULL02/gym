@@ -213,7 +213,7 @@ body {
 }
 
 .btn-pink {
-  border-radius: 999px;
+  border-radius: 14px;
   border: none;
   background: linear-gradient(135deg, #ec4899, #f97316);
   color: white;
