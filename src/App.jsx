@@ -797,20 +797,6 @@ export default function App() {
           </button>
         </div>
       </div>
-      
-        <div style={{ marginTop: "auto", fontSize: 11, color: "#9ca3af" }}>
-         <div>Namn: {profile.name}</div>
-          <div>
-  {profile.gender === "female"
-    ? "Kvinna"
-    : profile.gender === "male"
-    ? "Man"
-    : "Annat"}
-  {" • "}
-  {profile.height} cm • {profile.weight} kg • {profile.age} år
-</div>
-        </div>
-      </aside>
     
       {/* MAIN */}
       <main className="main">
