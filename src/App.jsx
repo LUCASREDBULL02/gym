@@ -797,6 +797,16 @@ export default function App() {
           </button>
         </div>
       </div>
+      
+<div className="sidebar-footer">
+  <div className="sidebar-profile">
+    <div className="sidebar-name">Namn: {profile.name}</div>
+    <div className="sidebar-meta">
+      {profile.gender === "female" ? "Kvinna" : "Man"} •{" "}
+      {profile.height} cm • {profile.weight} kg • {profile.age} år
+    </div>
+  </div>
+</div>
 
       {/* MAIN */}
       <main className="main">
