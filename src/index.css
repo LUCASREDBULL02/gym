@@ -3301,3 +3301,34 @@ select {
     padding: 10px 16px;
     font-size: 13px;
   }
+/* =========================
+   SIDEBAR – PROFIL INFO
+========================= */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-profile {
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.4;
+}
+
+.sidebar-name {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.sidebar-meta {
+  font-size: 11px;
+  opacity: 0.75;
+}
